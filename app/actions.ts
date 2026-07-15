@@ -8,12 +8,14 @@
 
 import { revalidatePath } from "next/cache";
 import { LeadStatus, type RejectionReason } from "@/lib/domain/enums";
+import type { TriageConfig } from "@/lib/domain/config";
 import { recomputeTriage } from "@/lib/domain/lead";
 import type { Lead, LeadFactKey, TimelineEvent } from "@/lib/domain/types";
 import {
   addTimelineEvent,
   getConfig,
   getLead,
+  saveConfig,
   saveLead,
   updateLead,
 } from "@/lib/firebase/repo";
@@ -81,4 +83,12 @@ export async function updateFact(
   const regraded = recomputeTriage(patched, config, keepFlags);
   await saveLead(regraded);
   revalidateLead(leadId);
+}
+
+/** Save edited triage thresholds from the settings screen. */
+export async function saveConfigAction(config: TriageConfig): Promise<void> {
+  await saveConfig(config);
+  revalidatePath("/today");
+  revalidatePath("/leads");
+  revalidatePath("/settings");
 }
