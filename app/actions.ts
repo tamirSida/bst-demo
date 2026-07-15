@@ -50,19 +50,56 @@ export async function markInactive(leadId: string, reason: RejectionReason): Pro
 
 export type PromoteTarget = "planning" | "appraiser" | "questions";
 
+export interface ActionOutcome {
+  ok: boolean;
+  /** Hebrew, user-facing — shown under the action bar. */
+  message: string;
+}
+
 /** Move a lead forward in the pipeline (planning check / שמאי / more questions). */
-export async function promoteLead(leadId: string, target: PromoteTarget): Promise<void> {
+export async function promoteLead(leadId: string, target: PromoteTarget): Promise<ActionOutcome> {
   const now = new Date().toISOString();
+
   if (target === "planning") {
     await updateLead(leadId, { status: LeadStatus.PlanningCheck, sentToPlanningAt: now });
     await addTimelineEvent(timeline(leadId, "email_out", "הליד הועבר לבדיקה תכנונית"));
-  } else if (target === "appraiser") {
+    revalidateLead(leadId);
+    return { ok: true, message: "הליד הועבר לשלב הבדיקה התכנונית ונרשם ביומן הפעילות." };
+  }
+
+  if (target === "appraiser") {
     await updateLead(leadId, { status: LeadStatus.EconomicCheck, sentToEconomicsAt: now });
     await addTimelineEvent(timeline(leadId, "email_out", "הליד הועבר לבדיקת שמאי (בדיקה כלכלית)"));
-  } else {
-    await addTimelineEvent(timeline(leadId, "form_sent", "נשלחו שאלות השלמה נוספות לגורם הפונה"));
+    revalidateLead(leadId);
+    return { ok: true, message: "הליד הועבר לבדיקה כלכלית (שמאי) ונרשם ביומן הפעילות." };
   }
+
+  // "שלח שאלות" — regenerate the gap questions with AI and send a fresh form.
+  const { regenerateAndSendQuestions } = await import("@/lib/ingest/questions");
+  const res = await regenerateAndSendQuestions(leadId);
   revalidateLead(leadId);
+
+  switch (res.status) {
+    case "sent":
+      return {
+        ok: true,
+        message: `נשלח טופס עם ${res.questionCount} שאלות אל ${res.sentTo}.`,
+      };
+    case "simulated":
+      return {
+        ok: true,
+        message: `נוצר טופס עם ${res.questionCount} שאלות (מצב דמו — המייל לא נשלח בפועל).`,
+      };
+    case "no_questions":
+      return { ok: true, message: "אין שאלות פתוחות — כל המידע הדרוש כבר קיים." };
+    case "no_contact":
+      return {
+        ok: false,
+        message: "נוצר טופס, אך אין כתובת מייל לאיש הקשר. הוסיפו מייל בפרטי הליד ונסו שוב.",
+      };
+    default:
+      return { ok: false, message: "שליחת השאלות נכשלה. נסו שוב או בדקו את חיבור המייל." };
+  }
 }
 
 /** Inline-edit a single fact, then recompute flags + grade. */

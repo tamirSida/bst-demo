@@ -213,6 +213,8 @@ function buildFormEmail(lead: Lead, form: LeadForm, base?: string): OutboundEmai
     "",
     "הפרטים שכבר בידינו מופיעים בטופס לאישורכם — יש למלא רק את החסר.",
     "",
+    `[${lead.threadKey}]`,
+    "",
     "בברכה,",
     "צוות הפיתוח העסקי — קבוצת BST",
   ].join("\n");
@@ -221,7 +223,7 @@ function buildFormEmail(lead: Lead, form: LeadForm, base?: string): OutboundEmai
     id: makeToken(),
     leadId: lead.id,
     to: lead.contact?.email ?? "",
-    subject: `השלמת פרטים — ${lead.projectName}`,
+    subject: `השלמת פרטים — ${lead.projectName} [${lead.threadKey}]`,
     templateKey: "form_request",
     body,
     status: "simulated",

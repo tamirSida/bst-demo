@@ -9,6 +9,44 @@ export class SimulatedProvider implements EmailProvider {
   }
 }
 
+/**
+ * SAFETY LAYER 1 — redirect: while EMAIL_REDIRECT_TO is set, every outbound
+ * email is rerouted to that inbox instead of the real recipient, with a test
+ * banner naming the original address. Unset it only in production.
+ */
+export function applyRedirect(input: SendInput): SendInput {
+  const redirect = process.env.EMAIL_REDIRECT_TO;
+  if (!redirect) return input;
+  return {
+    ...input,
+    to: redirect,
+    subject: `[בדיקה] ${input.subject}`,
+    text: `*** מייל בדיקה — הנמען המקורי: ${input.to || "(ללא נמען)"} ***\n\n${input.text}`,
+  };
+}
+
+/**
+ * SAFETY LAYER 2 — hard allowlist, enforced in code AFTER the redirect.
+ * EMAIL_ALLOWED_RECIPIENTS semantics:
+ *   "*"                          → unrestricted (real production, explicit opt-in)
+ *   "a@b.com,@some-domain.com"  → only these addresses / domain suffixes
+ *   unset                        → only the EMAIL_REDIRECT_TO target (deny-by-default)
+ * A blocked recipient never reaches the provider — the send fails loudly.
+ */
+export function recipientAllowed(to: string): boolean {
+  const raw = process.env.EMAIL_ALLOWED_RECIPIENTS?.trim();
+  const target = to.trim().toLowerCase();
+
+  if (raw === "*") return true;
+  const entries = raw
+    ? raw.split(",").map((e) => e.trim().toLowerCase()).filter(Boolean)
+    : [process.env.EMAIL_REDIRECT_TO?.trim().toLowerCase() ?? ""].filter(Boolean);
+
+  return entries.some((entry) =>
+    entry.startsWith("@") ? target.endsWith(entry) : target === entry,
+  );
+}
+
 /** Live Resend provider. Sends from EMAIL_FROM (e.g. leads@bst-sub.domain). */
 export class ResendProvider implements EmailProvider {
   readonly name = "resend";
@@ -20,7 +58,16 @@ export class ResendProvider implements EmailProvider {
     this.from = from;
   }
 
-  async send(input: SendInput): Promise<SendResult> {
+  async send(rawInput: SendInput): Promise<SendResult> {
+    const input = applyRedirect(rawInput);
+    if (!input.to) return { id: null, status: "failed", error: "missing recipient" };
+    if (!recipientAllowed(input.to)) {
+      return {
+        id: null,
+        status: "failed",
+        error: `blocked by recipient allowlist: ${input.to}`,
+      };
+    }
     try {
       const res = await this.client.emails.send({
         from: this.from,

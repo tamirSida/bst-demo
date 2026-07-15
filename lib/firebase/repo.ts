@@ -194,12 +194,13 @@ export async function addTimelineEvent(evt: TimelineEvent): Promise<void> {
 }
 
 export async function listDocuments(leadId: string): Promise<LeadDocument[]> {
-  if (fromSeed()) return [];
+  if (fromSeed()) return devStore.documentsFor(leadId);
   const snap = await adminDb().collection(LEADS).doc(leadId).collection("documents").get();
   return snap.docs.map((d) => d.data() as LeadDocument);
 }
 
 export async function addDocument(doc: LeadDocument): Promise<void> {
+  if (fromSeed()) return devStore.addDocument(doc);
   await adminDb()
     .collection(LEADS)
     .doc(doc.leadId)

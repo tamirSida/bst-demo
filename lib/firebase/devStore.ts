@@ -10,7 +10,13 @@
 import "server-only";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
-import type { Lead, LeadForm, OutboundEmail, TimelineEvent } from "../domain/types";
+import type {
+  Lead,
+  LeadDocument,
+  LeadForm,
+  OutboundEmail,
+  TimelineEvent,
+} from "../domain/types";
 import type { TriageConfig } from "../domain/config";
 
 const FILE = resolve(process.cwd(), ".data", "dev-store.json");
@@ -19,11 +25,19 @@ interface DevStore {
   leads: Record<string, Lead>;
   forms: Record<string, LeadForm>;
   timeline: Record<string, TimelineEvent[]>;
+  documents: Record<string, LeadDocument[]>;
   outbound: OutboundEmail[];
   config: TriageConfig | null;
 }
 
-const EMPTY: DevStore = { leads: {}, forms: {}, timeline: {}, outbound: [], config: null };
+const EMPTY: DevStore = {
+  leads: {},
+  forms: {},
+  timeline: {},
+  documents: {},
+  outbound: [],
+  config: null,
+};
 
 function load(): DevStore {
   try {
@@ -65,6 +79,14 @@ export const devStore = {
   addTimeline(evt: TimelineEvent): void {
     const s = load();
     (s.timeline[evt.leadId] ??= []).unshift(evt);
+    save(s);
+  },
+  documentsFor(leadId: string): LeadDocument[] {
+    return load().documents[leadId] ?? [];
+  },
+  addDocument(doc: LeadDocument): void {
+    const s = load();
+    (s.documents[doc.leadId] ??= []).push(doc);
     save(s);
   },
   outbound(): OutboundEmail[] {
