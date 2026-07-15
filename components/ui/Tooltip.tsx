@@ -17,10 +17,12 @@ export function Tooltip({
   return (
     <span className={cn("relative inline-flex group", className)} tabIndex={0}>
       {children}
+      {/* Physical left-1/2 + -translate-x-1/2: direction-agnostic centering.
+          (Logical start-1/2 with a physical translate drifts a full width in RTL.) */}
       <span
         role="tooltip"
         className={cn(
-          "pointer-events-none absolute bottom-full start-1/2 -translate-x-1/2 mb-2 z-50",
+          "pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50",
           "w-max max-w-[16rem] rounded-md bg-ink-900 px-2.5 py-1.5 text-xs text-white text-center leading-snug",
           "opacity-0 translate-y-1 transition-all duration-100",
           "group-hover:opacity-100 group-hover:translate-y-0",
