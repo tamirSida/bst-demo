@@ -199,6 +199,9 @@ function QuestionField({
           <span className={cn("text-sm truncate", fileName ? "text-go-700" : "text-ink-500")}>
             {fileName ?? "העלאת קובץ"}
           </span>
+          {!fileName && (
+            <span className="ms-auto text-xs text-ink-400 whitespace-nowrap">PDF · עד 15MB</span>
+          )}
           <input
             type="file"
             className="hidden"

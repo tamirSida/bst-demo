@@ -78,6 +78,9 @@ export default async function PublicFormPage({
             <p className="flex items-center gap-2 text-sm font-bold text-ink-700 mb-3">
               <FontAwesomeIcon icon={faCircleInfo} className="text-brand-600" />
               מה שכבר ידוע לנו
+              <span className="ms-auto text-xs font-normal text-ink-400">
+                הפרטים חולצו מהפנייה שקיבלנו{lead.contact?.name ? ` מ${lead.contact.name}` : ""}
+              </span>
             </p>
             <dl className="grid grid-cols-2 gap-x-4 gap-y-2.5">
               {facts.map((f) => (

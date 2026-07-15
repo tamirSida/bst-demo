@@ -56,7 +56,7 @@ export function ExportCsvButton({ rows }: { rows: CsvRow[] }) {
 
   return (
     <Button variant="secondary" icon={faFileExcel} onClick={download}>
-      ייצוא לאקסל
+      ייצוא לאקסל (CSV)
     </Button>
   );
 }
