@@ -2,6 +2,9 @@ import type { ReactNode } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTowerObservation } from "@fortawesome/free-solid-svg-icons";
 import { MobileNav, SidebarNav } from "./SidebarNav";
+import { LogoutButton } from "./LogoutButton";
+import { requireAuth } from "@/lib/auth/session";
+import { isAuthDisabled } from "@/lib/auth/guard";
 
 /** Hebrew long date, e.g. "יום רביעי, 15 ביולי 2026". */
 function todayLabel(): string {
@@ -17,7 +20,10 @@ function todayLabel(): string {
  * The app shell: a fixed RTL sidebar on the right, a top bar with the brand +
  * date, and a calm canvas content area. Collapses to a horizontal nav on mobile.
  */
-export default function DashboardLayout({ children }: { children: ReactNode }) {
+export default async function DashboardLayout({ children }: { children: ReactNode }) {
+  const { email } = await requireAuth();
+  const authOn = !isAuthDisabled();
+
   return (
     <div className="min-h-screen flex bg-canvas">
       {/* Sidebar (right in RTL) */}
@@ -32,8 +38,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           </div>
         </div>
         <SidebarNav />
-        <div className="mt-auto p-4 text-xs text-ink-400">
-          התחדשות עירונית · פיתוח עסקי
+        <div className="mt-auto p-4 space-y-3">
+          {authOn && <LogoutButton email={email} />}
+          <p className="text-xs text-ink-400">התחדשות עירונית · פיתוח עסקי</p>
         </div>
       </aside>
 
