@@ -1,6 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCircleCheck,
+  faCircleInfo,
   faCircleQuestion,
   faCircleXmark,
   faWrench,
@@ -53,19 +54,21 @@ export function VerdictBanner({
         </div>
         {!compact && needsCure && (
           <div className="text-white/90 text-sm mt-0.5 font-medium">
-            יש לרפא דגלים לפני העברה לשמאי
+            יש לטפל בדגלים האדומים לפני העברה לשמאי
           </div>
         )}
       </div>
       {grade?.score != null && (
-        <Tooltip content="מדד פנימי משוקלל 0–100 המסכם כלכלה, תכנון, רצינות, אסטרטגיה ולוח זמנים">
+        <Tooltip content="ציון פנימי משוקלל מ-0 עד 100, המסכם כלכלה, תכנון, רצינות, אסטרטגיה ולוח זמנים. ניתן לכוונון במסך ההגדרות.">
           <span
             className={cn(
-              "inline-flex items-center gap-1 rounded-full bg-white/20 font-bold whitespace-nowrap",
-              compact ? "px-2 py-0.5 text-xs" : "px-3 py-1 text-sm",
+              "inline-flex items-center gap-1.5 rounded-full bg-white text-ink-900 font-bold whitespace-nowrap shadow-card",
+              compact ? "px-2.5 py-0.5 text-xs" : "px-3 py-1 text-sm",
             )}
           >
-            מדד <span className="ltr-nums">{grade.score}</span>
+            <span className="ltr-nums">{grade.score}</span>
+            <span className="font-medium text-ink-500">מתוך 100</span>
+            <FontAwesomeIcon icon={faCircleInfo} className="text-ink-400 text-xs" />
           </span>
         </Tooltip>
       )}

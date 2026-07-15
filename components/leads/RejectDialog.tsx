@@ -8,9 +8,9 @@ import { markInactive } from "@/app/actions";
 import { REJECTION_REASON_LABEL, RejectionReason } from "@/lib/domain/enums";
 
 /**
- * One-tap rejection. The grid of reason chips is the ONLY required input in the
- * whole app: tap a reason → the lead is archived with that coded reason (feeds
- * the archive flywheel). No free text, no confirmation friction.
+ * Rejection with a coded reason (feeds the archive flywheel). Two-step on
+ * purpose: pick a reason chip, then a distinct confirm button — this archives
+ * the lead, so a stray tap must never fire it.
  */
 export function RejectDialog({
   leadId,
@@ -28,38 +28,51 @@ export function RejectDialog({
 
   const reasons = Object.values(RejectionReason);
 
-  const submit = (reason: RejectionReason) => {
-    setChosen(reason);
+  const confirm = () => {
+    if (!chosen) return;
     startTransition(async () => {
-      await markInactive(leadId, reason);
+      await markInactive(leadId, chosen);
       onDone?.();
       onClose();
+      setChosen(null);
     });
   };
 
+  const close = () => {
+    if (pending) return;
+    setChosen(null);
+    onClose();
+  };
+
   return (
-    <Modal open={open} onClose={onClose} title="סימון הליד כלא פעיל" size="md">
+    <Modal open={open} onClose={close} title="סימון הליד כלא פעיל" size="md">
       <p className="text-ink-500 text-sm mb-4">
-        בחרו סיבה אחת. הליד יעבור לארכיון וישמש כזיכרון מוסדי לפניות עתידיות.
+        בחרו סיבה ואשרו. הליד יעבור לארכיון וישמש כזיכרון מוסדי לפניות עתידיות.
       </p>
       <div className="flex flex-wrap gap-2">
         {reasons.map((reason) => (
           <Chip
             key={reason}
             selected={chosen === reason}
-            onClick={() => !pending && submit(reason)}
+            onClick={() => !pending && setChosen(reason)}
           >
             {REJECTION_REASON_LABEL[reason]}
           </Chip>
         ))}
       </div>
-      {pending && (
-        <div className="mt-4 flex justify-start">
-          <Button variant="ghost" loading>
-            שומר…
-          </Button>
-        </div>
-      )}
+      <div className="mt-5 flex items-center gap-3">
+        <Button
+          variant="danger"
+          onClick={confirm}
+          disabled={!chosen || pending}
+          loading={pending}
+        >
+          {pending ? "שומר…" : "אישור — סמן כלא פעיל"}
+        </Button>
+        <Button variant="ghost" onClick={close} disabled={pending}>
+          ביטול
+        </Button>
+      </div>
     </Modal>
   );
 }

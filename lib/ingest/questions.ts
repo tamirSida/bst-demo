@@ -1,6 +1,7 @@
 import "server-only";
 import { analyzeGaps } from "../ai/gaps";
 import { LeadStatus } from "../domain/enums";
+import { displayName } from "../domain/lead";
 import type { LeadForm, OutboundEmail } from "../domain/types";
 import { emailProvider } from "../email/providers";
 import {
@@ -40,7 +41,7 @@ export async function regenerateAndSendQuestions(leadId: string): Promise<{
     id: id(),
     leadId: lead.id,
     token: id(),
-    title: `השלמת פרטים — ${lead.projectName}${lead.city ? `, ${lead.city}` : ""}`,
+    title: `השלמת פרטים — ${displayName(lead)}`,
     questions,
     answers: {},
     status: "sent",

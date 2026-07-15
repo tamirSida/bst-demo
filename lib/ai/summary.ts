@@ -35,5 +35,6 @@ export async function summarizeLead(lead: Lead): Promise<string> {
     jsonSchema: toJsonSchema(SummarySchema),
     maxTokens: 1024,
   });
-  return result.summary.trim();
+  // Normalize dotted dates (07.05.2026) to the app-wide slash format.
+  return result.summary.trim().replace(/(\d{1,2})\.(\d{1,2})\.(\d{4})/g, "$1/$2/$3");
 }

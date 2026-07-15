@@ -93,3 +93,14 @@ function cryptoId(): string {
   // Node 26 / modern browsers both expose crypto.randomUUID.
   return globalThis.crypto?.randomUUID?.() ?? `id_${Date.now()}_${Math.round(Math.random() * 1e9)}`;
 }
+
+/**
+ * "projectName, city" for display — without repeating the city when the project
+ * name already contains it (e.g. "מתחם הדרים 21-23 לוד" + "לוד").
+ */
+export function displayName(lead: Pick<Lead, "projectName" | "city">): string {
+  const name = lead.projectName.trim();
+  const city = lead.city?.trim();
+  if (!city || name.includes(city)) return name;
+  return `${name}, ${city}`;
+}

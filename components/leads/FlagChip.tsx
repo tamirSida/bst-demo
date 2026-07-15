@@ -60,7 +60,12 @@ export function FlagChip({ flag }: { flag: Flag }) {
             className={cn("text-base", TONE_TEXT[tone])}
           />
           <span className="font-bold text-ink-900">{flag.title}</span>
-          <span className={cn("me-auto text-xs font-semibold", TONE_TEXT[tone])}>
+          <span
+            className={cn(
+              "me-auto inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold",
+              TONE_SOFT[tone],
+            )}
+          >
             {FLAG_SEVERITY_LABEL[flag.severity]}
           </span>
         </div>
@@ -79,7 +84,7 @@ export function FlagChip({ flag }: { flag: Flag }) {
           <div className="rounded-md bg-warn-50 border border-warn-100 p-2.5">
             <p className="flex items-center gap-1.5 text-xs font-semibold text-warn-700 mb-0.5">
               <FontAwesomeIcon icon={faLightbulb} />
-              דרך לריפוי
+              מה אפשר לעשות
             </p>
             <p className="text-sm text-warn-700 leading-relaxed">{flag.cure}</p>
           </div>

@@ -17,6 +17,11 @@ export function MissingChecklist({ form }: { form: LeadForm }) {
   const total = form.questions.length;
   const done = form.questions.filter((q) => answered(form, q.key)).length;
 
+  // The actual gaps come first (amber, prominent); completed items collapse
+  // into a muted "done" block underneath.
+  const missing = form.questions.filter((q) => !answered(form, q.key));
+  const completed = form.questions.filter((q) => answered(form, q.key));
+
   return (
     <div>
       <div className="flex items-center justify-between mb-2">
@@ -25,22 +30,27 @@ export function MissingChecklist({ form }: { form: LeadForm }) {
           {done}/{total}
         </span>
       </div>
+      {missing.length === 0 && (
+        <p className="text-sm text-go-700 font-medium">כל הפרטים התקבלו — אין חוסרים.</p>
+      )}
       <ul className="space-y-1">
-        {form.questions.map((q) => {
-          const ok = answered(form, q.key);
-          return (
-            <li key={q.key} className="flex items-center gap-2 text-sm">
-              <FontAwesomeIcon
-                icon={ok ? faSquareCheck : faSquare}
-                className={ok ? "text-go-600" : "text-ink-400"}
-              />
-              <span className={cn(ok ? "text-ink-400 line-through" : "text-ink-700")}>
-                {q.label}
-              </span>
-            </li>
-          );
-        })}
+        {missing.map((q) => (
+          <li key={q.key} className="flex items-center gap-2 text-sm">
+            <FontAwesomeIcon icon={faSquare} className="text-warn-500" />
+            <span className="text-ink-900 font-medium">{q.label}</span>
+          </li>
+        ))}
       </ul>
+      {completed.length > 0 && (
+        <ul className={cn("space-y-1", missing.length > 0 && "mt-2 pt-2 border-t border-line")}>
+          {completed.map((q) => (
+            <li key={q.key} className="flex items-center gap-2 text-sm">
+              <FontAwesomeIcon icon={faSquareCheck} className="text-go-600" />
+              <span className="text-ink-400 line-through">{q.label}</span>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

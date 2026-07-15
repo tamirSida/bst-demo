@@ -48,6 +48,13 @@ export async function markInactive(leadId: string, reason: RejectionReason): Pro
   revalidateLead(leadId);
 }
 
+/** Restore a closed lead back into active handling. */
+export async function reopenLead(leadId: string): Promise<void> {
+  await updateLead(leadId, { status: LeadStatus.Triage, rejectionReason: null });
+  await addTimelineEvent(timeline(leadId, "stage_change", "הליד הוחזר לטיפול פעיל"));
+  revalidateLead(leadId);
+}
+
 export type PromoteTarget = "planning" | "appraiser" | "questions";
 
 export interface ActionOutcome {
@@ -113,7 +120,12 @@ export async function updateFact(
   const config = await getConfig();
 
   const patched: Lead = { ...lead };
-  (patched as unknown as Record<string, unknown>)[field] = value;
+  // gushHelka is stored as a list; the inline editor sends a comma-separated string.
+  const coerced =
+    field === "gushHelka" && typeof value === "string"
+      ? value.split(",").map((s) => s.trim()).filter(Boolean)
+      : value;
+  (patched as unknown as Record<string, unknown>)[field] = coerced;
   patched.provenance = { ...lead.provenance, [field]: { origin: "manual", label: "עריכה ידנית" } };
 
   const keepFlags = lead.flags.filter((f) => f.id === "duplicate_lead");

@@ -66,9 +66,7 @@ export default async function PublicFormPage({
           </span>
           <div>
             <p className="text-xs text-brand-100 font-semibold">מגדלור · BST</p>
-            <h1 className="text-lg font-extrabold leading-tight">
-              השלמת פרטים — {form.title}
-            </h1>
+            <h1 className="text-lg font-extrabold leading-tight">{form.title}</h1>
           </div>
         </div>
       </header>

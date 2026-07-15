@@ -8,7 +8,7 @@
 
 import { DealType, type FeeStructure, FlagSeverity, LeadStatus, PlanStatus } from "../domain/enums";
 import type { TriageConfig } from "../domain/config";
-import { createLead, nextThreadKey, recomputeTriage } from "../domain/lead";
+import { createLead, displayName, nextThreadKey, recomputeTriage } from "../domain/lead";
 import type {
   Flag,
   Lead,
@@ -128,7 +128,11 @@ export async function assembleFromExtraction(
       subject: email.subject,
     }),
   ];
+  // Log doc-received events only for attachments that are actually stored as
+  // documents (email.documents), so the timeline count matches the panel.
+  const storedNames = new Set(email.documents.map((d) => d.filename));
   for (const doc of extraction.documents) {
+    if (!storedNames.has(doc.fileName)) continue;
     timeline.push(event(lead.id, "doc_received", `התקבל מסמך: ${doc.fileName}`, { type: doc.type }));
   }
 
@@ -147,7 +151,7 @@ export async function assembleFromExtraction(
         id: makeToken(),
         leadId: lead.id,
         token,
-        title: `השלמת פרטים — ${lead.projectName}${lead.city ? `, ${lead.city}` : ""}`,
+        title: `השלמת פרטים — ${displayName(lead)}`,
         questions,
         answers: {},
         status: "sent",

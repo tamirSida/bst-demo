@@ -13,10 +13,11 @@ import {
   faSpinner,
 } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "@/components/ui/Button";
+import { Modal } from "@/components/ui/Modal";
 import { cn } from "@/lib/cn";
 import { RejectDialog } from "./RejectDialog";
 import { AppraiserPackModal, type PackItem } from "./AppraiserPackModal";
-import { promoteLead, type ActionOutcome } from "@/app/actions";
+import { promoteLead, reopenLead, type ActionOutcome } from "@/app/actions";
 
 /**
  * The four decision buttons — ALWAYS in the same right-to-left order so muscle
@@ -28,10 +29,16 @@ export function ActionBar({
   leadId,
   packItems,
   compact = false,
+  closed = false,
+  contactEmail = null,
 }: {
   leadId: string;
   packItems: PackItem[];
   compact?: boolean;
+  /** When the lead is archived, the four actions are replaced by a restore. */
+  closed?: boolean;
+  /** Who the questions email will go to (shown in the confirm step). */
+  contactEmail?: string | null;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -39,8 +46,32 @@ export function ActionBar({
   const [outcome, setOutcome] = useState<ActionOutcome | null>(null);
   const [showReject, setShowReject] = useState(false);
   const [showPack, setShowPack] = useState(false);
+  const [confirmTarget, setConfirmTarget] = useState<"planning" | "questions" | null>(null);
 
   const size = compact ? "sm" : "md";
+
+  if (closed) {
+    return (
+      <div className="flex flex-wrap items-center gap-3">
+        <p className="text-sm text-ink-500">
+          הליד נמצא בארכיון — הפעולות אינן זמינות עבור ליד לא פעיל.
+        </p>
+        <Button
+          variant="secondary"
+          size={size}
+          loading={pending}
+          onClick={() =>
+            startTransition(async () => {
+              await reopenLead(leadId);
+              router.refresh();
+            })
+          }
+        >
+          החזר ליד לטיפול
+        </Button>
+      </div>
+    );
+  }
 
   const promote = (target: "planning" | "questions") => {
     setBusyTarget(target);
@@ -77,7 +108,7 @@ export function ActionBar({
           variant="secondary"
           size={size}
           icon={planningBusy ? undefined : faBuildingColumns}
-          onClick={() => promote("planning")}
+          onClick={() => setConfirmTarget("planning")}
           disabled={pending}
         >
           {planningBusy ? (
@@ -93,7 +124,7 @@ export function ActionBar({
           variant="secondary"
           size={size}
           icon={questionsBusy ? undefined : faPaperPlane}
-          onClick={() => promote("questions")}
+          onClick={() => setConfirmTarget("questions")}
           disabled={pending}
         >
           {questionsBusy ? (
@@ -136,6 +167,34 @@ export function ActionBar({
           <span>{outcome.message}</span>
         </p>
       )}
+
+      <Modal
+        open={confirmTarget !== null}
+        onClose={() => setConfirmTarget(null)}
+        title={confirmTarget === "questions" ? "שליחת שאלות השלמה" : "העברה לבדיקה תכנונית"}
+        size="sm"
+      >
+        <p className="text-sm text-ink-700 leading-relaxed">
+          {confirmTarget === "questions"
+            ? `המערכת תבדוק מה עדיין חסר בליד, תנסח שאלות מותאמות ותשלח טופס למילוי במייל אל ${contactEmail ?? "איש הקשר של הליד"}.`
+            : "הליד יסומן כנמצא בבדיקה תכנונית, ותאריך ההעברה יירשם ביומן הפעילות."}
+        </p>
+        <div className="mt-5 flex items-center gap-3">
+          <Button
+            variant="primary"
+            onClick={() => {
+              const t = confirmTarget;
+              setConfirmTarget(null);
+              if (t) promote(t);
+            }}
+          >
+            {confirmTarget === "questions" ? "אישור ושליחה" : "אישור והעברה"}
+          </Button>
+          <Button variant="ghost" onClick={() => setConfirmTarget(null)}>
+            ביטול
+          </Button>
+        </div>
+      </Modal>
 
       <AppraiserPackModal
         leadId={leadId}

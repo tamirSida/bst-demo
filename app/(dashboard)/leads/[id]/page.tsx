@@ -2,11 +2,13 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
+  faBoxArchive,
   faChevronRight,
   faClockRotateLeft,
   faLocationDot,
   faPaperclip,
 } from "@fortawesome/free-solid-svg-icons";
+import { LeadStatus, REJECTION_REASON_LABEL } from "@/lib/domain/enums";
 import {
   getForm,
   getLead,
@@ -52,12 +54,9 @@ export default async function LeadDetailPage({
         חזרה לרשימת הלידים
       </Link>
 
-      <PageHeader
-        title={lead.projectName}
-        action={<CountdownChip deadlineIso={lead.submissionDeadline} />}
-      />
+      <PageHeader title={lead.projectName} />
 
-      {/* Header meta row */}
+      {/* Header meta row — the deadline chip lives here, attached to the title */}
       <div className="flex flex-wrap items-center gap-2.5 -mt-2">
         {lead.city && (
           <span className="inline-flex items-center gap-1.5 text-ink-500 text-sm">
@@ -68,7 +67,22 @@ export default async function LeadDetailPage({
         )}
         <DealTypeChip dealType={lead.dealType} />
         <StatusChip status={lead.status} />
+        <CountdownChip deadlineIso={lead.submissionDeadline} />
       </div>
+
+      {/* Archived banner — a closed lead must not look like a live one */}
+      {lead.status === LeadStatus.Closed && (
+        <div className="flex flex-wrap items-center gap-2 rounded-lg bg-surface-muted border border-line px-4 py-3 text-sm text-ink-700">
+          <FontAwesomeIcon icon={faBoxArchive} className="text-ink-400" />
+          <span className="font-semibold">הליד נמצא בארכיון</span>
+          {lead.rejectionReason && (
+            <span className="text-ink-500">
+              — סיבת הסגירה: {REJECTION_REASON_LABEL[lead.rejectionReason]}
+            </span>
+          )}
+          <span className="text-ink-400">ניתן להחזירו לטיפול מכפתור השחזור בכרטיס ההחלטה.</span>
+        </div>
+      )}
 
       {/* Two-column layout: right = decision + facts, left = activity */}
       <div className="grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">

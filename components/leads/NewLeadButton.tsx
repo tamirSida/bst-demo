@@ -87,9 +87,14 @@ export function NewLeadButton() {
           </div>
         ) : (
           <>
-            <p className="text-ink-500 text-sm mb-4">
+            <p className="text-ink-500 text-sm mb-2">
               בחרו קובץ מייל בפורמט <span className="ltr-nums">.eml</span>. המערכת תחלץ את הנתונים
               ותפיק סינון אוטומטי.
+            </p>
+            <p className="text-ink-400 text-xs mb-4 leading-relaxed">
+              איך משיגים קובץ כזה? ב-Outlook: גוררים את המייל מהרשימה אל שולחן העבודה.
+              ב-Gmail: פותחים את המייל ← שלוש נקודות ← «הורדת ההודעה».
+              והכי פשוט — אפשר גם להעביר את המייל ישירות לכתובת המערכת.
             </p>
             <button
               type="button"

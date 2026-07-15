@@ -28,8 +28,12 @@ import { REGION_LABEL, Region, type TriageConfig } from "@/lib/domain/config";
  */
 export function SettingsForm({ initial }: { initial: TriageConfig }) {
   const [config, setConfig] = useState<TriageConfig>(initial);
+  const [baseline, setBaseline] = useState<string>(() => JSON.stringify(initial));
   const [pending, startTransition] = useTransition();
   const [saved, setSaved] = useState(false);
+
+  // The save bar only appears once something actually changed.
+  const dirty = JSON.stringify(config) !== baseline;
 
   // Typed patch helper.
   const set = <K extends keyof TriageConfig>(key: K, value: TriageConfig[K]) => {
@@ -40,6 +44,7 @@ export function SettingsForm({ initial }: { initial: TriageConfig }) {
   const save = () =>
     startTransition(async () => {
       await saveConfigAction(config);
+      setBaseline(JSON.stringify(config));
       setSaved(true);
     });
 
@@ -130,7 +135,7 @@ export function SettingsForm({ initial }: { initial: TriageConfig }) {
       <Section title="מועדי הגשה" icon={faClock}>
         <NumField
           label="מועד לא ריאלי — עד ימי עבודה"
-          help="מתחת למספר זה — מועד ההגשה בלתי אפשרי (דגל אדום הניתן לריפוי)."
+          help="מתחת למספר זה — מועד ההגשה בלתי אפשרי (דגל אדום; ניתן לבקש דחייה)."
           value={config.deadlineImpossibleDays}
           onChange={(v) => set("deadlineImpossibleDays", v)}
         />
@@ -178,7 +183,7 @@ export function SettingsForm({ initial }: { initial: TriageConfig }) {
       {/* Score weights */}
       <Section title="משקלי ציון" icon={faSliders}>
         <p className="sm:col-span-2 text-sm text-ink-400 -mt-1 mb-1">
-          משקל כל מדד בציון המשוקלל הסופי (סכום רצוי: 1).
+          משקל כל מדד בציון המשוקלל הסופי (סכום רצוי: 100%).
         </p>
         <PctField
           label="כלכלה"
@@ -224,13 +229,13 @@ export function SettingsForm({ initial }: { initial: TriageConfig }) {
       {/* City lists */}
       <Section title="רשימות ערים" icon={faCity} grid={false}>
         <div className="space-y-4">
-          <Field label="ערי יעד (Whitelist)" help="ערים שבהן BST מעוניינת לפעול.">
+          <Field label="ערי יעד" help="ערים שבהן BST מעוניינת לפעול.">
             <TagInput
               values={config.cityWhitelist}
               onChange={(v) => set("cityWhitelist", v)}
             />
           </Field>
-          <Field label="ערים חסומות (Blacklist)" help="ערים שבהן איננו פועלים.">
+          <Field label="ערים חסומות" help="ערים שבהן איננו פועלים.">
             <TagInput
               values={config.cityBlacklist}
               onChange={(v) => set("cityBlacklist", v)}
@@ -257,24 +262,28 @@ export function SettingsForm({ initial }: { initial: TriageConfig }) {
         </div>
       </Section>
 
-      {/* Sticky save bar */}
-      <div className="fixed bottom-0 inset-x-0 lg:inset-x-auto lg:end-8 lg:bottom-6 z-30">
-        <div className="bg-surface border-t lg:border border-line lg:rounded-xl shadow-pop px-5 py-3 flex items-center justify-between gap-4 lg:gap-6">
-          <span className="text-sm text-ink-500">
-            {saved ? (
-              <span className="inline-flex items-center gap-1.5 text-go-700 font-semibold">
-                <FontAwesomeIcon icon={faCircleCheck} />
-                ההגדרות נשמרו
-              </span>
-            ) : (
-              "שינויים שבוצעו יחולו על סינון הלידים"
+      {/* Sticky save bar — only when there is something to save (or just saved) */}
+      {(dirty || saved) && (
+        <div className="fixed bottom-0 inset-x-0 lg:inset-x-auto lg:end-8 lg:bottom-6 z-30">
+          <div className="bg-surface border-t lg:border border-line lg:rounded-xl shadow-pop px-5 py-3 flex items-center justify-between gap-4 lg:gap-6">
+            <span className="text-sm text-ink-500">
+              {saved && !dirty ? (
+                <span className="inline-flex items-center gap-1.5 text-go-700 font-semibold">
+                  <FontAwesomeIcon icon={faCircleCheck} />
+                  ההגדרות נשמרו
+                </span>
+              ) : (
+                "יש שינויים שטרם נשמרו — הם יחולו על סינון הלידים"
+              )}
+            </span>
+            {dirty && (
+              <Button variant="primary" icon={faFloppyDisk} loading={pending} onClick={save}>
+                שמירה
+              </Button>
             )}
-          </span>
-          <Button variant="primary" icon={faFloppyDisk} loading={pending} onClick={save}>
-            שמירה
-          </Button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
@@ -343,7 +352,7 @@ function PctField({
 }) {
   return (
     <Field label={label} help={help}>
-      <div className="relative">
+      <div className="relative" dir="ltr">
         <Input
           type="number"
           step={1}

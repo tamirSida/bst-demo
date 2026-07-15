@@ -10,6 +10,7 @@ import { FlagChips } from "./FlagChip";
 import { SourceMemoryBanner } from "./SourceMemoryBanner";
 import { MissingChecklist } from "./MissingChecklist";
 import { ActionBar } from "./ActionBar";
+import { LeadStatus } from "@/lib/domain/enums";
 import { DealTypeChip } from "./LeadBadges";
 import { cn } from "@/lib/cn";
 
@@ -79,7 +80,13 @@ export function DecisionCard({
         {!compact && form && <MissingChecklist form={form} />}
 
         <div className={cn(!compact && "pt-1")}>
-          <ActionBar leadId={lead.id} packItems={packItems} compact={compact} />
+          <ActionBar
+            leadId={lead.id}
+            packItems={packItems}
+            compact={compact}
+            closed={lead.status === LeadStatus.Closed}
+            contactEmail={lead.contact?.email ?? null}
+          />
         </div>
       </div>
     </Card>

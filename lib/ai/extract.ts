@@ -84,11 +84,15 @@ export async function extractLead(email: ParsedEmail): Promise<ExtractionResult>
     maxTokens: 4096,
   });
 
-  // Documents are classified from filenames, not by the model.
-  const documents = [...email.documents, ...email.otherAttachments].map((a) => ({
-    fileName: a.filename,
-    type: classifyDoc(a.filename),
-  }));
+  // Documents are classified from filenames, not by the model. Only real
+  // documents count — inline images (signatures, logos) are noise and must not
+  // flood the timeline/documents panel.
+  const isNoise = (name: string, mime: string) =>
+    /image\//i.test(mime) || /\.(png|jpe?g|gif|bmp|webp)$/i.test(name);
+  const documents = [
+    ...email.documents,
+    ...email.otherAttachments.filter((a) => !isNoise(a.filename, a.contentType)),
+  ].map((a) => ({ fileName: a.filename, type: classifyDoc(a.filename) }));
 
   return normalizeExtraction(raw, documents);
 }

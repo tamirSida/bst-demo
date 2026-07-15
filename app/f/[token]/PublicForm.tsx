@@ -32,7 +32,7 @@ export function PublicForm({ form, token }: { form: LeadForm; token: string }) {
   const [values, setValues] = useState<Record<string, Value>>(() =>
     Object.fromEntries(form.questions.map((q) => [q.key, initialValue(q)])),
   );
-  const [files, setFiles] = useState<Record<string, string>>({});
+  const [files, setFiles] = useState<Record<string, File>>({});
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(form.status === "submitted");
   const [error, setError] = useState<string | null>(null);
@@ -62,21 +62,17 @@ export function PublicForm({ form, token }: { form: LeadForm; token: string }) {
       const answers: LeadForm["answers"] = {};
       for (const q of form.questions) {
         if (q.kind === "file") {
-          if (files[q.key]) {
-            answers[q.key] = {
-              value: files[q.key],
-              files: [{ fileName: files[q.key], storagePath: files[q.key] }],
-            };
-          }
+          const f = files[q.key];
+          if (f) answers[q.key] = { value: f.name };
         } else {
           answers[q.key] = { value: values[q.key] };
         }
       }
-      const res = await fetch(`/api/forms/${token}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ answers }),
-      });
+      // Multipart: answers as JSON + each real file keyed by its question.
+      const fd = new FormData();
+      fd.append("answers", JSON.stringify(answers));
+      for (const [key, f] of Object.entries(files)) fd.append(`file:${key}`, f, f.name);
+      const res = await fetch(`/api/forms/${token}`, { method: "POST", body: fd });
       if (!res.ok) throw new Error("השליחה נכשלה, נסו שוב.");
       setDone(true);
     } catch (err) {
@@ -105,9 +101,9 @@ export function PublicForm({ form, token }: { form: LeadForm; token: string }) {
           key={q.key}
           q={q}
           value={values[q.key]}
-          fileName={files[q.key]}
+          fileName={files[q.key]?.name}
           onValue={(v) => setValue(q.key, v)}
-          onFile={(name) => setFiles((s) => ({ ...s, [q.key]: name }))}
+          onFile={(file) => setFiles((s) => ({ ...s, [q.key]: file }))}
         />
       ))}
 
@@ -148,7 +144,7 @@ function QuestionField({
   value: Value;
   fileName?: string;
   onValue: (v: Value) => void;
-  onFile: (name: string) => void;
+  onFile: (file: File) => void;
 }) {
   const suffix = q.unit ? `${q.label} (${q.unit})` : q.label;
 
@@ -208,7 +204,7 @@ function QuestionField({
             className="hidden"
             onChange={(e) => {
               const f = e.target.files?.[0];
-              if (f) onFile(f.name);
+              if (f) onFile(f);
             }}
           />
         </label>
@@ -226,7 +222,11 @@ function QuestionField({
 
   return (
     <Field label={suffix} help={q.help} required={q.required}>
-      <div className="relative">
+      {/* dir=ltr on the wrapper so the suffix's end-3 lands opposite the digits */}
+      <div
+        className="relative"
+        dir={inputType === "number" || inputType === "date" ? "ltr" : "rtl"}
+      >
         <Input
           type={inputType}
           value={String(value ?? "")}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
@@ -43,6 +44,7 @@ const TONE_TEXT: Record<Tone, string> = {
 };
 
 export function LeadTable({ rows }: { rows: LeadTableRow[] }) {
+  const router = useRouter();
   const [shown, setShown] = useState(PAGE);
 
   if (!rows.length) {
@@ -78,6 +80,7 @@ export function LeadTable({ rows }: { rows: LeadTableRow[] }) {
             {visible.map((r) => (
               <tr
                 key={r.id}
+                onClick={() => router.push(`/leads/${r.id}`)}
                 className={cn(
                   "group border-t border-line transition-colors cursor-pointer",
                   r.alarm ? "bg-stop-50/40 hover:bg-stop-50" : "hover:bg-surface-muted/60",
@@ -91,7 +94,9 @@ export function LeadTable({ rows }: { rows: LeadTableRow[] }) {
                 <td className="px-4 py-3 text-ink-700">{r.city}</td>
                 <td className="px-4 py-3 text-ink-700 whitespace-nowrap">{r.dealType}</td>
                 <td className="px-4 py-3">
-                  <span className={cn("font-semibold", TONE_TEXT[r.statusTone])}>{r.status}</span>
+                  <Badge tone={r.statusTone} size="sm">
+                    {r.status}
+                  </Badge>
                 </td>
                 <td className="px-4 py-3 text-ink-700 ltr-nums">{r.unitsExisting}</td>
                 <td className="px-4 py-3 text-ink-700 ltr-nums">{r.unitsPlanned}</td>

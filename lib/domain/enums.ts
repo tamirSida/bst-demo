@@ -153,7 +153,7 @@ export const VERDICT_LABEL: Record<Verdict, string> = {
   [Verdict.Review]: "להחלטת הנהלה",
   [Verdict.Reject]: "מומלץ לדחות",
   [Verdict.Killed]: "נפסל",
-  [Verdict.Curable]: "ניתן לריפוי",
+  [Verdict.Curable]: "דורש טיפול",
 };
 
 /* ------------------------------------------------------------------ */

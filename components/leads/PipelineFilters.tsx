@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState, useTransition } from "react";
+import { useCallback, useRef, useState, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
@@ -20,6 +20,7 @@ export function PipelineFilters({ cities }: { cities: string[] }) {
   const params = useSearchParams();
   const [, startTransition] = useTransition();
   const [search, setSearch] = useState(params.get("search") ?? "");
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const dealType = params.get("dealType") ?? "";
   const city = params.get("city") ?? "";
@@ -58,7 +59,12 @@ export function PipelineFilters({ cities }: { cities: string[] }) {
         />
         <input
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => {
+            const v = e.target.value;
+            setSearch(v);
+            if (debounceRef.current) clearTimeout(debounceRef.current);
+            debounceRef.current = setTimeout(() => update({ search: v }), 350);
+          }}
           onBlur={() => update({ search })}
           placeholder="חיפוש לפי פרויקט, עיר, כתובת או איש קשר…"
           className={cn(
