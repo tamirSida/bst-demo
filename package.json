@@ -9,7 +9,7 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "import:excel": "tsx scripts/import-excel.ts",
+    "import:excel": "python3 scripts/import_excel.py",
     "seed": "tsx scripts/seed.ts"
   },
   "dependencies": {
