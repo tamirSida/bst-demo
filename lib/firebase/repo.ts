@@ -8,7 +8,18 @@
  */
 
 import "server-only";
-import { adminDb } from "./admin";
+import { adminDb, isAdminConfigured } from "./admin";
+import {
+  seedAddTimeline,
+  seedFormByToken,
+  seedFormForLead,
+  seedLead,
+  seedLeads,
+  seedOutbound,
+  seedSaveForm,
+  seedSaveLead,
+  seedTimeline,
+} from "./seedSource";
 import { DEFAULT_CONFIG, type TriageConfig } from "../domain/config";
 import { LeadStatus, REJECTION_REASON_LABEL } from "../domain/enums";
 import { recomputeTriage } from "../domain/lead";
@@ -20,6 +31,9 @@ import type {
   TimelineEvent,
 } from "../domain/types";
 import type { DuplicateHit } from "../ai/pipeline";
+
+/** True when we should read from the seed JSON instead of Firestore. */
+const useSeed = () => !isAdminConfigured();
 
 const LEADS = "leads";
 const FORMS = "forms";
@@ -41,13 +55,20 @@ function clean<T>(value: T): T {
 
 /* ------------------------------- config --------------------------------- */
 
+let seedConfigOverride: TriageConfig | null = null;
+
 export async function getConfig(): Promise<TriageConfig> {
+  if (useSeed()) return seedConfigOverride ?? DEFAULT_CONFIG;
   const snap = await adminDb().doc(CONFIG_DOC).get();
   if (!snap.exists) return DEFAULT_CONFIG;
   return { ...DEFAULT_CONFIG, ...(snap.data() as Partial<TriageConfig>) };
 }
 
 export async function saveConfig(config: TriageConfig): Promise<void> {
+  if (useSeed()) {
+    seedConfigOverride = config;
+    return;
+  }
   await adminDb().doc(CONFIG_DOC).set(clean(config));
 }
 
@@ -64,8 +85,13 @@ export interface LeadFilter {
 const isActive = (l: Lead) => l.status !== LeadStatus.Closed;
 
 export async function listLeads(filter: LeadFilter = {}): Promise<Lead[]> {
-  const snap = await adminDb().collection(LEADS).get();
-  let leads = snap.docs.map((d) => d.data() as Lead);
+  let leads: Lead[];
+  if (useSeed()) {
+    leads = seedLeads();
+  } else {
+    const snap = await adminDb().collection(LEADS).get();
+    leads = snap.docs.map((d) => d.data() as Lead);
+  }
 
   if (filter.activeOnly) leads = leads.filter(isActive);
   if (filter.dealType) leads = leads.filter((l) => l.dealType === filter.dealType);
@@ -83,11 +109,13 @@ export async function listLeads(filter: LeadFilter = {}): Promise<Lead[]> {
 }
 
 export async function getLead(id: string): Promise<Lead | null> {
+  if (useSeed()) return seedLead(id);
   const snap = await adminDb().collection(LEADS).doc(id).get();
   return snap.exists ? (snap.data() as Lead) : null;
 }
 
 export async function saveLead(lead: Lead): Promise<void> {
+  if (useSeed()) return seedSaveLead(lead);
   await adminDb().collection(LEADS).doc(lead.id).set(clean(lead));
 }
 
@@ -105,6 +133,11 @@ export async function saveLeadsBatch(leads: Lead[]): Promise<void> {
 }
 
 export async function updateLead(id: string, patch: Partial<Lead>): Promise<void> {
+  if (useSeed()) {
+    const cur = seedLead(id);
+    if (cur) seedSaveLead({ ...cur, ...patch, updatedAt: new Date().toISOString() });
+    return;
+  }
   await adminDb()
     .collection(LEADS)
     .doc(id)
@@ -146,6 +179,7 @@ export async function findDuplicate(lead: Lead): Promise<DuplicateHit | null> {
 /* ------------------------- timeline & documents ------------------------- */
 
 export async function listTimeline(leadId: string): Promise<TimelineEvent[]> {
+  if (useSeed()) return seedTimeline(leadId);
   const snap = await adminDb().collection(LEADS).doc(leadId).collection("timeline").get();
   return snap.docs
     .map((d) => d.data() as TimelineEvent)
@@ -153,6 +187,7 @@ export async function listTimeline(leadId: string): Promise<TimelineEvent[]> {
 }
 
 export async function addTimelineEvent(evt: TimelineEvent): Promise<void> {
+  if (useSeed()) return seedAddTimeline(evt);
   await adminDb()
     .collection(LEADS)
     .doc(evt.leadId)
@@ -162,6 +197,7 @@ export async function addTimelineEvent(evt: TimelineEvent): Promise<void> {
 }
 
 export async function listDocuments(leadId: string): Promise<LeadDocument[]> {
+  if (useSeed()) return [];
   const snap = await adminDb().collection(LEADS).doc(leadId).collection("documents").get();
   return snap.docs.map((d) => d.data() as LeadDocument);
 }
@@ -178,12 +214,14 @@ export async function addDocument(doc: LeadDocument): Promise<void> {
 /* --------------------------------- forms -------------------------------- */
 
 export async function saveForm(form: LeadForm): Promise<void> {
+  if (useSeed()) return seedSaveForm(form);
   await adminDb().collection(FORMS).doc(form.id).set(clean(form));
 }
 
 export async function getFormByToken(
   token: string,
 ): Promise<{ form: LeadForm; lead: Lead } | null> {
+  if (useSeed()) return seedFormByToken(token);
   const snap = await adminDb().collection(FORMS).where("token", "==", token).limit(1).get();
   if (snap.empty) return null;
   const form = snap.docs[0].data() as LeadForm;
@@ -193,18 +231,18 @@ export async function getFormByToken(
 }
 
 export async function markFormOpened(token: string): Promise<void> {
-  const snap = await adminDb().collection(FORMS).where("token", "==", token).limit(1).get();
-  if (snap.empty) return;
-  const form = snap.docs[0].data() as LeadForm;
-  if (form.status === "sent") {
-    await snap.docs[0].ref.set(
-      clean({ status: "opened", openedAt: new Date().toISOString() }),
-      { merge: true },
-    );
-  }
+  const found = await getFormByToken(token);
+  if (!found || found.form.status !== "sent") return;
+  const updated: LeadForm = {
+    ...found.form,
+    status: "opened",
+    openedAt: new Date().toISOString(),
+  };
+  await saveForm(updated);
 }
 
 export async function getForm(leadId: string): Promise<LeadForm | null> {
+  if (useSeed()) return seedFormForLead(leadId);
   const snap = await adminDb()
     .collection(FORMS)
     .where("leadId", "==", leadId)
@@ -220,8 +258,13 @@ export async function logOutbound(email: OutboundEmail): Promise<void> {
 }
 
 export async function listOutbound(sinceIso?: string): Promise<OutboundEmail[]> {
-  const snap = await adminDb().collection(OUTBOUND).get();
-  let out = snap.docs.map((d) => d.data() as OutboundEmail);
+  let out: OutboundEmail[];
+  if (useSeed()) {
+    out = seedOutbound();
+  } else {
+    const snap = await adminDb().collection(OUTBOUND).get();
+    out = snap.docs.map((d) => d.data() as OutboundEmail);
+  }
   if (sinceIso) out = out.filter((e) => e.at >= sinceIso);
   return out.sort((a, b) => (b.at ?? "").localeCompare(a.at ?? ""));
 }
@@ -307,11 +350,11 @@ async function snapshotFormSubmitted(
   form: LeadForm,
   answers: LeadForm["answers"],
 ): Promise<void> {
-  await adminDb()
-    .collection(FORMS)
-    .doc(form.id)
-    .set(
-      clean({ answers, status: "submitted", submittedAt: new Date().toISOString() }),
-      { merge: true },
-    );
+  const updated: LeadForm = {
+    ...form,
+    answers,
+    status: "submitted",
+    submittedAt: new Date().toISOString(),
+  };
+  await saveForm(updated);
 }
