@@ -88,7 +88,12 @@ export function seedFormForLead(leadId: string): LeadForm | null {
 
 export function seedOutbound(): OutboundEmail[] {
   const h = hadarim();
-  return h?.outbound ? [h.outbound] : [];
+  const base = h?.outbound ? [h.outbound] : [];
+  return [...devStore.outbound(), ...base];
+}
+
+export function seedAddOutbound(email: OutboundEmail): void {
+  devStore.addOutbound(email);
 }
 
 /* ------------------------------- mutations ------------------------------ */

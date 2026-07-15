@@ -15,6 +15,7 @@ import {
   seedFormForLead,
   seedLead,
   seedLeads,
+  seedAddOutbound,
   seedOutbound,
   seedSaveForm,
   seedSaveLead,
@@ -250,6 +251,7 @@ export async function getForm(leadId: string): Promise<LeadForm | null> {
 /* ------------------------------- outbound ------------------------------- */
 
 export async function logOutbound(email: OutboundEmail): Promise<void> {
+  if (fromSeed()) return seedAddOutbound(email);
   await adminDb().collection(OUTBOUND).doc(email.id).set(clean(email));
 }
 

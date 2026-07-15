@@ -10,7 +10,7 @@
 import "server-only";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
-import type { Lead, LeadForm, TimelineEvent } from "../domain/types";
+import type { Lead, LeadForm, OutboundEmail, TimelineEvent } from "../domain/types";
 import type { TriageConfig } from "../domain/config";
 
 const FILE = resolve(process.cwd(), ".data", "dev-store.json");
@@ -19,10 +19,11 @@ interface DevStore {
   leads: Record<string, Lead>;
   forms: Record<string, LeadForm>;
   timeline: Record<string, TimelineEvent[]>;
+  outbound: OutboundEmail[];
   config: TriageConfig | null;
 }
 
-const EMPTY: DevStore = { leads: {}, forms: {}, timeline: {}, config: null };
+const EMPTY: DevStore = { leads: {}, forms: {}, timeline: {}, outbound: [], config: null };
 
 function load(): DevStore {
   try {
@@ -64,6 +65,14 @@ export const devStore = {
   addTimeline(evt: TimelineEvent): void {
     const s = load();
     (s.timeline[evt.leadId] ??= []).unshift(evt);
+    save(s);
+  },
+  outbound(): OutboundEmail[] {
+    return load().outbound;
+  },
+  addOutbound(email: OutboundEmail): void {
+    const s = load();
+    s.outbound.unshift(email);
     save(s);
   },
   config(): TriageConfig | null {
