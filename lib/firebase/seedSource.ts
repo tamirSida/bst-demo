@@ -27,13 +27,20 @@ function readJson<T>(name: string, fallback: T): T {
 let leadsCache: Lead[] | null = null;
 let hadarimCache: IngestResult | null = null;
 
+// EMPTY_START=true wipes the pre-loaded demo data (Excel + הדרים), so the app
+// starts blank and only shows leads the pipeline creates — for demoing ingestion
+// on a clean slate.
+const seedDisabled = () => process.env.EMPTY_START === "true";
+
 function hadarim(): IngestResult | null {
+  if (seedDisabled()) return null;
   if (hadarimCache !== null) return hadarimCache;
   hadarimCache = readJson<IngestResult | null>("hadarim.json", null);
   return hadarimCache;
 }
 
 function baseLeads(): Lead[] {
+  if (seedDisabled()) return [];
   if (leadsCache) return leadsCache;
   const rows = readJson<Array<Partial<Lead> & { dealType: Lead["dealType"] }>>("leads.json", []);
   const leads = rows.map((row) => recomputeTriage(createLead(row as never), DEFAULT_CONFIG));
@@ -45,10 +52,17 @@ function baseLeads(): Lead[] {
   return leads;
 }
 
-/** All leads, hydrated + graded, with the file-backed overlay applied. */
+/**
+ * All leads: the base seed with the file overlay applied, PLUS overlay-only
+ * leads (ones the pipeline created), newest first.
+ */
 export function seedLeads(): Lead[] {
   const overlay = devStore.allLeadOverlays();
-  return baseLeads().map((l) => overlay[l.id] ?? l);
+  const base = baseLeads();
+  const baseIds = new Set(base.map((l) => l.id));
+  const merged = base.map((l) => overlay[l.id] ?? l);
+  const created = Object.values(overlay).filter((l) => !baseIds.has(l.id));
+  return [...created, ...merged];
 }
 
 export function seedLead(id: string): Lead | null {
