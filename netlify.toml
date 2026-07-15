@@ -1,0 +1,19 @@
+# Netlify configuration for מגדלור (Next.js 16 App Router).
+# The official Next.js runtime handles routing, SSR and API routes.
+
+[build]
+  command = "npm run build"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# The AI ingest route runs the extraction pipeline (~20-40s). Netlify's
+# synchronous function limit is 10s (free) / 26s (Pro), so live .eml ingest may
+# time out on Netlify; the seeded demo lead + the (fast) form re-grade flow work
+# regardless. For reliable live ingest, use a plan with a higher timeout or move
+# ingest to a background function.
+[functions]
+  node_bundler = "esbuild"
