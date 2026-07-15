@@ -6,7 +6,6 @@ import { DocType } from "../domain/enums";
  * small enough to compile.
  */
 export function classifyDoc(fileName: string): DocType {
-  const n = fileName.toLowerCase();
   if (/שאלון.*השלמ|הצעת זהב|השלמ.*שאלון/.test(fileName)) return DocType.QuestionnaireSupplement;
   if (/שאלון/.test(fileName)) return DocType.Questionnaire;
   if (/הזמנה|טמפלט|קול קורא/.test(fileName)) return DocType.Invitation;

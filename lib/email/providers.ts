@@ -4,7 +4,8 @@ import type { EmailProvider, SendInput, SendResult } from "./types";
 /** Simulated provider — the demo default. Records nothing external. */
 export class SimulatedProvider implements EmailProvider {
   readonly name = "simulated";
-  async send(_input: SendInput): Promise<SendResult> {
+  async send(input: SendInput): Promise<SendResult> {
+    void input;
     return { id: null, status: "simulated" };
   }
 }

@@ -5,7 +5,7 @@
 
 import type { ParsedEmail } from "../eml/parse";
 import { classifyDoc } from "../eml/classify";
-import { structuredCall, toJsonSchema, type UserBlock } from "./client";
+import { structuredCall, type UserBlock } from "./client";
 import { RawExtractionSchema, normalizeExtraction, type ExtractionResult } from "./schemas";
 
 const MAX_DOCS = 6;

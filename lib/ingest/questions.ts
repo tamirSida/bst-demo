@@ -1,7 +1,7 @@
 import "server-only";
 import { analyzeGaps } from "../ai/gaps";
 import { LeadStatus } from "../domain/enums";
-import type { Lead, LeadForm, OutboundEmail } from "../domain/types";
+import type { LeadForm, OutboundEmail } from "../domain/types";
 import { emailProvider } from "../email/providers";
 import {
   addTimelineEvent,
