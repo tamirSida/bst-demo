@@ -59,8 +59,11 @@ addresses. Never remove both outside real production.** (Tests cover this: `lib/
   (two-step reject confirm, %/₪ suffix overlap, form-title duplication, real
   file uploads on the public form, archived-lead state, confirm dialogs on
   email-sending actions, and more; see commit 360048f).
-- **Re-verification + 3 non-technical persona walkthroughs** — see the final
-  session report / task #14.
+- **Re-verification: all 4 lenses APPROVED** (final round measured the RTL
+  tooltip fix at 0px offset and confirmed clean regenerated data).
+- **3 non-technical persona walkthroughs** (PM, exec, lawyer's secretary) —
+  all completed their core tasks unassisted; their feedback (referrer name on
+  the public form, upload-type hints, CSV label) was applied.
 
 ## Status — done
 
