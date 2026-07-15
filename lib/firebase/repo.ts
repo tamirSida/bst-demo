@@ -20,6 +20,7 @@ import {
   seedSaveLead,
   seedTimeline,
 } from "./seedSource";
+import { devStore } from "./devStore";
 import { DEFAULT_CONFIG, type TriageConfig } from "../domain/config";
 import { LeadStatus, REJECTION_REASON_LABEL } from "../domain/enums";
 import { recomputeTriage } from "../domain/lead";
@@ -55,20 +56,15 @@ function clean<T>(value: T): T {
 
 /* ------------------------------- config --------------------------------- */
 
-let seedConfigOverride: TriageConfig | null = null;
-
 export async function getConfig(): Promise<TriageConfig> {
-  if (fromSeed()) return seedConfigOverride ?? DEFAULT_CONFIG;
+  if (fromSeed()) return devStore.config() ?? DEFAULT_CONFIG;
   const snap = await adminDb().doc(CONFIG_DOC).get();
   if (!snap.exists) return DEFAULT_CONFIG;
   return { ...DEFAULT_CONFIG, ...(snap.data() as Partial<TriageConfig>) };
 }
 
 export async function saveConfig(config: TriageConfig): Promise<void> {
-  if (fromSeed()) {
-    seedConfigOverride = config;
-    return;
-  }
+  if (fromSeed()) return devStore.setConfig(config);
   await adminDb().doc(CONFIG_DOC).set(clean(config));
 }
 

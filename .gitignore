@@ -45,3 +45,4 @@ serviceAccount*.json
 firebase-admin*.json
 /data/seed/*.local.json
 .netlify
+.data/

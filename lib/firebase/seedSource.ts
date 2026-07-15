@@ -10,6 +10,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { DEFAULT_CONFIG } from "../domain/config";
 import { createLead, recomputeTriage } from "../domain/lead";
+import { devStore } from "./devStore";
 import type { Lead, LeadForm, OutboundEmail, TimelineEvent } from "../domain/types";
 import type { IngestResult } from "../ai/pipeline";
 
@@ -26,12 +27,6 @@ function readJson<T>(name: string, fallback: T): T {
 let leadsCache: Lead[] | null = null;
 let hadarimCache: IngestResult | null = null;
 
-// In-memory overlay so mutations reflect during a dev/demo session (lost on
-// restart). Reads merge the overlay over the base seed.
-const overlayLeads = new Map<string, Lead>();
-const overlayForms = new Map<string, LeadForm>();
-const overlayTimeline = new Map<string, TimelineEvent[]>();
-
 function hadarim(): IngestResult | null {
   if (hadarimCache !== null) return hadarimCache;
   hadarimCache = readJson<IngestResult | null>("hadarim.json", null);
@@ -43,29 +38,36 @@ function baseLeads(): Lead[] {
   const rows = readJson<Array<Partial<Lead> & { dealType: Lead["dealType"] }>>("leads.json", []);
   const leads = rows.map((row) => recomputeTriage(createLead(row as never), DEFAULT_CONFIG));
   const h = hadarim();
-  if (h?.lead) leads.unshift(h.lead);
+  // Re-grade the הדרים lead against the current date so its deadline countdown
+  // and flags stay live, while keeping its aiSummary / provenance / form intact.
+  if (h?.lead) leads.unshift(recomputeTriage(h.lead, DEFAULT_CONFIG));
   leadsCache = leads;
   return leads;
 }
 
-/** All leads, hydrated + graded, with the in-memory overlay applied. */
+/** All leads, hydrated + graded, with the file-backed overlay applied. */
 export function seedLeads(): Lead[] {
-  return baseLeads().map((l) => overlayLeads.get(l.id) ?? l);
+  const overlay = devStore.allLeadOverlays();
+  return baseLeads().map((l) => overlay[l.id] ?? l);
 }
 
 export function seedLead(id: string): Lead | null {
-  return overlayLeads.get(id) ?? baseLeads().find((l) => l.id === id) ?? null;
+  return devStore.leadOverlay(id) ?? baseLeads().find((l) => l.id === id) ?? null;
 }
 
 export function seedTimeline(leadId: string): TimelineEvent[] {
-  const extra = overlayTimeline.get(leadId) ?? [];
+  const extra = devStore.timelineOverlay(leadId);
   const h = hadarim();
   const base = h?.lead.id === leadId ? h.timeline : [];
   return [...extra, ...base].sort((a, b) => (b.at ?? "").localeCompare(a.at ?? ""));
 }
 
+function formById(id: string): LeadForm | undefined {
+  return devStore.formOverlays().find((f) => f.id === id);
+}
+
 export function seedFormByToken(token: string): { form: LeadForm; lead: Lead } | null {
-  for (const form of overlayForms.values()) {
+  for (const form of devStore.formOverlays()) {
     if (form.token === token) {
       const lead = seedLead(form.leadId);
       if (lead) return { form, lead };
@@ -73,15 +75,15 @@ export function seedFormByToken(token: string): { form: LeadForm; lead: Lead } |
   }
   const h = hadarim();
   if (h?.form?.token === token) {
-    return { form: overlayForms.get(h.form.id) ?? h.form, lead: seedLead(h.lead.id) ?? h.lead };
+    return { form: formById(h.form.id) ?? h.form, lead: seedLead(h.lead.id) ?? h.lead };
   }
   return null;
 }
 
 export function seedFormForLead(leadId: string): LeadForm | null {
-  for (const form of overlayForms.values()) if (form.leadId === leadId) return form;
+  for (const form of devStore.formOverlays()) if (form.leadId === leadId) return form;
   const h = hadarim();
-  return h?.form && h.lead.id === leadId ? overlayForms.get(h.form.id) ?? h.form : null;
+  return h?.form && h.lead.id === leadId ? formById(h.form.id) ?? h.form : null;
 }
 
 export function seedOutbound(): OutboundEmail[] {
@@ -92,15 +94,13 @@ export function seedOutbound(): OutboundEmail[] {
 /* ------------------------------- mutations ------------------------------ */
 
 export function seedSaveLead(lead: Lead): void {
-  overlayLeads.set(lead.id, lead);
+  devStore.setLead(lead);
 }
 
 export function seedSaveForm(form: LeadForm): void {
-  overlayForms.set(form.id, form);
+  devStore.setForm(form);
 }
 
 export function seedAddTimeline(evt: TimelineEvent): void {
-  const list = overlayTimeline.get(evt.leadId) ?? [];
-  list.unshift(evt);
-  overlayTimeline.set(evt.leadId, list);
+  devStore.addTimeline(evt);
 }
