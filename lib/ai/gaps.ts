@@ -50,7 +50,7 @@ export async function analyzeGaps(lead: Lead): Promise<FormQuestion[]> {
     options: q.options ?? undefined,
     unit: q.unit ?? undefined,
     help: q.help ?? undefined,
-    prefill: q.prefill ?? undefined,
+    prefill: q.prefillText ?? undefined,
   }));
 
   return ensureFeeQuestion(lead, questions);

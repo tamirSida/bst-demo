@@ -1,0 +1,474 @@
+{
+  "lead": {
+    "id": "18e94d6f-d7b4-41df-84db-f4752dffdd65",
+    "dealType": "pinui_binui",
+    "projectName": "מתחם הדרים 21-23 לוד",
+    "city": "לוד",
+    "address": "רחוב הדרים 21-23, שכונת נווה נוף, לוד",
+    "gushHelka": [
+      "גוש 5290 חלקה 5",
+      "גוש 5290 חלקה 6"
+    ],
+    "sourceType": "tenant_lawyer",
+    "contact": {
+      "name": "יוסף קדוש",
+      "firm": "יוסף קדוש משרד עורכי דין ונוטריון",
+      "email": "Yossef@ykadv.co.il",
+      "phone": "050-8352656"
+    },
+    "sourceFee": null,
+    "status": "awaiting_info",
+    "leadReceivedAt": "2026-05-07T08:39:03.000Z",
+    "submissionDeadline": "2026-05-07",
+    "rejectionReason": null,
+    "notes": "",
+    "unitsExisting": 36,
+    "unitsPlanned": null,
+    "developerUnits": null,
+    "lotAreaDunam": 5.6,
+    "shops": null,
+    "planStatus": "approved_mitcham",
+    "planNumber": "406-1063890",
+    "signaturePct": null,
+    "publicHousingPct": null,
+    "registeredInMaagar": null,
+    "sentToPlanningAt": null,
+    "planningResultAt": null,
+    "sentToArchitectAt": null,
+    "sentToEconomicsAt": null,
+    "offerAt": null,
+    "flags": [
+      {
+        "id": "deadline_impossible",
+        "severity": "red",
+        "title": "המועד חלף",
+        "detail": "מועד ההגשה כבר עבר. נדרשת בקשת דחייה כדי להמשיך.",
+        "rule": "מועד הגשה מתחת ל-5 ימי עבודה",
+        "field": "submissionDeadline",
+        "cure": "לשלוח בקשת דחייה לגורם הפונה"
+      },
+      {
+        "id": "small_mitcham",
+        "severity": "yellow",
+        "title": "מתחם קטן (36 יח\"ד)",
+        "detail": "36 יח\"ד — מתחם קטן; לרוב נדרש צפיפות נמוכה כדי לכסות עלויות קבועות.",
+        "rule": "24–60 יח\"ד",
+        "field": "unitsExisting"
+      },
+      {
+        "id": "city_target",
+        "severity": "green",
+        "title": "עיר יעד: לוד",
+        "detail": "לוד נמצאת ברשימת ערי היעד של החברה.",
+        "rule": "עיר ברשימת היעד",
+        "field": "city"
+      },
+      {
+        "id": "density_low",
+        "severity": "green",
+        "title": "צפיפות 6.4 — פוטנציאל טוב",
+        "detail": "צפיפות קיימת נמוכה (6.4 יח\"ד/דונם) — מרווח תכנוני נדיב למכפיל גבוה.",
+        "rule": "צפיפות קיימת מתחת ל-10 יח\"ד/דונם",
+        "field": "unitsExisting"
+      },
+      {
+        "id": "plan_approved",
+        "severity": "green",
+        "title": "תב\"ע מאושרת",
+        "detail": "קיימת תב\"ע מאושרת למתחם — ודאות תכנונית גבוהה וקיצור לוחות זמנים.",
+        "rule": "תב\"ע מאושרת למתחם",
+        "field": "planStatus"
+      }
+    ],
+    "grade": {
+      "score": 75,
+      "verdict": "curable",
+      "breakdown": {
+        "economics": 75,
+        "planning": 90,
+        "seriousness": 75,
+        "strategic": 70,
+        "timeline": 40
+      },
+      "economicsReady": false
+    },
+    "aiSummary": "פינוי-בינוי, לוד — מתחם הדרים 21-23. מתחם בן 36 יח\"ד קיימות על שטח 5.6 דונם; צפיפות קיימת 6.4 יח\"ד לדונם עם פוטנציאל התחדשות. תב\"ע מאושרת (406-1063890). מועד הגשה שחלף: 7 במאי 2026. המערכת מסווגת את הליד כניתן לריפוי, תוך סימון המתחם כקטן יחסית. איש קשר: יוסף קדוש. מקור הליד אינו מצוין.",
+    "provenance": {
+      "unitsExisting": {
+        "origin": "ai",
+        "label": "הזמנה להציע הצעות ושאלון יזמים שנשלחו על ידי עו\"ד יוסף קדוש, ב\"כ בעלי הדירות, ועברו פנימית דרך עו\"ד איתן סדן סמנכ\"ל התחדשות עירונית BST"
+      },
+      "lotAreaDunam": {
+        "origin": "ai",
+        "label": "הזמנה להציע הצעות ושאלון יזמים שנשלחו על ידי עו\"ד יוסף קדוש, ב\"כ בעלי הדירות, ועברו פנימית דרך עו\"ד איתן סדן סמנכ\"ל התחדשות עירונית BST"
+      },
+      "planStatus": {
+        "origin": "ai",
+        "label": "הזמנה להציע הצעות ושאלון יזמים שנשלחו על ידי עו\"ד יוסף קדוש, ב\"כ בעלי הדירות, ועברו פנימית דרך עו\"ד איתן סדן סמנכ\"ל התחדשות עירונית BST"
+      },
+      "planNumber": {
+        "origin": "ai",
+        "label": "הזמנה להציע הצעות ושאלון יזמים שנשלחו על ידי עו\"ד יוסף קדוש, ב\"כ בעלי הדירות, ועברו פנימית דרך עו\"ד איתן סדן סמנכ\"ל התחדשות עירונית BST"
+      }
+    },
+    "extra": {
+      "documentTypes": [
+        "questionnaire",
+        "invitation",
+        "other",
+        "other",
+        "other",
+        "other",
+        "other",
+        "other",
+        "other",
+        "other",
+        "other",
+        "other",
+        "other",
+        "other",
+        "other",
+        "other"
+      ],
+      "threadKey": "BST-L-0042"
+    },
+    "threadKey": "BST-L-0042",
+    "createdAt": "2026-07-15T17:22:37.033Z",
+    "updatedAt": "2026-07-15T17:22:37.036Z"
+  },
+  "form": {
+    "id": "9f535c022e714c91960562f0a0208e77",
+    "leadId": "18e94d6f-d7b4-41df-84db-f4752dffdd65",
+    "token": "c428e7199e8640dca2c3cf304d6a3524",
+    "title": "השלמת פרטים — מתחם הדרים 21-23 לוד, לוד",
+    "questions": [
+      {
+        "key": "unitsPlanned",
+        "fact": "unitsPlanned",
+        "label": "כמה יח\"ד מתוכנן לבנות במתחם לאחר הפינוי-בינוי?",
+        "kind": "number",
+        "required": true,
+        "unit": "יח\"ד",
+        "help": "מספר יחידות הדיור היוצאות (החדשות) על-פי התב\"ע המאושרת 406-1063890"
+      },
+      {
+        "key": "signaturePct",
+        "fact": "signaturePct",
+        "label": "מה אחוז בעלי הדירות שחתמו / מיוצגים כיום על-ידי עו\"ד הדיירים?",
+        "kind": "percent",
+        "required": true,
+        "help": "מתוך 36 יח\"ד קיימות בגוש 5290 חלקות 5-6"
+      },
+      {
+        "key": "sourceFeeAmount",
+        "fact": "sourceFee",
+        "label": "מה הסכום שעו\"ד הדיירים (הגורם המפנה) גובה עבור הפנייה — לפי דירה?",
+        "kind": "currency",
+        "required": true,
+        "unit": "₪",
+        "help": "קריטי לתמחור העסקה; ציין ₪ לדירה או סכום כולל"
+      },
+      {
+        "key": "sourceFeeStructure",
+        "fact": "-",
+        "label": "כיצד מובנית עמלת הגורם המפנה? (לפי דירה / אחוז מהעסקה / סכום גלובלי / אחר)",
+        "kind": "select",
+        "required": true,
+        "options": [
+          "סכום קבוע לדירה",
+          "אחוז מערך הדירה",
+          "סכום גלובלי למתחם",
+          "מנגנון אחר"
+        ]
+      },
+      {
+        "key": "publicHousingPct",
+        "fact": "publicHousingPct",
+        "label": "האם קיימות יחידות דיור ציבורי (עמידר / חלמיש) במתחם? אם כן — כמה אחוז מהיחידות?",
+        "kind": "percent",
+        "required": true,
+        "help": "לוד מכילה שכונות עם דיור ציבורי; 0% אם אין כלל"
+      },
+      {
+        "key": "tabuExtracts",
+        "fact": "-",
+        "label": "נסחי טאבו עדכניים לגוש 5290 חלקה 5 וחלקה 6",
+        "kind": "file",
+        "required": true,
+        "help": "נדרש לשלב בדיקת השמאי"
+      },
+      {
+        "key": "condoPlan",
+        "fact": "-",
+        "label": "תשריט בית משותף (צו רישום) לשתי החלקות",
+        "kind": "file",
+        "required": false,
+        "help": "נדרש לשמאי לאימות מספר יח\"ד ושטחים רשומים"
+      }
+    ],
+    "answers": {},
+    "status": "sent",
+    "createdAt": "2026-07-15T17:23:23.166Z",
+    "sentAt": "2026-07-15T17:23:23.166Z",
+    "openedAt": null,
+    "submittedAt": null
+  },
+  "outbound": {
+    "id": "5161590abbd34deca1fbd6572d94e265",
+    "leadId": "18e94d6f-d7b4-41df-84db-f4752dffdd65",
+    "to": "Yossef@ykadv.co.il",
+    "subject": "השלמת פרטים — מתחם הדרים 21-23 לוד",
+    "templateKey": "form_request",
+    "body": "שלום רב,\n\nתודה על פנייתכם בנוגע לפרויקט «מתחם הדרים 21-23 לוד» בלוד.\nלצורך בחינה מהירה ומדויקת, נודה להשלמת מספר פרטים קצרים בקישור הבא:\n\n/f/c428e7199e8640dca2c3cf304d6a3524\n\nהפרטים שכבר בידינו מופיעים בטופס לאישורכם — יש למלא רק את החסר.\n\nבברכה,\nצוות הפיתוח העסקי — קבוצת BST",
+    "status": "simulated",
+    "providerId": null,
+    "at": "2026-07-15T17:23:23.166Z"
+  },
+  "timeline": [
+    {
+      "id": "fbace925d3db41c495b99b0762f3672d",
+      "leadId": "18e94d6f-d7b4-41df-84db-f4752dffdd65",
+      "at": "2026-07-15T17:22:37.036Z",
+      "kind": "created",
+      "title": "הליד נוצר מהמייל הנכנס",
+      "meta": {
+        "from": "NaamaG@bst.co.il",
+        "subject": "RE: הדרים 21-23 לוד (להלן: \"הפרוייקט\") - הזמנה להציע הצעות"
+      }
+    },
+    {
+      "id": "1b43c8d25caa41e6ae4036a5768e56f2",
+      "leadId": "18e94d6f-d7b4-41df-84db-f4752dffdd65",
+      "at": "2026-07-15T17:22:37.036Z",
+      "kind": "doc_received",
+      "title": "התקבל מסמך: (247)שאלון ליזמים - מתחם הדרים  21-23.pdf",
+      "meta": {
+        "type": "questionnaire"
+      }
+    },
+    {
+      "id": "ed2c29b367c44e9d9709a75c75d3543c",
+      "leadId": "18e94d6f-d7b4-41df-84db-f4752dffdd65",
+      "at": "2026-07-15T17:22:37.036Z",
+      "kind": "doc_received",
+      "title": "התקבל מסמך: (245)טמפלט הזמנה ליזמים להציע הצעות בהתחדשות עירונית 2024 - הדרים  (003).pdf",
+      "meta": {
+        "type": "invitation"
+      }
+    },
+    {
+      "id": "faddb949302b40f3af460c9aad2a1708",
+      "leadId": "18e94d6f-d7b4-41df-84db-f4752dffdd65",
+      "at": "2026-07-15T17:22:37.036Z",
+      "kind": "doc_received",
+      "title": "התקבל מסמך: image002.png",
+      "meta": {
+        "type": "other"
+      }
+    },
+    {
+      "id": "2e150ddc1120475f8ef61b188a669fa8",
+      "leadId": "18e94d6f-d7b4-41df-84db-f4752dffdd65",
+      "at": "2026-07-15T17:22:37.036Z",
+      "kind": "doc_received",
+      "title": "התקבל מסמך: image003.png",
+      "meta": {
+        "type": "other"
+      }
+    },
+    {
+      "id": "22f18533d9854b63a9fbc12961280cac",
+      "leadId": "18e94d6f-d7b4-41df-84db-f4752dffdd65",
+      "at": "2026-07-15T17:22:37.036Z",
+      "kind": "doc_received",
+      "title": "התקבל מסמך: image004.jpg",
+      "meta": {
+        "type": "other"
+      }
+    },
+    {
+      "id": "101a783cb232453e8443d3ed26b8a91c",
+      "leadId": "18e94d6f-d7b4-41df-84db-f4752dffdd65",
+      "at": "2026-07-15T17:22:37.036Z",
+      "kind": "doc_received",
+      "title": "התקבל מסמך: image005.jpg",
+      "meta": {
+        "type": "other"
+      }
+    },
+    {
+      "id": "d85f1dfc39b34982847cd88ee6521ed0",
+      "leadId": "18e94d6f-d7b4-41df-84db-f4752dffdd65",
+      "at": "2026-07-15T17:22:37.036Z",
+      "kind": "doc_received",
+      "title": "התקבל מסמך: image006.jpg",
+      "meta": {
+        "type": "other"
+      }
+    },
+    {
+      "id": "13200b7c640249b6aca1b5930f2249de",
+      "leadId": "18e94d6f-d7b4-41df-84db-f4752dffdd65",
+      "at": "2026-07-15T17:22:37.036Z",
+      "kind": "doc_received",
+      "title": "התקבל מסמך: image007.jpg",
+      "meta": {
+        "type": "other"
+      }
+    },
+    {
+      "id": "2ab5cec3240646b8a8a303e22a721b8e",
+      "leadId": "18e94d6f-d7b4-41df-84db-f4752dffdd65",
+      "at": "2026-07-15T17:22:37.036Z",
+      "kind": "doc_received",
+      "title": "התקבל מסמך: image008.jpg",
+      "meta": {
+        "type": "other"
+      }
+    },
+    {
+      "id": "23dab98268a2495a8cfa266f655cff55",
+      "leadId": "18e94d6f-d7b4-41df-84db-f4752dffdd65",
+      "at": "2026-07-15T17:22:37.036Z",
+      "kind": "doc_received",
+      "title": "התקבל מסמך: image009.png",
+      "meta": {
+        "type": "other"
+      }
+    },
+    {
+      "id": "04c0b07ea3754749958966eddfebf137",
+      "leadId": "18e94d6f-d7b4-41df-84db-f4752dffdd65",
+      "at": "2026-07-15T17:22:37.036Z",
+      "kind": "doc_received",
+      "title": "התקבל מסמך: image010.png",
+      "meta": {
+        "type": "other"
+      }
+    },
+    {
+      "id": "cccc0df5432e48efaade8dfb3be0f176",
+      "leadId": "18e94d6f-d7b4-41df-84db-f4752dffdd65",
+      "at": "2026-07-15T17:22:37.036Z",
+      "kind": "doc_received",
+      "title": "התקבל מסמך: image460001.jpg",
+      "meta": {
+        "type": "other"
+      }
+    },
+    {
+      "id": "03751d38db5a4723a5c48ccaf30b3e9c",
+      "leadId": "18e94d6f-d7b4-41df-84db-f4752dffdd65",
+      "at": "2026-07-15T17:22:37.036Z",
+      "kind": "doc_received",
+      "title": "התקבל מסמך: image911501.jpg",
+      "meta": {
+        "type": "other"
+      }
+    },
+    {
+      "id": "4498486deb0b4d1288cadbad181c17e4",
+      "leadId": "18e94d6f-d7b4-41df-84db-f4752dffdd65",
+      "at": "2026-07-15T17:22:37.036Z",
+      "kind": "doc_received",
+      "title": "התקבל מסמך: image940866.jpg",
+      "meta": {
+        "type": "other"
+      }
+    },
+    {
+      "id": "5768091659db4ff0974a0bfdeb73961e",
+      "leadId": "18e94d6f-d7b4-41df-84db-f4752dffdd65",
+      "at": "2026-07-15T17:22:37.036Z",
+      "kind": "doc_received",
+      "title": "התקבל מסמך: image353091.jpg",
+      "meta": {
+        "type": "other"
+      }
+    },
+    {
+      "id": "72882aabb30b4628ac5ac04c5192caeb",
+      "leadId": "18e94d6f-d7b4-41df-84db-f4752dffdd65",
+      "at": "2026-07-15T17:22:37.036Z",
+      "kind": "doc_received",
+      "title": "התקבל מסמך: image516474.jpg",
+      "meta": {
+        "type": "other"
+      }
+    },
+    {
+      "id": "8045bb6bc9744a03b81b8d46e282e870",
+      "leadId": "18e94d6f-d7b4-41df-84db-f4752dffdd65",
+      "at": "2026-07-15T17:23:23.166Z",
+      "kind": "form_sent",
+      "title": "נשלח טופס השלמת פרטים לגורם הפונה"
+    }
+  ],
+  "documents": [
+    {
+      "fileName": "(247)שאלון ליזמים - מתחם הדרים  21-23.pdf",
+      "type": "questionnaire"
+    },
+    {
+      "fileName": "(245)טמפלט הזמנה ליזמים להציע הצעות בהתחדשות עירונית 2024 - הדרים  (003).pdf",
+      "type": "invitation"
+    },
+    {
+      "fileName": "image002.png",
+      "type": "other"
+    },
+    {
+      "fileName": "image003.png",
+      "type": "other"
+    },
+    {
+      "fileName": "image004.jpg",
+      "type": "other"
+    },
+    {
+      "fileName": "image005.jpg",
+      "type": "other"
+    },
+    {
+      "fileName": "image006.jpg",
+      "type": "other"
+    },
+    {
+      "fileName": "image007.jpg",
+      "type": "other"
+    },
+    {
+      "fileName": "image008.jpg",
+      "type": "other"
+    },
+    {
+      "fileName": "image009.png",
+      "type": "other"
+    },
+    {
+      "fileName": "image010.png",
+      "type": "other"
+    },
+    {
+      "fileName": "image460001.jpg",
+      "type": "other"
+    },
+    {
+      "fileName": "image911501.jpg",
+      "type": "other"
+    },
+    {
+      "fileName": "image940866.jpg",
+      "type": "other"
+    },
+    {
+      "fileName": "image353091.jpg",
+      "type": "other"
+    },
+    {
+      "fileName": "image516474.jpg",
+      "type": "other"
+    }
+  ],
+  "duplicate": null
+}

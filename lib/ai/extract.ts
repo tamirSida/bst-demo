@@ -4,27 +4,38 @@
  */
 
 import type { ParsedEmail } from "../eml/parse";
+import { classifyDoc } from "../eml/classify";
 import { structuredCall, toJsonSchema, type UserBlock } from "./client";
-import { ExtractionSchema, type ExtractionResult } from "./schemas";
+import { RawExtractionSchema, normalizeExtraction, type ExtractionResult } from "./schemas";
 
 const MAX_DOCS = 6;
 const MAX_DOC_BYTES = 9 * 1024 * 1024; // keep each PDF well under the request cap
 
 const EXTRACTION_SYSTEM = `אתה מנתח לידים לפיתוח עסקי בחברת BST (התחדשות עירונית בישראל).
 קיבלת מייל ונספחים (הזמנה להציע הצעות, שאלון ליזמים, טיוטות הסכם, נסחים ועוד) בעברית.
-משימתך: לחלץ את העובדות לשדות מובנים עבור מנוע הסינון (טריאז').
+משימתך: לחלץ את כל העובדות לשדות מובנים עבור מנוע הסינון (טריאז').
 
-כללים מחייבים:
-- אל תמציא ערכים. אם ערך לא מופיע במפורש — החזר null. עדיף null מאשר ניחוש.
-- מספרים: החזר מספר נקי (יח"ד, דונם, אחוזים כמספר בין 0 ל-100, סכומים ב-₪).
-- דונם: אם מצוין שטח במ"ר, המר לדונם (1 דונם = 1000 מ"ר).
-- תאריך מועד אחרון להגשה: החזר בפורמט ISO (YYYY-MM-DD) לפי מיטב יכולתך.
-- planStatus: בחר את הקטגוריה המתאימה. "תב\"ע בניינית מאושרת" / "תב\"ע מאושרת" → approved_mitcham. "אין תכנית, נדרשת תב\"ע חדשה" עם מדיניות → policy_no_plan. אם לא ברור → unknown.
-- sourceType: מי שלח את הליד — עו"ד דיירים (tenant_lawyer), מארגן (organizer), מתווך (broker), מנהלת עירונית (municipality).
-- sourceFee: אם מוזכרת עמלה/שכר טרחה שהגורם המפנה גובה עבור הליד — חלץ סכום, מבנה (per_unit / percentage / fixed) והערה. אחוזים כשבר עשרוני (2% → 0.02). אם לא מוזכר → null.
-- documents: סווג כל נספח לפי סוגו.
-- provenance: עבור כל שדה עיקרי שחילצת, ציין מאיפה (label קצר בעברית כמו "שאלון, עמ' 1" או "גוף המייל"), ציטוט קצר (quote) וביטחון (confidence 0-1).
-- החזר JSON תקין בלבד לפי הסכימה.`;
+חשוב מאוד — קרא את כל המקורות:
+- קרא את גוף המייל כולל הודעות מצוטטות ומועברות (שרשור המייל המלא), ואת כל קבצי ה-PDF המצורפים.
+- מספרי יח"ד, שטח מגרש וגוש/חלקה מופיעים לרוב בכותרת ההזמנה/השאלון או בהודעות המועברות. חובה לחלץ אותם אם הם מופיעים בכל מקום בטקסט או בנספחים.
+
+דוגמאות לחילוץ:
+- "36 יח"ד מצב קיים" או "36 יח"ד קיימות" → unitsExisting = 36.
+- "שטח מגרש: 5.6 דונם" או "5.6 דונם" → lotAreaDunam = 5.6. אם רשום במ"ר, חלק ב-1000.
+- "חלקות 5, 6 בגוש 5290" → gushHelka = ["גוש 5290 חלקה 5", "גוש 5290 חלקה 6"].
+- "תוכנית 406-1063890" או "תב"ע 406-1063890" → planNumber = "406-1063890".
+- "צפיפות 6.4 יח"ד לדונם" — מידע תומך, לא שדה נפרד.
+
+כללים:
+- אל תמציא ערכים. אם ערך לא מופיע בשום מקום — השמט את השדה.
+- מספרים: החזר מספר נקי בלבד. אחוזים כמספר בין 0 ל-100. סכומים ב-₪.
+- submissionDeadline: פורמט ISO (YYYY-MM-DD).
+- dealType (חובה): אחד מ- pinui_binui, tama_38_2, initiative, rami_tender, external_offer.
+- planStatus: approved_mitcham (תב"ע מאושרת/בניינית מאושרת), deposited, early_process, policy_no_plan (אין תכנית אך יש מדיניות), no_policy, conflicts_policy, unknown.
+- sourceType: tenant_lawyer (עו"ד דיירים), organizer (מארגן), broker (מתווך), municipality (מנהלת עירונית), rami_publication, other.
+- feeStructure: per_unit (לכל יח"ד), percentage (אחוז — כשבר עשרוני, 2%→0.02), fixed (קבוע). מלא feeAmount/feeStructure/feeNote רק אם מוזכרת עמלה שהגורם המפנה גובה.
+- contactName/contactFirm/contactEmail/contactPhone: פרטי שולח המייל / הגורם הפונה.
+- sourceNote: משפט קצר בעברית המתאר מהיכן הגיעו עיקר הנתונים.`;
 
 export async function extractLead(email: ParsedEmail): Promise<ExtractionResult> {
   const blocks: UserBlock[] = [];
@@ -64,11 +75,20 @@ export async function extractLead(email: ParsedEmail): Promise<ExtractionResult>
     added++;
   }
 
-  return structuredCall({
+  // Free-JSON mode (no jsonSchema): Sonnet 4.6's structured-output compiler
+  // rejects our field set as "too complex", so we prompt for JSON and coerce.
+  const raw = await structuredCall({
     system: EXTRACTION_SYSTEM,
     blocks,
-    schema: ExtractionSchema,
-    jsonSchema: toJsonSchema(ExtractionSchema),
+    schema: RawExtractionSchema,
     maxTokens: 4096,
   });
+
+  // Documents are classified from filenames, not by the model.
+  const documents = [...email.documents, ...email.otherAttachments].map((a) => ({
+    fileName: a.filename,
+    type: classifyDoc(a.filename),
+  }));
+
+  return normalizeExtraction(raw, documents);
 }

@@ -10,7 +10,8 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
 
-export const MODEL = "claude-opus-4-8";
+/** Model is env-configurable; defaults to the latest Sonnet. */
+export const MODEL = process.env.CLAUDE_MODEL ?? "claude-sonnet-4-6";
 
 let cached: Anthropic | null = null;
 
@@ -43,36 +44,80 @@ export interface StructuredCallOptions<T> {
   system: string;
   blocks: UserBlock[];
   schema: z.ZodType<T>;
-  /** JSON Schema for output_config.format (from z.toJSONSchema on the same schema). */
-  jsonSchema: Record<string, unknown>;
+  /**
+   * JSON Schema for output_config.format. Omit for schemas that exceed the API's
+   * 16-union limit — the call then prompts for JSON and parses it leniently.
+   */
+  jsonSchema?: Record<string, unknown>;
   maxTokens?: number;
   /** Enable adaptive thinking for judgment-heavy steps (gap analysis). */
   think?: boolean;
 }
 
-/** Run one structured-output call and return the validated object. */
+/** Run one structured call and return the Zod-validated object. */
 export async function structuredCall<T>(opts: StructuredCallOptions<T>): Promise<T> {
   const client = anthropic();
+  const useFormat = Boolean(opts.jsonSchema);
+
+  const blocks = useFormat
+    ? opts.blocks
+    : [
+        ...opts.blocks,
+        {
+          type: "text" as const,
+          text: "החזר אך ורק אובייקט JSON תקין התואם לסכימה שהוגדרה, ללא טקסט נוסף וללא סימוני code fence.",
+        },
+      ];
+
   const res = await client.messages.create({
     model: MODEL,
     max_tokens: opts.maxTokens ?? 4096,
     system: opts.system,
     ...(opts.think ? { thinking: { type: "adaptive" as const } } : {}),
-    output_config: {
-      format: { type: "json_schema" as const, schema: opts.jsonSchema },
-    },
-    messages: [{ role: "user", content: opts.blocks }],
+    ...(useFormat
+      ? { output_config: { format: { type: "json_schema" as const, schema: opts.jsonSchema! } } }
+      : {}),
+    messages: [{ role: "user", content: blocks }],
   });
 
   const textBlock = res.content.find((b) => b.type === "text");
   if (!textBlock || textBlock.type !== "text") {
     throw new Error("תשובת ה-AI אינה מכילה טקסט JSON.");
   }
-  const parsed = JSON.parse(textBlock.text);
-  return opts.schema.parse(parsed);
+  const json = useFormat ? textBlock.text : extractJson(textBlock.text);
+  return opts.schema.parse(JSON.parse(json));
 }
 
-/** Convenience: build the JSON Schema object the API expects from a Zod schema. */
+/** Pull the JSON object out of a model response that may wrap it in prose/fences. */
+function extractJson(text: string): string {
+  const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+  const body = fenced ? fenced[1] : text;
+  const start = body.indexOf("{");
+  const end = body.lastIndexOf("}");
+  if (start === -1 || end === -1) return body.trim();
+  return body.slice(start, end + 1);
+}
+
+/**
+ * Build the JSON Schema the API expects from a Zod schema, enforcing
+ * `additionalProperties: false` on every object node (structured-outputs
+ * requirement). Walks nested objects, arrays and $defs.
+ */
 export function toJsonSchema(schema: z.ZodType): Record<string, unknown> {
-  return z.toJSONSchema(schema) as Record<string, unknown>;
+  const json = z.toJSONSchema(schema) as Record<string, unknown>;
+  enforceStrict(json);
+  return json;
+}
+
+function enforceStrict(node: unknown): void {
+  if (Array.isArray(node)) {
+    node.forEach(enforceStrict);
+    return;
+  }
+  if (!node || typeof node !== "object") return;
+  const obj = node as Record<string, unknown>;
+  if (obj.type === "object" && obj.properties && obj.additionalProperties === undefined) {
+    obj.additionalProperties = false;
+  }
+  for (const value of Object.values(obj)) enforceStrict(value);
 }
