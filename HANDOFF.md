@@ -52,6 +52,16 @@ The real reference deal is הדרים 21-23 לוד — its actual emails/tender 
 **The two email safety layers exist because the test corpus contains real lawyers'
 addresses. Never remove both outside real production.** (Tests cover this: `lib/email/providers.test.ts`.)
 
+## Quality gates run
+
+- **4 independent RTL-Hebrew UX/UI audits** (typography/RTL, non-tech clarity,
+  visual design, flows) — 34 findings, all criticals+majors fixed same-day
+  (two-step reject confirm, %/₪ suffix overlap, form-title duplication, real
+  file uploads on the public form, archived-lead state, confirm dialogs on
+  email-sending actions, and more; see commit 360048f).
+- **Re-verification + 3 non-technical persona walkthroughs** — see the final
+  session report / task #14.
+
 ## Status — done
 
 - Full outbound E2E verified live: ingest real email → extraction (36 יח"ד, 5.6 דונם,
