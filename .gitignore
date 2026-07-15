@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# secrets & local artifacts
+serviceAccount*.json
+firebase-admin*.json
+/data/seed/*.local.json
+.netlify

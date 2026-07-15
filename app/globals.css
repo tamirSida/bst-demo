@@ -1,26 +1,98 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+  מגדלור — עיצוב מערכת (Design tokens)
+  Professional Israeli B2B palette. Calm, high-contrast, RTL-first.
+  Traffic-light semantics (ירוק / כתום / אדום) drive the whole triage UI.
+*/
+
+@theme {
+  /* Brand — deep confident blue, reads as "institutional / trustworthy" */
+  --color-brand-50: #eef4ff;
+  --color-brand-100: #d9e6ff;
+  --color-brand-200: #bcd3ff;
+  --color-brand-300: #8eb6ff;
+  --color-brand-400: #598dff;
+  --color-brand-500: #3366ff;
+  --color-brand-600: #1f47f5;
+  --color-brand-700: #1836db;
+  --color-brand-800: #1a30b0;
+  --color-brand-900: #1b2f8b;
+
+  /* Surfaces */
+  --color-canvas: #f6f7f9;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f1f3f7;
+
+  /* Ink (text) */
+  --color-ink-900: #111726;
+  --color-ink-700: #364152;
+  --color-ink-500: #647084;
+  --color-ink-400: #8a94a6;
+
+  /* Hairlines */
+  --color-line: #e3e7ef;
+
+  /* Traffic-light status — accessible, deliberately vivid */
+  --color-go-50: #e9f9ef;
+  --color-go-100: #cdefda;
+  --color-go-500: #12a150;
+  --color-go-600: #0e8a44;
+  --color-go-700: #0b6f37;
+
+  --color-warn-50: #fff5e6;
+  --color-warn-100: #ffe6bf;
+  --color-warn-500: #e8890c;
+  --color-warn-600: #cc7400;
+  --color-warn-700: #a35c00;
+
+  --color-stop-50: #fdecec;
+  --color-stop-100: #fbd0d0;
+  --color-stop-500: #db2b2b;
+  --color-stop-600: #c11f1f;
+  --color-stop-700: #9c1717;
+
+  /* Font families wired to the next/font CSS variables set in layout.tsx */
+  --font-sans: var(--font-assistant), "Assistant", "Segoe UI", system-ui, sans-serif;
+
+  /* Radii — soft, modern Israeli-product feel */
+  --radius-sm: 0.5rem;
+  --radius: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
+
+  /* Shadows — subtle, layered */
+  --shadow-card: 0 1px 2px rgba(17, 23, 38, 0.04), 0 4px 16px rgba(17, 23, 38, 0.06);
+  --shadow-pop: 0 8px 30px rgba(17, 23, 38, 0.12);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
   }
-}
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  body {
+    background: var(--color-canvas);
+    color: var(--color-ink-900);
+    font-family: var(--font-sans);
+    /* Hebrew reads better with slightly looser tracking */
+    letter-spacing: -0.006em;
+  }
+
+  /* Numbers, dates and currency stay LTR even inside RTL text */
+  .ltr-nums {
+    direction: ltr;
+    unicode-bidi: embed;
+    display: inline-block;
+  }
+
+  /* Respect reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
 }
