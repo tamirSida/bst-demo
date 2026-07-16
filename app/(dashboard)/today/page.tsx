@@ -22,6 +22,7 @@ import { CountdownChip } from "@/components/ui/CountdownChip";
 import { Badge } from "@/components/ui/Badge";
 import { DecisionCard } from "@/components/leads/DecisionCard";
 import { NewLeadButton } from "@/components/leads/NewLeadButton";
+import { AutoRefresh } from "@/components/ui/AutoRefresh";
 import { appraiserPack } from "@/lib/leads/pack";
 
 export const dynamic = "force-dynamic";
@@ -71,7 +72,12 @@ export default async function TodayPage() {
       <PageHeader
         title="היום"
         subtitle="מה דורש החלטה עכשיו"
-        action={<NewLeadButton />}
+        action={
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <AutoRefresh />
+            <NewLeadButton />
+          </div>
+        }
       />
 
       {/* New leads needing a decision */}

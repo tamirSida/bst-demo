@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/Card";
 import { PipelineFilters } from "@/components/leads/PipelineFilters";
 import { LeadTable } from "@/components/leads/LeadTable";
 import { ExportCsvButton } from "@/components/leads/ExportCsvButton";
+import { AutoRefresh } from "@/components/ui/AutoRefresh";
 import { toCsvRow, toTableRow } from "@/lib/leads/rows";
 
 export const dynamic = "force-dynamic";
@@ -41,7 +42,12 @@ export default async function LeadsPage({
       <PageHeader
         title="לידים"
         subtitle="כל הלידים במבט אחד — תחליף לאקסל"
-        action={<ExportCsvButton rows={csvRows} />}
+        action={
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <AutoRefresh />
+            <ExportCsvButton rows={csvRows} />
+          </div>
+        }
       />
 
       <Card className="p-4 sm:p-5">
