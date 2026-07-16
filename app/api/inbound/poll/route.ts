@@ -1,10 +1,17 @@
 import { NextResponse } from "next/server";
 import { fetchReceivedEmail, listReceivedIds } from "@/lib/email/resendInbound";
 import { ingestParsedEmail } from "@/lib/ingest/run";
-import { markInboundSeen, seenInboundIds } from "@/lib/ingest/pollState";
+import {
+  markInboundSeen,
+  recordInboundFailure,
+  seenInboundIds,
+} from "@/lib/ingest/pollState";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
+
+/** Give a failing email a few retries (transient errors, deploys) before dropping it. */
+const MAX_ATTEMPTS = 3;
 
 /**
  * Dev-mode inbound transport: one poll cycle against Resend's received-emails
@@ -17,17 +24,28 @@ export async function POST() {
     const seen = seenInboundIds();
     const fresh = ids.filter((id) => !seen.has(id));
 
-    const results: { id: string; leadId?: string; action?: string; error?: string }[] = [];
+    const results: {
+      id: string;
+      leadId?: string;
+      action?: string;
+      error?: string;
+      attempt?: number;
+      gaveUp?: boolean;
+    }[] = [];
     for (const id of fresh) {
       try {
         const email = await fetchReceivedEmail(id);
         const outcome = await ingestParsedEmail(email);
         results.push({ id, ...outcome });
+        markInboundSeen([id]);
       } catch (err) {
-        results.push({ id, error: (err as Error).message });
+        // Don't drop on the first failure — retry up to MAX_ATTEMPTS, then give
+        // up so a genuinely poison message can't wedge the loop.
+        const attempt = recordInboundFailure(id);
+        const gaveUp = attempt >= MAX_ATTEMPTS;
+        if (gaveUp) markInboundSeen([id]);
+        results.push({ id, error: (err as Error).message, attempt, gaveUp });
       }
-      // Mark seen either way so a poison message can't wedge the loop.
-      markInboundSeen([id]);
     }
 
     return NextResponse.json({ checked: ids.length, ingested: results });

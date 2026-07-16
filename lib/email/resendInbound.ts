@@ -107,7 +107,24 @@ export async function fetchReceivedEmail(id: string): Promise<ParsedEmail> {
   };
 }
 
-/** Attachment content: either an inline base64 field or a download URL. */
+/** Decode base64 (tolerating a `data:...;base64,` prefix); null if empty. */
+function fromBase64(s: string): Buffer | null {
+  const cleaned = s.replace(/^data:[^;,]*;base64,/i, "").trim();
+  const buf = Buffer.from(cleaned, "base64");
+  return buf.length > 0 ? buf : null;
+}
+
+/**
+ * Resolve an attachment to its raw bytes. Resend inbound returns attachment
+ * metadata only — the real content is up to two hops away:
+ *   metadata → GET /attachments/{id} (JSON) → signed `download_url` → bytes.
+ * We also accept an inline base64 field or a direct URL, since Resend's shapes
+ * vary across API versions. A JSON response is followed (via `content`/`data`,
+ * or a nested `download_url`/`url`); a binary response IS the file.
+ *
+ * The earlier version stopped at the first hop and returned the JSON metadata
+ * bytes as the "PDF", which Claude rejected as an invalid document.
+ */
 async function downloadAttachment(
   emailId: string,
   attId: string | null,
@@ -115,36 +132,45 @@ async function downloadAttachment(
 ): Promise<Buffer | null> {
   const inline = str(meta, "content", "data");
   if (inline) {
+    const buf = fromBase64(inline);
+    if (buf) return buf;
+  }
+
+  let target =
+    str(meta, "download_url", "url") ??
+    (attId ? `${API}/emails/receiving/${emailId}/attachments/${attId}` : null);
+
+  for (let hop = 0; target && hop < 3; hop++) {
+    let res: Response;
     try {
-      return Buffer.from(inline, "base64");
+      res = await fetch(target, {
+        headers: target.startsWith(API) ? { Authorization: `Bearer ${key()}` } : undefined,
+      });
     } catch {
-      /* fall through */
+      return null;
     }
-  }
-  const url = str(meta, "download_url", "url");
-  const target = url ?? (attId ? `${API}/emails/receiving/${emailId}/attachments/${attId}` : null);
-  if (!target) return null;
-  try {
-    const res = await fetch(target, {
-      headers: target.startsWith(API) ? { Authorization: `Bearer ${key()}` } : undefined,
-    });
     if (!res.ok) return null;
-    const body = await res.arrayBuffer();
-    // Some APIs return JSON {content: base64} rather than the binary itself.
-    const buf = Buffer.from(body);
-    if ((res.headers.get("content-type") ?? "").includes("json")) {
-      try {
-        const j = JSON.parse(buf.toString("utf8")) as Rec;
-        const b64 = str(j, "content", "data");
-        if (b64) return Buffer.from(b64, "base64");
-      } catch {
-        /* treat as binary */
+
+    const isJson = (res.headers.get("content-type") ?? "").includes("json");
+    const buf = Buffer.from(await res.arrayBuffer());
+    if (!isJson) return buf; // a binary body is the file itself
+
+    let next: string | null;
+    try {
+      const j = JSON.parse(buf.toString("utf8")) as Rec;
+      const b64 = str(j, "content", "data");
+      if (b64) {
+        const decoded = fromBase64(b64);
+        if (decoded) return decoded;
       }
+      next = str(j, "download_url", "url");
+    } catch {
+      return null;
     }
-    return buf;
-  } catch {
-    return null;
+    if (!next || next === target) return null;
+    target = next;
   }
+  return null;
 }
 
 function stripHtml(html: string | null): string | null {
