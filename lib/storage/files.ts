@@ -6,7 +6,7 @@
  */
 
 import "server-only";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { basename, join, resolve } from "node:path";
 
 const ROOT = resolve(process.cwd(), ".data", "files");
@@ -30,4 +30,10 @@ export function readLeadFile(leadId: string, name: string): Buffer | null {
   const path = join(ROOT, basename(leadId), safeName(name));
   if (!existsSync(path)) return null;
   return readFileSync(path);
+}
+
+/** Remove every stored file for a lead (used when the lead is deleted). */
+export function deleteLeadFiles(leadId: string): void {
+  const dir = join(ROOT, basename(leadId));
+  if (existsSync(dir)) rmSync(dir, { recursive: true, force: true });
 }

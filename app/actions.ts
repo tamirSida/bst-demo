@@ -13,6 +13,7 @@ import { recomputeTriage } from "@/lib/domain/lead";
 import type { Lead, LeadFactKey, TimelineEvent } from "@/lib/domain/types";
 import {
   addTimelineEvent,
+  deleteLead as deleteLeadRecord,
   getConfig,
   getLead,
   saveConfig,
@@ -53,6 +54,14 @@ export async function reopenLead(leadId: string): Promise<void> {
   await updateLead(leadId, { status: LeadStatus.Triage, rejectionReason: null });
   await addTimelineEvent(timeline(leadId, "stage_change", "הליד הוחזר לטיפול פעיל"));
   revalidateLead(leadId);
+}
+
+/** Permanently delete a lead and all its data. Irreversible — unlike markInactive. */
+export async function deleteLead(leadId: string): Promise<void> {
+  await deleteLeadRecord(leadId);
+  revalidatePath("/today");
+  revalidatePath("/leads");
+  revalidatePath("/archive");
 }
 
 export type PromoteTarget = "planning" | "appraiser" | "questions";

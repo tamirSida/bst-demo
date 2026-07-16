@@ -82,6 +82,7 @@ export function DecisionCard({
         <div className={cn(!compact && "pt-1")}>
           <ActionBar
             leadId={lead.id}
+            leadName={lead.projectName}
             packItems={packItems}
             compact={compact}
             closed={lead.status === LeadStatus.Closed}

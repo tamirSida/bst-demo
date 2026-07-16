@@ -11,6 +11,7 @@ import "server-only";
 import { adminDb, isAdminConfigured } from "./admin";
 import {
   seedAddTimeline,
+  seedDeleteLead,
   seedFormByToken,
   seedFormForLead,
   seedLead,
@@ -22,6 +23,7 @@ import {
   seedTimeline,
 } from "./seedSource";
 import { devStore } from "./devStore";
+import { deleteLeadFiles } from "../storage/files";
 import { DEFAULT_CONFIG, type TriageConfig } from "../domain/config";
 import { LeadStatus, REJECTION_REASON_LABEL } from "../domain/enums";
 import { recomputeTriage } from "../domain/lead";
@@ -139,6 +141,39 @@ export async function updateLead(id: string, patch: Partial<Lead>): Promise<void
     .collection(LEADS)
     .doc(id)
     .set(clean({ ...patch, updatedAt: new Date().toISOString() }), { merge: true });
+}
+
+/**
+ * Permanently remove a lead and everything hanging off it — its forms, timeline,
+ * documents, outbound audit rows, and stored files. Irreversible (unlike the
+ * archive path, which keeps the record). Firestore subcollections must be
+ * deleted explicitly; deleting the parent doc alone would orphan them.
+ */
+export async function deleteLead(id: string): Promise<void> {
+  if (fromSeed()) {
+    seedDeleteLead(id);
+  } else {
+    const db = adminDb();
+    const leadRef = db.collection(LEADS).doc(id);
+    for (const sub of ["timeline", "documents"]) {
+      const snap = await leadRef.collection(sub).get();
+      if (!snap.empty) {
+        const batch = db.batch();
+        snap.docs.forEach((d) => batch.delete(d.ref));
+        await batch.commit();
+      }
+    }
+    await leadRef.delete();
+    for (const col of [FORMS, OUTBOUND]) {
+      const snap = await db.collection(col).where("leadId", "==", id).get();
+      if (!snap.empty) {
+        const batch = db.batch();
+        snap.docs.forEach((d) => batch.delete(d.ref));
+        await batch.commit();
+      }
+    }
+  }
+  deleteLeadFiles(id);
 }
 
 /* ----------------------------- duplicate scan --------------------------- */

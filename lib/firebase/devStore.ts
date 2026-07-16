@@ -28,6 +28,8 @@ interface DevStore {
   documents: Record<string, LeadDocument[]>;
   outbound: OutboundEmail[];
   config: TriageConfig | null;
+  /** Ids of leads deleted for good — tombstones so base seed leads stay gone. */
+  deleted: string[];
 }
 
 const EMPTY: DevStore = {
@@ -37,6 +39,7 @@ const EMPTY: DevStore = {
   documents: {},
   outbound: [],
   config: null,
+  deleted: [],
 };
 
 function load(): DevStore {
@@ -103,6 +106,21 @@ export const devStore = {
   setConfig(config: TriageConfig): void {
     const s = load();
     s.config = config;
+    save(s);
+  },
+  deletedIds(): string[] {
+    return load().deleted;
+  },
+  deleteLead(id: string): void {
+    const s = load();
+    delete s.leads[id];
+    delete s.timeline[id];
+    delete s.documents[id];
+    for (const [formId, form] of Object.entries(s.forms)) {
+      if (form.leadId === id) delete s.forms[formId];
+    }
+    s.outbound = s.outbound.filter((e) => e.leadId !== id);
+    if (!s.deleted.includes(id)) s.deleted.push(id);
     save(s);
   },
 };

@@ -58,14 +58,16 @@ function baseLeads(): Lead[] {
  */
 export function seedLeads(): Lead[] {
   const overlay = devStore.allLeadOverlays();
+  const deleted = new Set(devStore.deletedIds());
   const base = baseLeads();
   const baseIds = new Set(base.map((l) => l.id));
   const merged = base.map((l) => overlay[l.id] ?? l);
   const created = Object.values(overlay).filter((l) => !baseIds.has(l.id));
-  return [...created, ...merged];
+  return [...created, ...merged].filter((l) => !deleted.has(l.id));
 }
 
 export function seedLead(id: string): Lead | null {
+  if (devStore.deletedIds().includes(id)) return null;
   return devStore.leadOverlay(id) ?? baseLeads().find((l) => l.id === id) ?? null;
 }
 
@@ -114,6 +116,10 @@ export function seedAddOutbound(email: OutboundEmail): void {
 
 export function seedSaveLead(lead: Lead): void {
   devStore.setLead(lead);
+}
+
+export function seedDeleteLead(id: string): void {
+  devStore.deleteLead(id);
 }
 
 export function seedSaveForm(form: LeadForm): void {

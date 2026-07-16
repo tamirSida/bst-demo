@@ -11,11 +11,13 @@ import {
   faScaleBalanced,
   faPaperPlane,
   faSpinner,
+  faTrashCan,
 } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { cn } from "@/lib/cn";
 import { RejectDialog } from "./RejectDialog";
+import { DeleteDialog } from "./DeleteDialog";
 import { AppraiserPackModal, type PackItem } from "./AppraiserPackModal";
 import { promoteLead, reopenLead, type ActionOutcome } from "@/app/actions";
 
@@ -27,12 +29,15 @@ import { promoteLead, reopenLead, type ActionOutcome } from "@/app/actions";
  */
 export function ActionBar({
   leadId,
+  leadName = "",
   packItems,
   compact = false,
   closed = false,
   contactEmail = null,
 }: {
   leadId: string;
+  /** Shown in the delete confirmation so the user sees what they are removing. */
+  leadName?: string;
   packItems: PackItem[];
   compact?: boolean;
   /** When the lead is archived, the four actions are replaced by a restore. */
@@ -46,30 +51,59 @@ export function ActionBar({
   const [outcome, setOutcome] = useState<ActionOutcome | null>(null);
   const [showReject, setShowReject] = useState(false);
   const [showPack, setShowPack] = useState(false);
+  const [showDelete, setShowDelete] = useState(false);
   const [confirmTarget, setConfirmTarget] = useState<"planning" | "questions" | null>(null);
 
   const size = compact ? "sm" : "md";
 
-  if (closed) {
-    return (
-      <div className="flex flex-wrap items-center gap-3">
-        <p className="text-sm text-ink-500">
-          הליד נמצא בארכיון — הפעולות אינן זמינות עבור ליד לא פעיל.
-        </p>
+  // Delete lives only on the full lead page — never on the compact Today cards,
+  // where a stray tap in the cockpit must not wipe a lead.
+  const deleteControl = !compact && (
+    <>
+      <div className="mt-3 border-t border-line pt-3">
         <Button
-          variant="secondary"
-          size={size}
-          loading={pending}
-          onClick={() =>
-            startTransition(async () => {
-              await reopenLead(leadId);
-              router.refresh();
-            })
-          }
+          variant="ghost"
+          size="sm"
+          icon={faTrashCan}
+          className="text-stop-600 hover:bg-stop-50 hover:text-stop-700"
+          onClick={() => setShowDelete(true)}
+          disabled={pending}
         >
-          החזר ליד לטיפול
+          מחק ליד
         </Button>
       </div>
+      <DeleteDialog
+        leadId={leadId}
+        leadName={leadName}
+        open={showDelete}
+        onClose={() => setShowDelete(false)}
+      />
+    </>
+  );
+
+  if (closed) {
+    return (
+      <>
+        <div className="flex flex-wrap items-center gap-3">
+          <p className="text-sm text-ink-500">
+            הליד נמצא בארכיון — הפעולות אינן זמינות עבור ליד לא פעיל.
+          </p>
+          <Button
+            variant="secondary"
+            size={size}
+            loading={pending}
+            onClick={() =>
+              startTransition(async () => {
+                await reopenLead(leadId);
+                router.refresh();
+              })
+            }
+          >
+            החזר ליד לטיפול
+          </Button>
+        </div>
+        {deleteControl}
+      </>
     );
   }
 
@@ -215,6 +249,8 @@ export function ActionBar({
         onClose={() => setShowReject(false)}
         onDone={() => router.refresh()}
       />
+
+      {deleteControl}
     </>
   );
 }
