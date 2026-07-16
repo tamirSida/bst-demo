@@ -85,7 +85,25 @@ export async function structuredCall<T>(opts: StructuredCallOptions<T>): Promise
     throw new Error("תשובת ה-AI אינה מכילה טקסט JSON.");
   }
   const json = useFormat ? textBlock.text : extractJson(textBlock.text);
-  return opts.schema.parse(JSON.parse(json));
+  return opts.schema.parse(parseModelJson(json));
+}
+
+/**
+ * JSON.parse with a fallback for the most common model glitch: literal control
+ * characters (newlines/tabs) inside string values, which strict JSON rejects.
+ * Replacing them with spaces is safe — whitespace between tokens is legal too.
+ */
+function parseModelJson(json: string): unknown {
+  try {
+    return JSON.parse(json);
+  } catch (first) {
+    try {
+      return JSON.parse(json.replace(/[\u0000-\u001f]+/g, " "));
+    } catch {
+      const msg = (first as Error).message;
+      throw new Error(`model JSON parse failed: ${msg}; head: ${json.slice(0, 300)}`);
+    }
+  }
 }
 
 /** Pull the JSON object out of a model response that may wrap it in prose/fences. */
