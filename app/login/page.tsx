@@ -3,10 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTowerObservation, faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { clientAuth } from "@/lib/firebase/client";
 import { Button } from "@/components/ui/Button";
+import { Logo } from "@/components/Logo";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -37,23 +38,34 @@ export default function LoginPage() {
   }
 
   const control =
-    "w-full h-12 rounded-lg bg-surface border border-line px-4 text-ink-900 " +
-    "placeholder:text-ink-400 focus:outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100";
+    "w-full h-12 rounded-xl bg-surface border border-line px-4 text-ink-900 transition-colors " +
+    "placeholder:text-ink-400 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100";
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-canvas px-4">
-      <div className="w-full max-w-sm">
-        <div className="flex flex-col items-center mb-8">
-          <span className="flex items-center justify-center w-14 h-14 rounded-xl bg-brand-600 text-white mb-3">
-            <FontAwesomeIcon icon={faTowerObservation} className="text-2xl" />
-          </span>
-          <h1 className="text-2xl font-extrabold text-ink-900">מגדלור</h1>
-          <p className="text-sm text-ink-400 mt-1">סינון לידים · קבוצת BST</p>
+    <div className="relative min-h-screen flex items-center justify-center bg-canvas px-4 overflow-hidden">
+      {/* Sparse geometric line-art, kept faint so the login stays calm and minimal. */}
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 220 220"
+        fill="none"
+        className="pointer-events-none absolute -bottom-16 -start-16 h-64 w-64 text-line/60"
+      >
+        <circle cx="110" cy="110" r="60" stroke="currentColor" strokeWidth="1" />
+        <circle cx="110" cy="110" r="95" stroke="currentColor" strokeWidth="1" />
+        <circle cx="110" cy="110" r="130" stroke="currentColor" strokeWidth="1" />
+      </svg>
+
+      <div className="relative w-full max-w-sm">
+        <div className="flex flex-col items-center text-center mb-9">
+          <Logo className="h-12 text-ink-900" />
+          <p className="text-sm text-ink-500 mt-4 tracking-wide">
+            מערכת סינון לידים · פיתוח עסקי
+          </p>
         </div>
 
         <form
           onSubmit={onSubmit}
-          className="bg-surface border border-line rounded-xl shadow-card p-6 space-y-4"
+          className="bg-surface border border-line rounded-xl shadow-card p-6 sm:p-7 space-y-5"
         >
           <div className="space-y-1.5">
             <label htmlFor="email" className="text-sm font-medium text-ink-700">
@@ -87,10 +99,12 @@ export default function LoginPage() {
           </div>
 
           {error && (
-            <p className="text-sm text-stop-600 bg-stop-50 rounded-lg px-3 py-2">{error}</p>
+            <p className="text-sm text-stop-700 bg-stop-50 border border-stop-100 rounded-xl px-3.5 py-2.5">
+              {error}
+            </p>
           )}
 
-          <Button type="submit" variant="primary" size="lg" className="w-full" disabled={busy}>
+          <Button type="submit" variant="primary" size="lg" block disabled={busy}>
             {busy ? (
               <>
                 <FontAwesomeIcon icon={faSpinner} spin />

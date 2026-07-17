@@ -1,69 +1,78 @@
 @import "tailwindcss";
 
 /*
-  מגדלור — עיצוב מערכת (Design tokens)
-  Professional Israeli B2B palette. Calm, high-contrast, RTL-first.
-  Traffic-light semantics (ירוק / כתום / אדום) drive the whole triage UI.
+  BST — design tokens (matched to bst.co.il). See DESIGN-SPEC.md.
+  Warm bone canvas, dark-olive ink, thin airy type, muted earthy status colors.
+  Calm, editorial, architectural. RTL-first.
 */
 
 @theme {
-  /* Brand — deep confident blue, reads as "institutional / trustworthy" */
-  --color-brand-50: #eef4ff;
-  --color-brand-100: #d9e6ff;
-  --color-brand-200: #bcd3ff;
-  --color-brand-300: #8eb6ff;
-  --color-brand-400: #598dff;
-  --color-brand-500: #3366ff;
-  --color-brand-600: #1f47f5;
-  --color-brand-700: #1836db;
-  --color-brand-800: #1a30b0;
-  --color-brand-900: #1b2f8b;
+  /* Brand — BST dark olive. Primary action = brand-600. */
+  --color-brand-50: #ededE4;
+  --color-brand-100: #dadacb;
+  --color-brand-200: #b9baa8;
+  --color-brand-300: #969a86;
+  --color-brand-400: #767d6e;
+  --color-brand-500: #5c6353;
+  --color-brand-600: #454a3f;
+  --color-brand-700: #3a3e33;
+  --color-brand-800: #2e322a;
+  --color-brand-900: #23261f;
 
-  /* Surfaces */
-  --color-canvas: #f6f7f9;
+  /* Accent — muted slate blue (links, informational highlights only) */
+  --color-accent-50: #eef1f4;
+  --color-accent-100: #dbe0e6;
+  --color-accent-500: #4a5464;
+  --color-accent-600: #3c4552;
+
+  /* Surfaces — warm bone canvas, white cards */
+  --color-canvas: #e5e5d6;
   --color-surface: #ffffff;
-  --color-surface-muted: #f1f3f7;
+  --color-surface-muted: #edece3;
 
-  /* Ink (text) */
-  --color-ink-900: #111726;
-  --color-ink-700: #364152;
-  --color-ink-500: #647084;
-  --color-ink-400: #8a94a6;
+  /* Ink (text) — olive / olive-gray */
+  --color-ink-900: #454a3f;
+  --color-ink-700: #5c6353;
+  --color-ink-500: #7c8273;
+  --color-ink-400: #9ca093;
 
-  /* Hairlines */
-  --color-line: #e3e7ef;
+  /* Hairlines — warm taupe */
+  --color-line: #d4d3cb;
 
-  /* Traffic-light status — accessible, deliberately vivid */
-  --color-go-50: #e9f9ef;
-  --color-go-100: #cdefda;
-  --color-go-500: #12a150;
-  --color-go-600: #0e8a44;
-  --color-go-700: #0b6f37;
+  /* Cream logo color (for the logo on dark bars) */
+  --color-logo-cream: #ecebe1;
 
-  --color-warn-50: #fff5e6;
-  --color-warn-100: #ffe6bf;
-  --color-warn-500: #e8890c;
-  --color-warn-600: #cc7400;
-  --color-warn-700: #a35c00;
+  /* Traffic-light status — muted / earthy to fit BST, still legible */
+  --color-go-50: #eaeee3;
+  --color-go-100: #d3dcc7;
+  --color-go-500: #5e7350;
+  --color-go-600: #4e6142;
+  --color-go-700: #3e4e35;
 
-  --color-stop-50: #fdecec;
-  --color-stop-100: #fbd0d0;
-  --color-stop-500: #db2b2b;
-  --color-stop-600: #c11f1f;
-  --color-stop-700: #9c1717;
+  --color-warn-50: #f6eedf;
+  --color-warn-100: #ead8b8;
+  --color-warn-500: #b8823a;
+  --color-warn-600: #9e6e2c;
+  --color-warn-700: #7e5722;
 
-  /* Font families wired to the next/font CSS variables set in layout.tsx */
-  --font-sans: var(--font-assistant), "Assistant", "Segoe UI", system-ui, sans-serif;
+  --color-stop-50: #f4e4e0;
+  --color-stop-100: #e6c6be;
+  --color-stop-500: #a24b3c;
+  --color-stop-600: #8b3e30;
+  --color-stop-700: #6f3126;
 
-  /* Radii — soft, modern Israeli-product feel */
+  /* Font families wired to the next/font CSS variable set in layout.tsx */
+  --font-sans: var(--font-heebo), "Heebo", "Assistant", "Segoe UI", system-ui, sans-serif;
+
+  /* Radii — soft; buttons use rounded-full (pills) per BST */
   --radius-sm: 0.5rem;
   --radius: 0.75rem;
   --radius-lg: 1rem;
   --radius-xl: 1.25rem;
 
-  /* Shadows — subtle, layered */
-  --shadow-card: 0 1px 2px rgba(17, 23, 38, 0.04), 0 4px 16px rgba(17, 23, 38, 0.06);
-  --shadow-pop: 0 8px 30px rgba(17, 23, 38, 0.12);
+  /* Shadows — olive-tinted, subtle and low (BST is near-flat) */
+  --shadow-card: 0 1px 2px rgba(69, 74, 63, 0.04), 0 2px 12px rgba(69, 74, 63, 0.05);
+  --shadow-pop: 0 8px 30px rgba(69, 74, 63, 0.12);
 }
 
 @layer base {

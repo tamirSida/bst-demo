@@ -114,7 +114,7 @@ export function AutoRefresh() {
           value={seconds}
           onChange={(e) => writePrefs({ enabled, seconds: Number(e.target.value) })}
           aria-label="תדירות רענון"
-          className="h-9 rounded-sm border border-line bg-surface px-2 text-sm font-semibold text-ink-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+          className="h-9 rounded-full border border-line bg-surface px-3 text-sm font-medium text-ink-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
         >
           <option value={10}>כל 10 שניות</option>
           <option value={30}>כל 30 שניות</option>

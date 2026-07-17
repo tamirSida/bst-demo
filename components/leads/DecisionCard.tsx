@@ -41,7 +41,7 @@ export function DecisionCard({
             <div className="min-w-0">
               <Link
                 href={`/leads/${lead.id}`}
-                className="text-lg font-bold text-ink-900 hover:text-brand-700 transition-colors line-clamp-1"
+                className="text-lg font-semibold text-ink-900 hover:text-brand-700 transition-colors line-clamp-1"
               >
                 {lead.projectName}
               </Link>

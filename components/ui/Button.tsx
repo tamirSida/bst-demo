@@ -6,19 +6,21 @@ import { cn } from "@/lib/cn";
 type Variant = "primary" | "secondary" | "ghost" | "danger" | "go";
 type Size = "sm" | "md" | "lg";
 
+// BST: fully-rounded pills. Primary = solid olive; secondary = outlined olive;
+// ghost = text only; danger = outlined brick; go = solid sage.
 const VARIANT: Record<Variant, string> = {
-  primary: "bg-brand-600 text-white hover:bg-brand-700 active:bg-brand-800 shadow-card",
+  primary: "bg-brand-600 text-white hover:bg-brand-700 active:bg-brand-800",
   secondary:
-    "bg-surface text-ink-900 border border-line hover:bg-surface-muted active:bg-surface-muted",
-  ghost: "bg-transparent text-ink-700 hover:bg-surface-muted",
-  danger: "bg-surface text-stop-700 border border-stop-100 hover:bg-stop-50",
-  go: "bg-go-600 text-white hover:bg-go-700 active:bg-go-700 shadow-card",
+    "bg-transparent text-ink-900 border border-ink-900 hover:bg-brand-50 active:bg-brand-100",
+  ghost: "bg-transparent text-ink-700 hover:bg-surface-muted hover:text-ink-900",
+  danger: "bg-transparent text-stop-700 border border-stop-500 hover:bg-stop-50 active:bg-stop-100",
+  go: "bg-go-600 text-white hover:bg-go-700 active:bg-go-700",
 };
 
 const SIZE: Record<Size, string> = {
-  sm: "h-9 px-3 text-sm gap-1.5 rounded-sm",
-  md: "h-11 px-4 text-[0.95rem] gap-2 rounded",
-  lg: "h-14 px-6 text-base gap-2.5 rounded-lg",
+  sm: "h-9 px-4 text-sm gap-1.5 rounded-full",
+  md: "h-11 px-5 text-[0.95rem] gap-2 rounded-full",
+  lg: "h-14 px-7 text-base gap-2.5 rounded-full",
 };
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -47,7 +49,7 @@ export function Button({
   return (
     <button
       className={cn(
-        "inline-flex items-center justify-center font-semibold transition-colors",
+        "inline-flex items-center justify-center font-medium transition-colors",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2",
         "disabled:opacity-50 disabled:pointer-events-none select-none",
         VARIANT[variant],

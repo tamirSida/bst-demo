@@ -49,7 +49,7 @@ export function VerdictBanner({
         className={compact ? "text-xl" : "text-2xl"}
       />
       <div className="min-w-0 flex-1">
-        <div className={cn("font-extrabold leading-tight", compact ? "text-base" : "text-xl")}>
+        <div className={cn("leading-tight", compact ? "text-base font-semibold" : "text-2xl font-light")}>
           {VERDICT_LABEL[verdict]}
         </div>
         {!compact && needsCure && (

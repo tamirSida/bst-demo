@@ -85,11 +85,11 @@ export function PublicForm({ form, token }: { form: LeadForm; token: string }) {
   if (done) {
     return (
       <div className="flex flex-col items-center text-center py-10">
-        <span className="flex items-center justify-center w-16 h-16 rounded-full bg-go-50 text-go-600 mb-4">
+        <span className="flex items-center justify-center w-16 h-16 rounded-full bg-go-50 text-go-600 mb-5">
           <FontAwesomeIcon icon={faCircleCheck} className="text-3xl" />
         </span>
-        <h2 className="text-xl font-bold text-ink-900">תודה! הפרטים התקבלו</h2>
-        <p className="text-ink-500 mt-1">נחזור אליכם בהקדם. אפשר לסגור את החלון.</p>
+        <h2 className="text-2xl font-light text-ink-900">תודה! הפרטים התקבלו</h2>
+        <p className="text-ink-500 mt-2 leading-relaxed">נחזור אליכם בהקדם. אפשר לסגור את החלון.</p>
       </div>
     );
   }
@@ -108,7 +108,7 @@ export function PublicForm({ form, token }: { form: LeadForm; token: string }) {
       ))}
 
       {error && (
-        <div className="flex items-start gap-2 rounded-lg bg-stop-50 border border-stop-100 p-3 text-sm text-stop-700">
+        <div className="flex items-start gap-2 rounded-xl bg-stop-50 border border-stop-100 p-3.5 text-sm text-stop-700">
           <FontAwesomeIcon icon={faTriangleExclamation} className="mt-0.5" />
           <span>{error}</span>
         </div>
@@ -187,9 +187,9 @@ function QuestionField({
       <Field label={suffix} help={q.help} required={q.required}>
         <label
           className={cn(
-            "flex items-center gap-3 rounded-lg border-2 border-dashed border-line px-4 py-3.5 cursor-pointer",
+            "flex items-center gap-3 rounded-xl border border-dashed border-line px-4 py-3.5 cursor-pointer",
             "hover:border-brand-400 hover:bg-brand-50/40 transition-colors",
-            fileName && "border-go-100 bg-go-50/50",
+            fileName && "border-go-500/40 bg-go-50/50",
           )}
         >
           <FontAwesomeIcon

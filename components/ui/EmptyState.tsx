@@ -30,7 +30,7 @@ export function EmptyState({
       <div className="flex items-center justify-center w-14 h-14 rounded-full bg-surface-muted text-ink-400 mb-3">
         <FontAwesomeIcon icon={icon} className="text-2xl" />
       </div>
-      <p className="text-ink-700 font-semibold">{title}</p>
+      <p className="text-ink-700 font-medium text-lg">{title}</p>
       {hint && <p className="text-ink-400 text-sm mt-1 max-w-sm">{hint}</p>}
       {action && <div className="mt-4">{action}</div>}
     </div>

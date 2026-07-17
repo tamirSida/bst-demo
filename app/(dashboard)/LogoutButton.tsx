@@ -24,7 +24,7 @@ export function LogoutButton({ email }: { email: string | null }) {
   return (
     <button
       onClick={onLogout}
-      className="flex items-center gap-2 text-sm text-ink-500 hover:text-ink-900 transition-colors"
+      className="flex items-center gap-2 text-sm text-logo-cream/60 hover:text-logo-cream transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-logo-cream/50 rounded-full"
     >
       <FontAwesomeIcon icon={faRightFromBracket} />
       <span>{email ? `יציאה (${email})` : "יציאה"}</span>

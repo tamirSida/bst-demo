@@ -87,7 +87,7 @@ export default async function TodayPage() {
       <section>
         <div className="flex items-center gap-2.5 mb-3">
           <FontAwesomeIcon icon={faInbox} className="text-ink-400 text-lg" />
-          <h2 className="text-lg font-bold text-ink-900">לידים חדשים</h2>
+          <h2 className="text-xl font-light text-ink-900">לידים חדשים</h2>
           <Badge tone="neutral" size="sm">
             <span className="ltr-nums">{inboxCards.length}</span>
           </Badge>

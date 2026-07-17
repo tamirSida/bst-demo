@@ -1,17 +1,19 @@
 import type { Metadata } from "next";
-import { Assistant } from "next/font/google";
+import { Heebo } from "next/font/google";
 import "@/lib/fontawesome";
 import "./globals.css";
 
-const assistant = Assistant({
+// Heebo — closest free match to BST's proprietary "fbparking". Light weights
+// (300) carry the airy headings; 400 body. See DESIGN-SPEC.md.
+const heebo = Heebo({
   subsets: ["hebrew", "latin"],
-  weight: ["400", "500", "600", "700", "800"],
-  variable: "--font-assistant",
+  weight: ["300", "400", "500", "600", "700", "800"],
+  variable: "--font-heebo",
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "מגדלור — ניהול לידים והתחדשות עירונית",
+  title: "BST — ניהול לידים והתחדשות עירונית",
   description: "מערכת סינון וניתוח לידים לפיתוח עסקי — קבוצת BST",
 };
 
@@ -21,7 +23,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="he" dir="rtl" className={`${assistant.variable} h-full`}>
+    <html lang="he" dir="rtl" className={`${heebo.variable} h-full`}>
       <body className="min-h-full antialiased">{children}</body>
     </html>
   );

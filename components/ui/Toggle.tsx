@@ -49,7 +49,7 @@ export function Toggle({
       </span>
       <span
         className={cn(
-          "text-sm font-semibold",
+          "text-sm font-medium",
           checked ? "text-go-700" : "text-ink-500",
         )}
       >

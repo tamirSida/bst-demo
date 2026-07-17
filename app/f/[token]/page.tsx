@@ -1,9 +1,6 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faCircleInfo,
-  faFaceFrown,
-  faTowerObservation,
-} from "@fortawesome/free-solid-svg-icons";
+import { faCircleInfo, faFaceFrown } from "@fortawesome/free-solid-svg-icons";
+import { Logo } from "@/components/Logo";
 import { getFormByToken } from "@/lib/firebase/repo";
 import type { Lead } from "@/lib/domain/types";
 import { DEAL_TYPE_LABEL, PLAN_STATUS_LABEL } from "@/lib/domain/enums";
@@ -42,12 +39,14 @@ export default async function PublicFormPage({
   if (!found) {
     return (
       <div className="min-h-screen bg-canvas flex items-center justify-center p-6">
-        <div className="text-center">
-          <span className="flex items-center justify-center w-16 h-16 mx-auto rounded-full bg-surface-muted text-ink-400 mb-4">
+        <div className="text-center max-w-xs">
+          <span className="flex items-center justify-center w-16 h-16 mx-auto rounded-full bg-surface-muted text-ink-400 mb-5">
             <FontAwesomeIcon icon={faFaceFrown} className="text-3xl" />
           </span>
-          <h1 className="text-xl font-bold text-ink-900">הטופס לא נמצא</h1>
-          <p className="text-ink-500 mt-1">ייתכן שהקישור פג תוקף. אנא פנו לשולח.</p>
+          <h1 className="text-2xl font-light text-ink-900">הטופס לא נמצא</h1>
+          <p className="text-ink-500 mt-2 leading-relaxed">
+            ייתכן שהקישור פג תוקף. אנא פנו לשולח.
+          </p>
         </div>
       </div>
     );
@@ -55,50 +54,61 @@ export default async function PublicFormPage({
 
   const { form, lead } = found;
   const facts = knownFacts(lead);
+  const source = `הפרטים חולצו מהפנייה שקיבלנו${lead.contact?.name ? ` מ${lead.contact.name}` : ""}`;
 
   return (
     <div className="min-h-screen bg-canvas">
-      {/* Branded header */}
-      <header className="bg-brand-600 text-white">
-        <div className="max-w-xl mx-auto px-5 py-6 flex items-center gap-3">
-          <span className="flex items-center justify-center w-11 h-11 rounded-lg bg-white/15">
-            <FontAwesomeIcon icon={faTowerObservation} className="text-xl" />
-          </span>
-          <div>
-            <p className="text-xs text-brand-100 font-semibold">מגדלור · BST</p>
-            <h1 className="text-lg font-extrabold leading-tight">{form.title}</h1>
+      {/* Branded dark-olive bar with the cream logo and a sparse line-art motif. */}
+      <header className="relative overflow-hidden bg-brand-600 text-logo-cream">
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 200 200"
+          fill="none"
+          className="pointer-events-none absolute -top-10 left-0 h-48 w-48 text-logo-cream/10"
+        >
+          <circle cx="0" cy="100" r="70" stroke="currentColor" strokeWidth="1" />
+          <circle cx="0" cy="100" r="120" stroke="currentColor" strokeWidth="1" />
+          <circle cx="0" cy="100" r="170" stroke="currentColor" strokeWidth="1" />
+        </svg>
+        <div className="relative max-w-xl mx-auto px-5 pt-8 pb-7 flex items-center gap-4">
+          <Logo className="h-8 text-logo-cream shrink-0" />
+          <div className="min-w-0">
+            <p className="text-[0.7rem] font-medium tracking-wide text-logo-cream/60">
+              פיתוח עסקי
+            </p>
+            <h1 className="text-[1.35rem] font-light leading-snug text-logo-cream mt-1">
+              {form.title}
+            </h1>
           </div>
         </div>
       </header>
 
-      <main className="max-w-xl mx-auto px-5 py-6 space-y-5">
+      <main className="max-w-xl mx-auto px-5 py-8 space-y-6">
         {/* Known facts for confirmation */}
         {facts.length > 0 && (
-          <section className="rounded-xl bg-surface border border-line shadow-card p-4">
-            <p className="flex items-center gap-2 text-sm font-bold text-ink-700 mb-3">
-              <FontAwesomeIcon icon={faCircleInfo} className="text-brand-600" />
-              מה שכבר ידוע לנו
-              <span className="ms-auto text-xs font-normal text-ink-400">
-                הפרטים חולצו מהפנייה שקיבלנו{lead.contact?.name ? ` מ${lead.contact.name}` : ""}
-              </span>
-            </p>
-            <dl className="grid grid-cols-2 gap-x-4 gap-y-2.5">
+          <section className="rounded-xl bg-surface border border-line shadow-card overflow-hidden">
+            <div className="flex items-center gap-2.5 px-5 pt-4 pb-3.5 border-b border-line">
+              <FontAwesomeIcon icon={faCircleInfo} className="text-brand-500 text-sm" />
+              <h2 className="text-sm font-medium tracking-wide text-ink-700">מה שכבר ידוע לנו</h2>
+            </div>
+            <dl className="grid grid-cols-2 gap-x-6 gap-y-4 px-5 py-5">
               {facts.map((f) => (
                 <div key={f.label}>
-                  <dt className="text-xs text-ink-400">{f.label}</dt>
-                  <dd className="text-sm font-semibold text-ink-900">{f.value}</dd>
+                  <dt className="text-[0.7rem] tracking-wide text-ink-400">{f.label}</dt>
+                  <dd className="text-sm font-medium text-ink-900 mt-0.5">{f.value}</dd>
                 </div>
               ))}
             </dl>
+            <p className="px-5 pb-4 -mt-1 text-xs text-ink-400">{source}</p>
           </section>
         )}
 
         {/* The form */}
-        <section className="rounded-xl bg-surface border border-line shadow-card p-5">
+        <section className="rounded-xl bg-surface border border-line shadow-card p-5 sm:p-6">
           <PublicForm form={form} token={token} />
         </section>
 
-        <p className="text-center text-xs text-ink-400 pb-6">
+        <p className="text-center text-xs text-ink-400 pb-6 leading-relaxed">
           המידע נשמר באופן מאובטח ומשמש את צוות הפיתוח העסקי של BST בלבד.
         </p>
       </main>

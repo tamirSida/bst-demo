@@ -38,9 +38,9 @@ export function CardHeader({
     <div className={cn("flex items-center justify-between gap-3 px-5 pt-5 pb-3", className)}>
       <div className="flex items-center gap-2.5 min-w-0">
         {icon && <FontAwesomeIcon icon={icon} className="text-ink-400 text-lg shrink-0" />}
-        <h2 className="text-lg font-bold text-ink-900 truncate">{title}</h2>
+        <h2 className="text-lg font-medium text-ink-900 truncate">{title}</h2>
         {count != null && (
-          <span className="ltr-nums inline-flex items-center justify-center min-w-6 h-6 px-1.5 rounded-full bg-surface-muted text-ink-500 text-sm font-semibold">
+          <span className="ltr-nums inline-flex items-center justify-center min-w-6 h-6 px-1.5 rounded-full bg-surface-muted text-ink-500 text-sm font-medium">
             {count}
           </span>
         )}

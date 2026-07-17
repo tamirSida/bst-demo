@@ -61,12 +61,12 @@ export function Modal({
         )}
       >
         <div className="flex items-center justify-between gap-3 px-6 pt-5 pb-3 border-b border-line">
-          <h2 className="text-lg font-bold text-ink-900">{title}</h2>
+          <h2 className="text-xl font-light text-ink-900">{title}</h2>
           <button
             type="button"
             onClick={onClose}
             aria-label="סגירה"
-            className="w-9 h-9 inline-flex items-center justify-center rounded text-ink-400 hover:bg-surface-muted hover:text-ink-900"
+            className="w-9 h-9 inline-flex items-center justify-center rounded-full text-ink-400 hover:bg-surface-muted hover:text-ink-900 transition-colors"
           >
             <FontAwesomeIcon icon={faXmark} />
           </button>

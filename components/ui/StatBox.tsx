@@ -19,11 +19,11 @@ export function StatBox({
 }) {
   return (
     <div className={cn("rounded-lg bg-surface-muted px-4 py-3", className)}>
-      <div className="flex items-center gap-1.5 text-ink-500 text-xs font-semibold mb-1">
+      <div className="flex items-center gap-1.5 text-ink-500 text-xs font-medium mb-1">
         {icon && <FontAwesomeIcon icon={icon} className="text-[0.9em]" />}
         <span>{label}</span>
       </div>
-      <div className="text-ink-900 text-xl font-bold leading-tight">{value}</div>
+      <div className="text-ink-900 text-xl font-semibold leading-tight">{value}</div>
       {hint && <div className="text-ink-400 text-xs mt-0.5">{hint}</div>}
     </div>
   );

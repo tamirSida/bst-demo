@@ -31,7 +31,7 @@ export function Chip({
   title?: string;
 }) {
   const base =
-    "inline-flex items-center gap-1.5 rounded-full border px-3.5 h-9 text-sm font-semibold transition-colors whitespace-nowrap";
+    "inline-flex items-center gap-1.5 rounded-full border px-3.5 h-9 text-sm font-medium transition-colors whitespace-nowrap";
   const state = selected
     ? "bg-brand-600 text-white border-brand-600 hover:bg-brand-700"
     : "bg-surface text-ink-700 border-line hover:bg-surface-muted";
