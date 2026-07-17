@@ -33,6 +33,11 @@ export interface ParsedEmail {
 const DOC_MIME = /pdf|word|officedocument|msword|rtf|plain/i;
 const DOC_EXT = /\.(pdf|docx?|rtf|txt)$/i;
 
+/** A file worth reading as a document (PDF/DOCX/RTF/TXT), vs. image/other noise. */
+export function isReadableDoc(filename: string, contentType: string): boolean {
+  return DOC_MIME.test(contentType) || DOC_EXT.test(filename);
+}
+
 function firstAddress(a: AddressObject | AddressObject[] | undefined): {
   name: string | null;
   email: string | null;
@@ -56,7 +61,7 @@ export async function parseEml(raw: Buffer | string): Promise<ParsedEmail> {
   for (const att of mail.attachments ?? []) {
     const filename = att.filename ?? "attachment";
     const contentType = att.contentType ?? "application/octet-stream";
-    const isDoc = DOC_MIME.test(contentType) || DOC_EXT.test(filename);
+    const isDoc = isReadableDoc(filename, contentType);
     if (isDoc && att.content) {
       documents.push({
         filename,

@@ -34,17 +34,27 @@ export async function ingestRawEmail(raw: Buffer): Promise<IngestOutcome> {
 export async function ingestParsedEmail(
   email: ParsedEmail,
   raw?: Buffer,
+  opts?: { skipThreadMatch?: boolean; origin?: "email" | "manual" },
 ): Promise<IngestOutcome> {
-  const existing = await matchThread(email);
-  if (existing) {
-    await addTimelineEvent(timelineEvent(existing, `התקבל מייל תשובה: ${email.subject || "(ללא נושא)"}`));
-    await storeAttachments(existing, raw ?? null, email, []);
-    return { leadId: existing, action: "attached" };
+  // Manual leads skip thread-matching: pasted text could contain an old
+  // [BST-L-xxxx] marker and must not silently attach to another lead.
+  if (!opts?.skipThreadMatch) {
+    const existing = await matchThread(email);
+    if (existing) {
+      await addTimelineEvent(timelineEvent(existing, `התקבל מייל תשובה: ${email.subject || "(ללא נושא)"}`));
+      await storeAttachments(existing, raw ?? null, email, []);
+      return { leadId: existing, action: "attached" };
+    }
   }
 
   const config = await getConfig();
   const formBaseUrl = `${process.env.APP_URL ?? ""}/f/`;
-  const result = await runIngestPipeline(email, { config, findDuplicate, formBaseUrl });
+  const result = await runIngestPipeline(email, {
+    config,
+    findDuplicate,
+    formBaseUrl,
+    origin: opts?.origin,
+  });
   await persistIngestResult(result);
   await storeAttachments(result.lead.id, raw ?? null, email, result.documents);
   return { leadId: result.lead.id, action: "created" };

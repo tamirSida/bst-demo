@@ -41,6 +41,8 @@ export interface IngestDeps {
   formBaseUrl?: string;
   /** Skip the AI summary (faster tests). */
   skipSummary?: boolean;
+  /** Where the lead came from — drives the "created" timeline label. */
+  origin?: "email" | "manual";
 }
 
 export interface IngestResult {
@@ -124,10 +126,12 @@ export async function assembleFromExtraction(
   let lead = recomputeTriage(lead0, config, extraFlags);
 
   const timeline: TimelineEvent[] = [
-    event(lead.id, "created", "הליד נוצר מהמייל הנכנס", {
-      from: email.fromEmail,
-      subject: email.subject,
-    }),
+    event(
+      lead.id,
+      "created",
+      deps.origin === "manual" ? "הליד נוצר מהעלאה ידנית" : "הליד נוצר מהמייל הנכנס",
+      { from: email.fromEmail, subject: email.subject },
+    ),
   ];
   // Log doc-received events only for attachments that are actually stored as
   // documents (email.documents), so the timeline count matches the panel.
