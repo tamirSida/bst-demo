@@ -12,6 +12,7 @@ export interface CsvRow {
   unitsExisting: string;
   unitsPlanned: string;
   deadline: string;
+  score: string;
   verdict: string;
 }
 
@@ -23,6 +24,7 @@ const HEADERS: Record<keyof CsvRow, string> = {
   unitsExisting: 'יח"ד קיימות',
   unitsPlanned: 'יח"ד יוצאות',
   deadline: "מועד הגשה",
+  score: "ציון",
   verdict: "המלצה",
 };
 

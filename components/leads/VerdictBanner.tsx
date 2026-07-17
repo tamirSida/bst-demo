@@ -1,25 +1,11 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faCircleCheck,
-  faCircleInfo,
-  faCircleQuestion,
-  faCircleXmark,
-  faWrench,
-} from "@fortawesome/free-solid-svg-icons";
-import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
+import { faCircleInfo } from "@fortawesome/free-solid-svg-icons";
 import type { Grade } from "@/lib/domain/types";
-import { VERDICT_LABEL, type Verdict } from "@/lib/domain/enums";
+import { VERDICT_LABEL } from "@/lib/domain/enums";
 import { TONE_SOLID, verdictTone } from "@/lib/status";
+import { VERDICT_ICON } from "./verdictIcon";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { cn } from "@/lib/cn";
-
-const VERDICT_ICON: Record<Verdict, IconDefinition> = {
-  advance: faCircleCheck,
-  review: faCircleQuestion,
-  curable: faWrench,
-  reject: faCircleXmark,
-  killed: faCircleXmark,
-};
 
 /**
  * The big bottom-line recommendation. Color IS the message — a busy PM reads the

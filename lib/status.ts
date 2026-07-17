@@ -73,3 +73,21 @@ export const TONE_TEXT: Record<Tone, string> = {
   brand: "text-brand-600",
   neutral: "text-ink-500",
 };
+
+/** Meter track (faint) — for the 0–100 grade bar in the leads table. */
+export const TONE_TRACK: Record<Tone, string> = {
+  go: "bg-go-100",
+  warn: "bg-warn-100",
+  stop: "bg-stop-100",
+  brand: "bg-brand-100",
+  neutral: "bg-line",
+};
+
+/** Meter fill (solid -500) — the filled portion of the grade bar. */
+export const TONE_FILL: Record<Tone, string> = {
+  go: "bg-go-500",
+  warn: "bg-warn-500",
+  stop: "bg-stop-500",
+  brand: "bg-brand-600",
+  neutral: "bg-ink-400",
+};

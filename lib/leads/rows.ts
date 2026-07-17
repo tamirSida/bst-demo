@@ -51,6 +51,8 @@ export function toTableRow(lead: Lead): LeadTableRow {
     deadlineTone: deadlineTone(lead.submissionDeadline),
     verdict: lead.grade ? VERDICT_LABEL[lead.grade.verdict] : null,
     verdictTone: lead.grade ? verdictTone(lead.grade.verdict) : null,
+    verdictKey: lead.grade?.verdict ?? null,
+    score: lead.grade?.score ?? null,
     alarm: hasAlarm(lead),
   };
 }
@@ -65,6 +67,7 @@ export function toCsvRow(lead: Lead): CsvRow {
     unitsExisting: lead.unitsExisting != null ? String(lead.unitsExisting) : "",
     unitsPlanned: lead.unitsPlanned != null ? String(lead.unitsPlanned) : "",
     deadline: lead.submissionDeadline ? formatDate(lead.submissionDeadline) : "",
+    score: lead.grade?.score != null ? String(lead.grade.score) : "",
     verdict: lead.grade ? VERDICT_LABEL[lead.grade.verdict] : "",
   };
 }

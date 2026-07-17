@@ -11,6 +11,8 @@ import { faFolderOpen } from "@fortawesome/free-solid-svg-icons";
 import { Badge } from "@/components/ui/Badge";
 import { cn } from "@/lib/cn";
 import type { Tone } from "@/lib/status";
+import type { Verdict } from "@/lib/domain/enums";
+import { GradeCell } from "./GradeCell";
 
 /**
  * Fully-serialized row for the table (built server-side so no domain logic runs
@@ -29,6 +31,8 @@ export interface LeadTableRow {
   deadlineTone: Tone | null;
   verdict: string | null;
   verdictTone: Tone | null;
+  verdictKey: Verdict | null;
+  score: number | null;
   /** True when a red/kill flag is present → subtle row tint. */
   alarm: boolean;
 }
@@ -72,7 +76,7 @@ export function LeadTable({ rows }: { rows: LeadTableRow[] }) {
               <th className="text-start font-semibold px-4 py-3 whitespace-nowrap">{'יח"ד קיימות'}</th>
               <th className="text-start font-semibold px-4 py-3 whitespace-nowrap">{'יח"ד יוצאות'}</th>
               <th className="text-start font-semibold px-4 py-3">מועד הגשה</th>
-              <th className="text-start font-semibold px-4 py-3">המלצה</th>
+              <th className="text-start font-semibold px-4 py-3">ציון והמלצה</th>
               <th className="w-8" />
             </tr>
           </thead>
@@ -109,14 +113,13 @@ export function LeadTable({ rows }: { rows: LeadTableRow[] }) {
                     <span className="text-ink-400 ltr-nums">{r.deadline}</span>
                   )}
                 </td>
-                <td className="px-4 py-3">
-                  {r.verdict && r.verdictTone ? (
-                    <Badge tone={r.verdictTone} size="sm">
-                      {r.verdict}
-                    </Badge>
-                  ) : (
-                    <span className="text-ink-400">—</span>
-                  )}
+                <td className="px-4 py-3 whitespace-nowrap">
+                  <GradeCell
+                    score={r.score}
+                    verdictKey={r.verdictKey}
+                    verdictLabel={r.verdict}
+                    tone={r.verdictTone}
+                  />
                 </td>
                 <td className="px-2 py-3 text-ink-300 group-hover:text-brand-500">
                   <Link href={`/leads/${r.id}`} aria-label="פתיחת ליד">
