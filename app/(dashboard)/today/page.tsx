@@ -22,6 +22,7 @@ import { CountdownChip } from "@/components/ui/CountdownChip";
 import { Badge } from "@/components/ui/Badge";
 import { DecisionCard } from "@/components/leads/DecisionCard";
 import { NewLeadButton } from "@/components/leads/NewLeadButton";
+import { InboundStatus } from "@/components/leads/InboundStatus";
 import { AutoRefresh } from "@/components/ui/AutoRefresh";
 import { appraiserPack } from "@/lib/leads/pack";
 
@@ -79,6 +80,8 @@ export default async function TodayPage() {
           </div>
         }
       />
+
+      <InboundStatus />
 
       {/* New leads needing a decision */}
       <section>

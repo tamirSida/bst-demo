@@ -78,6 +78,9 @@ export interface TriageConfig {
   /** Verdict bands on the 0–100 score. */
   advanceAt: number; // >= → advance
   reviewAt: number; // >= → review; below → reject
+
+  /** Behavior: auto-generate + send the follow-up questions form on a new lead. */
+  autoSendQuestions: boolean;
 }
 
 export const DEFAULT_CONFIG: TriageConfig = {
@@ -155,6 +158,8 @@ export const DEFAULT_CONFIG: TriageConfig = {
 
   advanceAt: 70,
   reviewAt: 45,
+
+  autoSendQuestions: true,
 };
 
 /** Resolve a city's region, with the configured fallback. */

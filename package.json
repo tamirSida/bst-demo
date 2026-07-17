@@ -11,7 +11,7 @@
     "test:watch": "vitest",
     "import:excel": "python3 scripts/import_excel.py",
     "seed": "tsx scripts/seed.ts",
-    "poll": "while true; do curl -s -X POST http://localhost:3000/api/inbound/poll; echo; sleep 20; done"
+    "poll": "while true; do curl -s -X POST http://localhost:3000/api/inbound/poll; echo; sleep 5; done"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.111.0",

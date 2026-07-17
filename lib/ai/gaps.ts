@@ -32,13 +32,15 @@ const GAP_SYSTEM = `אתה עוזר לצוות הפיתוח העסקי של BST 
 
 export async function analyzeGaps(lead: Lead): Promise<FormQuestion[]> {
   const facts = summarizeFactsForGaps(lead);
+  // No extended thinking here: it shares the max_tokens budget, and a long
+  // think was truncating the JSON output mid-string. This is a structured
+  // generation task, so the full budget goes to the questions instead.
   const result: GapAnalysisResult = await structuredCall({
     system: GAP_SYSTEM,
     blocks: [{ type: "text", text: facts }],
     schema: GapAnalysisSchema,
     jsonSchema: toJsonSchema(GapAnalysisSchema),
-    maxTokens: 3072,
-    think: true,
+    maxTokens: 4096,
   });
 
   const questions: FormQuestion[] = result.questions.map((q) => ({

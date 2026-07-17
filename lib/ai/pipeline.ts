@@ -11,6 +11,7 @@ import type { TriageConfig } from "../domain/config";
 import { createLead, displayName, nextThreadKey, recomputeTriage } from "../domain/lead";
 import type {
   Flag,
+  FormQuestion,
   Lead,
   LeadForm,
   OutboundEmail,
@@ -142,37 +143,43 @@ export async function assembleFromExtraction(
   let form: LeadForm | null = null;
   let outbound: OutboundEmail | null = null;
 
-  if (!killed) {
-    const questions = await analyzeGaps(lead);
-    if (questions.length > 0) {
-      const token = makeToken();
-      const now = new Date().toISOString();
-      form = {
-        id: makeToken(),
-        leadId: lead.id,
-        token,
-        title: `השלמת פרטים — ${displayName(lead)}`,
-        questions,
-        answers: {},
-        status: "sent",
-        createdAt: now,
-        sentAt: now,
-        openedAt: null,
-        submittedAt: null,
-      };
-      lead = { ...lead, status: LeadStatus.AwaitingInfo };
-      outbound = buildFormEmail(lead, form, deps.formBaseUrl);
-      timeline.push(event(lead.id, "form_sent", "נשלח טופס השלמת פרטים לגורם הפונה"));
-    }
+  // Auto-send is a global setting: when off, new leads are just triaged and the
+  // user sends the questions form manually via "שלח שאלות" (which regenerates it).
+  const autoSend = config.autoSendQuestions !== false;
+
+  // Gap analysis (questions) and the summary are independent AI calls on the
+  // same graded lead, so run them concurrently to cut latency. BOTH are
+  // best-effort: a failure must never lose the lead — extraction + grade are the
+  // valuable part, and the form can be regenerated later via "שלח שאלות".
+  const [questions, summary] = await Promise.all([
+    killed || !autoSend
+      ? Promise.resolve<FormQuestion[]>([])
+      : analyzeGaps(lead).catch(() => [] as FormQuestion[]),
+    deps.skipSummary ? Promise.resolve<string | null>(null) : summarizeLead(lead).catch(() => null),
+  ]);
+
+  if (!killed && autoSend && questions.length > 0) {
+    const token = makeToken();
+    const now = new Date().toISOString();
+    form = {
+      id: makeToken(),
+      leadId: lead.id,
+      token,
+      title: `השלמת פרטים — ${displayName(lead)}`,
+      questions,
+      answers: {},
+      status: "sent",
+      createdAt: now,
+      sentAt: now,
+      openedAt: null,
+      submittedAt: null,
+    };
+    lead = { ...lead, status: LeadStatus.AwaitingInfo };
+    outbound = buildFormEmail(lead, form, deps.formBaseUrl);
+    timeline.push(event(lead.id, "form_sent", "נשלח טופס השלמת פרטים לגורם הפונה"));
   }
 
-  if (!deps.skipSummary) {
-    try {
-      lead = { ...lead, aiSummary: await summarizeLead(lead) };
-    } catch {
-      // Summary is best-effort; never fail ingestion over it.
-    }
-  }
+  if (summary) lead = { ...lead, aiSummary: summary };
 
   return {
     lead,

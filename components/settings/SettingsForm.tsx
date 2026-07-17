@@ -10,6 +10,7 @@ import {
   faCity,
   faCoins,
   faFloppyDisk,
+  faPaperPlane,
   faScaleBalanced,
   faSliders,
 } from "@fortawesome/free-solid-svg-icons";
@@ -17,6 +18,7 @@ import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Field, Input } from "@/components/ui/Field";
+import { Toggle } from "@/components/ui/Toggle";
 import { TagInput } from "./TagInput";
 import { saveConfigAction } from "@/app/actions";
 import { REGION_LABEL, Region, type TriageConfig } from "@/lib/domain/config";
@@ -50,6 +52,16 @@ export function SettingsForm({ initial }: { initial: TriageConfig }) {
 
   return (
     <div className="space-y-5 pb-24">
+      {/* Automation */}
+      <Section title="אוטומציה" icon={faPaperPlane} grid={false}>
+        <ToggleField
+          label="שליחה אוטומטית של שאלות השלמה"
+          help="כשמופעל — עם קליטת ליד חדש המערכת מזהה מה חסר ושולחת טופס השלמה לגורם הפונה. כשמכובה — הליד נקלט בלבד, ותוכלו לשלוח את השאלות ידנית בכפתור «שלח שאלות»."
+          checked={config.autoSendQuestions ?? true}
+          onChange={(v) => set("autoSendQuestions", v)}
+        />
+      </Section>
+
       {/* פינוי-בינוי thresholds */}
       <Section title="ספי פינוי-בינוי" icon={faBuilding}>
         <NumField
@@ -308,6 +320,30 @@ function Section({
         {children}
       </div>
     </Card>
+  );
+}
+
+function ToggleField({
+  label,
+  help,
+  checked,
+  onChange,
+}: {
+  label: string;
+  help?: string;
+  checked: boolean;
+  onChange: (v: boolean) => void;
+}) {
+  return (
+    <div className="flex items-start justify-between gap-4">
+      <div className="min-w-0">
+        <p className="text-sm font-semibold text-ink-800">{label}</p>
+        {help && <p className="text-xs text-ink-400 mt-0.5 leading-relaxed">{help}</p>}
+      </div>
+      <div className="shrink-0 pt-0.5">
+        <Toggle checked={checked} onChange={onChange} labelOn="פעיל" labelOff="כבוי" />
+      </div>
+    </div>
   );
 }
 

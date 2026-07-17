@@ -38,6 +38,26 @@ export async function listReceivedIds(): Promise<string[]> {
   return (out.data ?? []).map((e) => e.id).filter(Boolean);
 }
 
+/** Received emails with the light metadata the list already carries (no fetch). */
+export interface ReceivedSummary {
+  id: string;
+  subject: string;
+  from: string | null;
+  at: string | null;
+}
+
+export async function listReceived(): Promise<ReceivedSummary[]> {
+  const out = await api<{ data?: Rec[] }>("/emails/receiving");
+  return (out.data ?? [])
+    .map((e) => ({
+      id: str(e, "id") ?? "",
+      subject: str(e, "subject") ?? "",
+      from: parseFrom(e.from).email,
+      at: str(e, "created_at", "date"),
+    }))
+    .filter((e) => e.id);
+}
+
 /** Tolerant field access — Resend's shapes vary slightly across API versions. */
 type Rec = Record<string, unknown>;
 const str = (o: Rec, ...keys: string[]): string | null => {

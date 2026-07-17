@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/Card";
 import { PipelineFilters } from "@/components/leads/PipelineFilters";
 import { LeadTable } from "@/components/leads/LeadTable";
 import { ExportCsvButton } from "@/components/leads/ExportCsvButton";
+import { InboundStatus } from "@/components/leads/InboundStatus";
 import { AutoRefresh } from "@/components/ui/AutoRefresh";
 import { toCsvRow, toTableRow } from "@/lib/leads/rows";
 
@@ -49,6 +50,8 @@ export default async function LeadsPage({
           </div>
         }
       />
+
+      <InboundStatus />
 
       <Card className="p-4 sm:p-5">
         <PipelineFilters cities={cities} />
