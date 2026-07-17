@@ -9,6 +9,8 @@ import { Card } from "@/components/ui/Card";
 import { CardHeader } from "@/components/ui/Card";
 import { FactRow } from "./FactRow";
 import { ContactCard } from "./ContactCard";
+import { AdvancedEditDialog } from "./AdvancedEditDialog";
+import { toEditableJson } from "@/lib/domain/leadEdit";
 import { formatNumber, formatPercent, formatCurrency } from "@/lib/format/num";
 import { faTableList } from "@fortawesome/free-solid-svg-icons";
 
@@ -30,7 +32,11 @@ export function FactSheet({ lead }: { lead: Lead }) {
 
   return (
     <Card>
-      <CardHeader title="נתוני הליד" icon={faTableList} />
+      <CardHeader
+        title="נתוני הליד"
+        icon={faTableList}
+        action={<AdvancedEditDialog leadId={lead.id} initialJson={toEditableJson(lead)} />}
+      />
       <div className="px-5 pb-3">
         <FactRow
           leadId={lead.id}
