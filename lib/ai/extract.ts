@@ -34,7 +34,12 @@ const EXTRACTION_SYSTEM = `אתה מנתח לידים לפיתוח עסקי בח
 - planStatus: approved_mitcham (תב"ע מאושרת/בניינית מאושרת), deposited, early_process, policy_no_plan (אין תכנית אך יש מדיניות), no_policy, conflicts_policy, unknown.
 - sourceType: tenant_lawyer (עו"ד דיירים), organizer (מארגן), broker (מתווך), municipality (מנהלת עירונית), rami_publication, other.
 - feeStructure: per_unit (לכל יח"ד), percentage (אחוז — כשבר עשרוני, 2%→0.02), fixed (קבוע). מלא feeAmount/feeStructure/feeNote רק אם מוזכרת עמלה שהגורם המפנה גובה.
-- contactName/contactFirm/contactEmail/contactPhone: פרטי שולח המייל / הגורם הפונה.
+- אנשי קשר — הפרד בין הגורמים:
+  - contactName: שם האדם הפונה (איש הקשר).
+  - contactCompany: חברת היזם/הישות שמאחורי העסקה, אם מוזכרת ושונה מהמשרד המפנה.
+  - contactFirm: המשרד/הגורם המפנה — עו"ד דיירים, מארגן או מתווך.
+  - contactEmail: כתובת המייל של איש הקשר — השדה החשוב ביותר; חלץ אותו תמיד אם מופיע, כולל מתוך חתימת המייל.
+  - contactPhone: מספר טלפון.
 - sourceNote: משפט קצר בעברית המתאר מהיכן הגיעו עיקר הנתונים.`;
 
 export async function extractLead(email: ParsedEmail): Promise<ExtractionResult> {

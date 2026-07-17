@@ -8,6 +8,7 @@ import {
 import { Card } from "@/components/ui/Card";
 import { CardHeader } from "@/components/ui/Card";
 import { FactRow } from "./FactRow";
+import { ContactCard } from "./ContactCard";
 import { formatNumber, formatPercent, formatCurrency } from "@/lib/format/num";
 import { faTableList } from "@fortawesome/free-solid-svg-icons";
 
@@ -169,18 +170,7 @@ export function FactSheet({ lead }: { lead: Lead }) {
         <FactRow
           leadId={lead.id}
           label="איש קשר"
-          value={
-            lead.contact?.name ? (
-              <span>
-                {lead.contact.name}
-                {lead.contact.firm && (
-                  <span className="text-ink-400 text-xs">{" · " + lead.contact.firm}</span>
-                )}
-              </span>
-            ) : (
-              <span className="text-ink-400">—</span>
-            )
-          }
+          value={<ContactCard contact={lead.contact} />}
         />
       </div>
     </Card>

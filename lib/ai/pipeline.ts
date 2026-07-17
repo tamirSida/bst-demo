@@ -209,7 +209,7 @@ function provenanceFromExtraction(extraction: ExtractionResult): ProvenanceMap {
 
 function contactFromEmail(email: ParsedEmail): Lead["contact"] {
   if (!email.fromEmail && !email.fromName) return null;
-  return { name: email.fromName, firm: null, email: email.fromEmail, phone: null };
+  return { name: email.fromName, company: null, firm: null, email: email.fromEmail, phone: null };
 }
 
 function buildFormEmail(lead: Lead, form: LeadForm, base?: string): OutboundEmail {

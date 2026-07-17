@@ -58,7 +58,7 @@ describe("הדרים 21-23 לוד — the reference lead", () => {
       planStatus: PlanStatus.ApprovedMitcham,
       planNumber: "406-1063890",
       sourceType: LeadSourceType.TenantLawyer,
-      contact: { name: "יוסף קדוש", firm: "יוסף קדוש", email: "y@x.co.il", phone: "050" },
+      contact: { name: "יוסף קדוש", company: null, firm: "יוסף קדוש", email: "y@x.co.il", phone: "050" },
     }),
     DEFAULT_CONFIG,
   );

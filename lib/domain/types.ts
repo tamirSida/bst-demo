@@ -62,8 +62,13 @@ export type ProvenanceMap = Partial<Record<LeadFactKey, Provenance>>;
 /* ------------------------------------------------------------------ */
 
 export interface Contact {
+  /** The person we correspond with (איש הקשר). */
   name: string | null;
+  /** The developer / owning entity behind the deal (יזם/חברה), if named. */
+  company: string | null;
+  /** The referring intermediary office — עו"ד דיירים / מארגן / מתווך. */
   firm: string | null;
+  /** The contact email — the must-have field for reaching the lead. */
   email: string | null;
   phone: string | null;
 }

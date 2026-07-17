@@ -25,7 +25,13 @@ export interface ExtractionResult {
   address: string | null;
   gushHelka: string[];
   sourceType: string | null;
-  contact: { name: string | null; firm: string | null; email: string | null; phone: string | null } | null;
+  contact: {
+    name: string | null;
+    company: string | null;
+    firm: string | null;
+    email: string | null;
+    phone: string | null;
+  } | null;
   submissionDeadline: string | null;
   unitsExisting: number | null;
   unitsPlanned: number | null;
@@ -94,10 +100,11 @@ export function normalizeExtraction(
   const get = (k: string) => raw[k];
   const contact = (get("contact") as Record<string, unknown>) ?? {};
   const name = blank(get("contactName") ?? contact.name);
+  const company = blank(get("contactCompany") ?? contact.company);
   const firm = blank(get("contactFirm") ?? contact.firm);
   const email = blank(get("contactEmail") ?? contact.email);
   const phone = blank(get("contactPhone") ?? contact.phone);
-  const hasContact = Boolean(name || email || phone || firm);
+  const hasContact = Boolean(name || email || phone || firm || company);
 
   const fee = (get("sourceFee") as Record<string, unknown>) ?? {};
   const feeAmount = toNum(get("feeAmount") ?? fee.amount);
@@ -142,7 +149,7 @@ export function normalizeExtraction(
     address: blank(get("address")),
     gushHelka,
     sourceType: coerce(get("sourceType"), values(LeadSourceType), null),
-    contact: hasContact ? { name, firm, email, phone } : null,
+    contact: hasContact ? { name, company, firm, email, phone } : null,
     submissionDeadline: blank(get("submissionDeadline")),
     unitsExisting,
     unitsPlanned,
