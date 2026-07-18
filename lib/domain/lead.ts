@@ -17,6 +17,21 @@ export function nextThreadKey(seq?: number): string {
   return `BST-L-${String(n).padStart(4, "0")}`;
 }
 
+/**
+ * The next collision-free thread sequence: one above the highest BST-L-#### key
+ * among existing leads. Derived from stored data (not an in-memory counter) so a
+ * server restart can't reissue a key that's already taken — which would let an
+ * email reply thread-match the wrong lead.
+ */
+export function nextThreadSeq(leads: Pick<Lead, "threadKey">[]): number {
+  let max = 0;
+  for (const l of leads) {
+    const m = /^BST-L-(\d+)$/.exec(l.threadKey ?? "");
+    if (m) max = Math.max(max, Number(m[1]));
+  }
+  return max + 1;
+}
+
 export interface NewLeadInput extends Partial<Lead> {
   dealType: DealType;
   projectName: string;

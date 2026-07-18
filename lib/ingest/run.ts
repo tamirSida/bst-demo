@@ -1,6 +1,7 @@
 import "server-only";
 import { parseEml, type ParsedEmail } from "../eml/parse";
 import { runIngestPipeline } from "../ai/pipeline";
+import { nextThreadSeq } from "../domain/lead";
 import { DocType } from "../domain/enums";
 import type { LeadDocument, TimelineEvent } from "../domain/types";
 import {
@@ -49,11 +50,14 @@ export async function ingestParsedEmail(
 
   const config = await getConfig();
   const formBaseUrl = `${process.env.APP_URL ?? ""}/f/`;
+  // Derive the thread key from stored data so a restart can't reissue a taken key.
+  const threadSeq = nextThreadSeq(await listLeads());
   const result = await runIngestPipeline(email, {
     config,
     findDuplicate,
     formBaseUrl,
     origin: opts?.origin,
+    threadSeq,
   });
   await persistIngestResult(result);
   await storeAttachments(result.lead.id, raw ?? null, email, result.documents);
