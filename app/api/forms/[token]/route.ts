@@ -56,7 +56,7 @@ export async function POST(
       if (value.size === 0 || value.size > MAX_UPLOAD_BYTES) continue;
 
       const buf = Buffer.from(await value.arrayBuffer());
-      const url = saveLeadFile(leadId, fileName, buf);
+      const url = await saveLeadFile(leadId, fileName, buf);
       await addDocument({
         id: crypto.randomUUID(),
         leadId,

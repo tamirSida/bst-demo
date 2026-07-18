@@ -9,7 +9,7 @@ export async function GET(
 ) {
   const { leadId, name } = await params;
   const decoded = decodeURIComponent(name);
-  const buf = readLeadFile(decodeURIComponent(leadId), decoded);
+  const buf = await readLeadFile(decodeURIComponent(leadId), decoded);
   if (!buf) return new Response("not found", { status: 404 });
 
   const isEml = /\.eml$/i.test(decoded);

@@ -173,7 +173,7 @@ export async function deleteLead(id: string): Promise<void> {
       }
     }
   }
-  deleteLeadFiles(id);
+  await deleteLeadFiles(id);
 }
 
 /* ----------------------------- duplicate scan --------------------------- */

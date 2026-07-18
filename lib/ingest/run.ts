@@ -93,7 +93,7 @@ async function storeAttachments(
   const now = new Date().toISOString();
 
   if (raw) {
-    const emlUrl = saveLeadFile(leadId, "המייל-המקורי.eml", raw);
+    const emlUrl = await saveLeadFile(leadId, "המייל-המקורי.eml", raw);
     await addDocument(
       doc(leadId, "המייל המקורי (.eml)", DocType.Other, emlUrl, "message/rfc822", raw.length, now),
     );
@@ -102,7 +102,7 @@ async function storeAttachments(
   for (const att of email.documents) {
     const type = (classified.find((c) => c.fileName === att.filename)?.type ??
       DocType.Other) as DocType;
-    const url = saveLeadFile(leadId, att.filename, att.content);
+    const url = await saveLeadFile(leadId, att.filename, att.content);
     await addDocument(doc(leadId, att.filename, type, url, att.contentType, att.sizeBytes, now));
   }
 }

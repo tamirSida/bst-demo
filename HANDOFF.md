@@ -32,7 +32,7 @@ fixtures and tests.
 | Email in/out | `lib/email/` (Resend + 2 safety layers), `lib/ingest/` (shared ingest path) |
 | Manual upload (text/file, no email) | `lib/ingest/manual.ts`, `app/api/ingest/route.ts`, `components/leads/NewLeadButton.tsx` |
 | Data layer | `lib/firebase/repo.ts` — Firestore when creds present, else local seed + `.data/` file store |
-| **File storage** | `lib/storage/files.ts` — **local disk `.data/files/<leadId>/` (see OPEN DECISION below)** |
+| **File storage** | `lib/storage/files.ts` — **Vercel Blob (private) in prod, local disk in dev — see below** |
 | Screens | `app/(dashboard)/` + public form `app/f/[token]/` + `components/` |
 | Env & secrets | `.env.local` (gitignored) — Anthropic key, Resend key, Firebase config, toggles |
 | Original client materials | `../BST_files/` — real emails, questionnaires, agreements, the Excel |
@@ -52,37 +52,38 @@ fixtures and tests.
 **The two email safety layers exist because the test corpus contains real lawyers'
 addresses. Never remove both outside real production.** (Tests: `lib/email/providers.test.ts`.)
 
-## ⏳ OPEN DECISION + PENDING TASK — file storage
+## ✅ File storage — DECIDED & IMPLEMENTED (2026-07-18): Vercel Blob (private)
 
-**Problem:** files (lead PDFs, `.eml`, form uploads) are currently written to local disk
-in `lib/storage/files.ts` (`.data/files/<leadId>/`) and served by `app/api/files/[leadId]/[name]`.
-That disk is **ephemeral on Netlify** — files would vanish between invocations in prod.
-`.data/` is gitignored/local-only. So prod needs a real object store.
+**Problem it solved:** files (lead PDFs, `.eml`, form uploads) were written to local disk, which is
+**ephemeral on Netlify** — they'd vanish between invocations in prod.
 
-**Research done this session (2026-07-18):**
-- **Netlify DB** is serverless Postgres (Neon) — a *relational database*, NOT file storage. Not for this.
-- **Netlify Blobs** IS Netlify's object/file store — the right tool. Zero setup (auto-provisioned
-  per site, no account/keys), binary up to 5 GB/blob + metadata, **private by default** (no public
-  URL; bytes only come out through our code), persists across deploys. `npm i @netlify/blobs`;
-  `getStore("lead-files").set(key, buffer, {metadata})` / `.get(key, {type:"stream"})`. Only works
-  in the Netlify runtime (`netlify dev` or deployed) — keep the local-disk path as the dev fallback.
-- **Cloudinary** = alternative (external account + `CLOUDINARY_URL`, its own CDN, signed URLs for
-  private assets). Only wins if we want CDN-offloaded delivery / transformations, or portability off
-  Netlify. User leaned "private + signed" if we went this way; needs "Allow delivery of PDF/ZIP" in
-  Cloudinary Security settings.
+**Decision:** **Vercel Blob, private store.** Chosen over Netlify Blobs because the user wants the
+file data in an account **decoupled from the Netlify hosting account** (Netlify Blobs is welded to
+the Netlify site). Chosen over Cloudinary because Blob's private model — stream bytes back through
+our own authenticated route — is a drop-in to the existing `/api/files` proxy, whereas Cloudinary
+would need `resource_type:raw` + signed-URL redirects + a PDF-delivery toggle, and its free tier
+*suspends* on overage.
 
-**Recommendation:** **Netlify Blobs** (deploys on Netlify already; `netlify.toml` present) — zero
-keys, private by default, drops straight into the existing `/api/files` route.
+**How it works now (`lib/storage/files.ts`):**
+- Backend chosen at runtime by `blobEnabled()` = **is `BLOB_READ_WRITE_TOKEN` set?**
+  - Token present (prod / `netlify dev` with the var) → **Vercel Blob**, `access:'private'`,
+    `addRandomSuffix:false` (deterministic key `"<leadId>/<file>"` so the read route can address it).
+  - No token (local dev) → **local disk** `.data/files/<leadId>/` (unchanged).
+- `saveLeadFile` / `readLeadFile` / `deleteLeadFiles` are now **async**; all callers await them
+  (`lib/ingest/run.ts`, `app/api/forms/[token]/route.ts`, `lib/firebase/repo.ts`).
+- The read route (`app/api/files/[leadId]/[name]`) is unchanged in shape: it fetches the bytes
+  (from Blob via `get(...,{access:'private'})` or from disk) and streams them with the right
+  content-type/disposition. Store is **private** → bytes only ever exit through this authed route.
+- `LeadDocument.storagePath` still holds `/api/files/<leadId>/<name>` — contract unchanged.
+- `@vercel/blob` `2.6.1` added to deps (>= 2.3 required for private stores).
 
-**Next step (the pending task):**
-1. Decide backend (Blobs recommended; Cloudinary is the alternative — awaiting user pick).
-2. Implement in `lib/storage/files.ts`: make `saveLeadFile()` write to the chosen store when in
-   prod (env/runtime detected), keep local disk as the dev fallback. One change covers BOTH ingest
-   attachments (`lib/ingest/run.ts` → `storeAttachments`) and public-form uploads
-   (`app/api/forms/[token]/route.ts`), since both call `saveLeadFile`.
-3. Update `app/api/files/[leadId]/[name]/route.ts` to read from the store (stream back for Blobs;
-   or redirect to a signed URL for Cloudinary). Keep the same URL contract so nothing downstream
-   changes — `LeadDocument.storagePath` stays the same shape.
+**⚠ What the user must do before prod works (one-time, ~3 min):**
+1. Create a **free Vercel account** (does NOT deploy the app there — Netlify stays the host).
+2. Dashboard → **Storage → Create → Blob**, set access to **Private**. (Or CLI:
+   `vercel blob create-store bst-lead-files --access private`.)
+3. Copy the store's **`BLOB_READ_WRITE_TOKEN`** into Netlify env vars (Site settings → Environment
+   variables) — and into local `.env.local` only if testing the Blob path locally via `netlify dev`.
+   Without the token, the app silently uses local disk.
 
 ## Status — done this session (all committed; see git log)
 
@@ -109,7 +110,12 @@ keys, private by default, drops straight into the existing `/api/files` route.
 
 1. **Deploy** — `netlify.toml` + README ready; needs `netlify login` + env vars. Caveat: AI ingest
    (~30s) exceeds Netlify sync-function limits — use a background function / higher plan at scale.
-2. **Firestore** — wired but dormant (chose not to seed yet). Uncomment creds + `npm run seed`.
+2. **Firestore** — ✅ LIVE (2026-07-18). Project `bst-demo-54800`; service-account key at
+   `nextjs/serviceAccount.json` (gitignored), base64-encoded into `FIREBASE_SERVICE_ACCOUNT` in
+   `.env.local`. Already seeded: 750 leads (749 Excel + הדרים), config/thresholds, 1 form. App reads
+   lead *data* from Firestore; lead *files* live on Vercel Blob. For Netlify, put the same base64
+   `FIREBASE_SERVICE_ACCOUNT` in the site's env vars. (`EMPTY_START=true` is now a no-op — it only
+   gated the local seed, which Firestore mode bypasses.)
 3. **⚠ Triage thresholds are UNVALIDATED defaults** in `lib/domain/config.ts` — BST's experts must
    review them in הגדרות before trusting the verdicts.
 4. לבדיקה תכנונית records the stage change but doesn't yet email the architect.
