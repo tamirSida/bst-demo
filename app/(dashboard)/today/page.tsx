@@ -7,6 +7,7 @@ import {
   faPaperPlane,
 } from "@fortawesome/free-solid-svg-icons";
 import {
+  getConfig,
   getForm,
   listDocuments,
   listLeads,
@@ -35,10 +36,17 @@ const NEEDS_DECISION: string[] = [
 ];
 
 export default async function TodayPage() {
-  const leads = await listLeads({ activeOnly: true });
+  const config = await getConfig();
+  const leads = await listLeads({ activeOnly: true, uploadedOnly: !config.showSeedData });
 
-  // Leads awaiting a GO/NO-GO decision.
-  const inbox = leads.filter((l) => NEEDS_DECISION.includes(l.status));
+  // Leads awaiting a GO/NO-GO decision, received within the configured "new" window.
+  const windowStart = new Date();
+  windowStart.setDate(windowStart.getDate() - config.newLeadWindowDays);
+  const cutoffMs = windowStart.getTime();
+  const inbox = leads.filter(
+    (l) =>
+      NEEDS_DECISION.includes(l.status) && new Date(l.leadReceivedAt).getTime() >= cutoffMs,
+  );
 
   // Load form + documents for each inbox lead (for pack + checklist).
   const inboxCards = await Promise.all(

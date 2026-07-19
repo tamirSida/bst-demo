@@ -30,7 +30,11 @@ async function seedExcelLeads() {
   const raw = await readFile(resolve(SEED, "leads.json"), "utf8");
   const rows = JSON.parse(raw) as Array<Partial<Lead> & { dealType: Lead["dealType"] }>;
   const config = await getConfig();
-  const leads = rows.map((row) => recomputeTriage(createLead(row as never), config));
+  const leads = rows.map((row) => {
+    const lead = recomputeTriage(createLead(row as never), config);
+    // Mark as seed data so the "show seed data" toggle can hide it.
+    return { ...lead, extra: { ...lead.extra, origin: "seed" } };
+  });
   await saveLeadsBatch(leads);
   console.log(`  ✓ ${leads.length} leads מ-Excel`);
 }
@@ -44,7 +48,8 @@ async function seedHadarim() {
     return;
   }
   const result = JSON.parse(raw) as IngestResult;
-  await saveLead(result.lead);
+  const lead = { ...result.lead, extra: { ...result.lead.extra, origin: "seed" } };
+  await saveLead(lead);
   if (result.form) await saveForm(result.form);
   if (result.outbound) await logOutbound(result.outbound);
   for (const evt of result.timeline) await addTimelineEvent(evt);

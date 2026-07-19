@@ -53,6 +53,9 @@ export function toTableRow(lead: Lead): LeadTableRow {
     verdictTone: lead.grade ? verdictTone(lead.grade.verdict) : null,
     verdictKey: lead.grade?.verdict ?? null,
     score: lead.grade?.score ?? null,
+    unitsExistingNum: lead.unitsExisting ?? null,
+    unitsPlannedNum: lead.unitsPlanned ?? null,
+    deadlineTs: lead.submissionDeadline ? Date.parse(lead.submissionDeadline) : null,
     alarm: hasAlarm(lead),
   };
 }

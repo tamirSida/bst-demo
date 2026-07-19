@@ -1,10 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
+import {
+  faChevronLeft,
+  faSort,
+  faSortDown,
+  faSortUp,
+} from "@fortawesome/free-solid-svg-icons";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { faFolderOpen } from "@fortawesome/free-solid-svg-icons";
@@ -33,6 +38,10 @@ export interface LeadTableRow {
   verdictTone: Tone | null;
   verdictKey: Verdict | null;
   score: number | null;
+  /** Raw values for sorting (display strings above lose type/order). */
+  unitsExistingNum: number | null;
+  unitsPlannedNum: number | null;
+  deadlineTs: number | null;
   /** True when a red/kill flag is present → subtle row tint. */
   alarm: boolean;
 }
@@ -47,9 +56,60 @@ const TONE_TEXT: Record<Tone, string> = {
   neutral: "text-ink-500",
 };
 
+type SortDir = "asc" | "desc";
+
+/** Column sort keys → how to pull a comparable value out of a row. */
+const SORT_ACCESSOR: Record<string, (r: LeadTableRow) => string | number | null> = {
+  projectName: (r) => r.projectName,
+  city: (r) => r.city,
+  dealType: (r) => r.dealType,
+  status: (r) => r.status,
+  unitsExisting: (r) => r.unitsExistingNum,
+  unitsPlanned: (r) => r.unitsPlannedNum,
+  deadline: (r) => r.deadlineTs,
+  score: (r) => r.score,
+};
+
+const COLUMNS: { key: string; label: string; sortable: boolean; nowrap?: boolean }[] = [
+  { key: "projectName", label: "שם הפרויקט", sortable: true },
+  { key: "city", label: "עיר", sortable: true },
+  { key: "dealType", label: "סוג עסקה", sortable: true },
+  { key: "status", label: "סטטוס", sortable: true },
+  { key: "unitsExisting", label: 'יח"ד קיימות', sortable: true, nowrap: true },
+  { key: "unitsPlanned", label: 'יח"ד יוצאות', sortable: true, nowrap: true },
+  { key: "deadline", label: "מועד הגשה", sortable: true },
+  { key: "score", label: "ציון והמלצה", sortable: true },
+];
+
+/** Compare two rows by a column: numbers numerically, strings by Hebrew locale, nulls last. */
+function compareRows(a: LeadTableRow, b: LeadTableRow, key: string, dir: SortDir): number {
+  const av = SORT_ACCESSOR[key](a);
+  const bv = SORT_ACCESSOR[key](b);
+  // Missing values always sink to the bottom, regardless of direction.
+  if (av == null && bv == null) return 0;
+  if (av == null) return 1;
+  if (bv == null) return -1;
+  let cmp: number;
+  if (typeof av === "number" && typeof bv === "number") cmp = av - bv;
+  else cmp = String(av).localeCompare(String(bv), "he");
+  return dir === "asc" ? cmp : -cmp;
+}
+
 export function LeadTable({ rows }: { rows: LeadTableRow[] }) {
   const router = useRouter();
   const [shown, setShown] = useState(PAGE);
+  const [sort, setSort] = useState<{ key: string; dir: SortDir } | null>(null);
+
+  const sorted = useMemo(() => {
+    if (!sort) return rows;
+    return [...rows].sort((a, b) => compareRows(a, b, sort.key, sort.dir));
+  }, [rows, sort]);
+
+  // Toggle asc → desc → off on repeated clicks of the same column.
+  const toggleSort = (key: string) =>
+    setSort((cur) =>
+      cur?.key !== key ? { key, dir: "asc" } : cur.dir === "asc" ? { key, dir: "desc" } : null,
+    );
 
   if (!rows.length) {
     return (
@@ -61,7 +121,7 @@ export function LeadTable({ rows }: { rows: LeadTableRow[] }) {
     );
   }
 
-  const visible = rows.slice(0, shown);
+  const visible = sorted.slice(0, shown);
 
   return (
     <div>
@@ -69,14 +129,35 @@ export function LeadTable({ rows }: { rows: LeadTableRow[] }) {
         <table className="w-full text-sm border-collapse">
           <thead>
             <tr className="text-ink-500 text-xs font-semibold">
-              <th className="text-start font-semibold px-4 py-3">שם הפרויקט</th>
-              <th className="text-start font-semibold px-4 py-3">עיר</th>
-              <th className="text-start font-semibold px-4 py-3">סוג עסקה</th>
-              <th className="text-start font-semibold px-4 py-3">סטטוס</th>
-              <th className="text-start font-semibold px-4 py-3 whitespace-nowrap">{'יח"ד קיימות'}</th>
-              <th className="text-start font-semibold px-4 py-3 whitespace-nowrap">{'יח"ד יוצאות'}</th>
-              <th className="text-start font-semibold px-4 py-3">מועד הגשה</th>
-              <th className="text-start font-semibold px-4 py-3">ציון והמלצה</th>
+              {COLUMNS.map((col) => {
+                const active = sort?.key === col.key;
+                const icon = !active ? faSort : sort.dir === "asc" ? faSortUp : faSortDown;
+                return (
+                  <th
+                    key={col.key}
+                    className={cn(
+                      "text-start font-semibold px-4 py-3 select-none",
+                      col.nowrap && "whitespace-nowrap",
+                    )}
+                    aria-sort={active ? (sort.dir === "asc" ? "ascending" : "descending") : "none"}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => toggleSort(col.key)}
+                      className={cn(
+                        "inline-flex items-center gap-1.5 hover:text-ink-800 transition-colors",
+                        active && "text-brand-700",
+                      )}
+                    >
+                      {col.label}
+                      <FontAwesomeIcon
+                        icon={icon}
+                        className={cn("text-[10px]", active ? "text-brand-500" : "text-ink-300")}
+                      />
+                    </button>
+                  </th>
+                );
+              })}
               <th className="w-8" />
             </tr>
           </thead>

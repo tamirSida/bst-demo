@@ -1,4 +1,4 @@
-import { listLeads } from "@/lib/firebase/repo";
+import { getConfig, listLeads } from "@/lib/firebase/repo";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { PipelineFilters } from "@/components/leads/PipelineFilters";
@@ -21,10 +21,13 @@ export default async function LeadsPage({
   searchParams: Promise<SP>;
 }) {
   const sp = await searchParams;
+  const config = await getConfig();
+  const uploadedOnly = !config.showSeedData;
 
   const activeOnly = one(sp.active) !== "0"; // default ON
   const filter = {
     activeOnly,
+    uploadedOnly,
     dealType: one(sp.dealType),
     city: one(sp.city),
     search: one(sp.search),
@@ -35,7 +38,7 @@ export default async function LeadsPage({
   const csvRows = leads.map(toCsvRow);
 
   // City options come from the full active book (stable regardless of filter).
-  const allActive = await listLeads({ activeOnly: true });
+  const allActive = await listLeads({ activeOnly: true, uploadedOnly });
   const cities = [...new Set(allActive.map((l) => l.city).filter(Boolean))].sort() as string[];
 
   return (

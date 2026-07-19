@@ -31,7 +31,7 @@ fixtures and tests.
 | AI pipeline (extract → gaps → summary) | `lib/ai/` — Claude Sonnet 4.6, Hebrew prompts |
 | Email in/out | `lib/email/` (Resend + 2 safety layers), `lib/ingest/` (shared ingest path) |
 | Manual upload (text/file, no email) | `lib/ingest/manual.ts`, `app/api/ingest/route.ts`, `components/leads/NewLeadButton.tsx` |
-| Data layer | `lib/firebase/repo.ts` — Firestore when creds present, else local seed + `.data/` file store |
+| Data layer | `lib/firebase/repo.ts` — Firestore when creds present, else local seed + `.data/` file store. Full-book read cache in `lib/firebase/leadsCache.ts` (see read-cost note below) |
 | **File storage** | `lib/storage/files.ts` — **Vercel Blob (private) in prod, local disk in dev — see below** |
 | Screens | `app/(dashboard)/` + public form `app/f/[token]/` + `components/` |
 | Env & secrets | `.env.local` (gitignored) — Anthropic key, Resend key, Firebase config, toggles |
@@ -116,9 +116,17 @@ would need `resource_type:raw` + signed-URL redirects + a PDF-delivery toggle, a
    lead *data* from Firestore; lead *files* live on Vercel Blob. For Netlify, put the same base64
    `FIREBASE_SERVICE_ACCOUNT` in the site's env vars. (`EMPTY_START=true` is now a no-op — it only
    gated the local seed, which Firestore mode bypasses.)
-3. **⚠ Triage thresholds are UNVALIDATED defaults** in `lib/domain/config.ts` — BST's experts must
+3. **Firestore read cost** — `listLeads()` used to do a full-collection read (~750 billed reads)
+   on every call, ×2–3 calls per page, ×a 30s auto-refresh timer — enough to drain the Spark free
+   tier's 50k reads/day from one open tab. Fixed with a server-side full-book cache
+   (`lib/firebase/leadsCache.ts`): one Firestore read per 60s TTL window, shared across all requests;
+   writes update the cache in place (`prime`/`patch`/`remove`) so new/edited leads appear without a
+   re-read; bulk seed calls `invalidate`. Auto-refresh default relaxed 30s → 60s. A warm page view
+   now costs ~0 reads instead of ~1,500. If you ever move off the "whole book in memory" model
+   (dataset grows well past ~750), revisit with real Firestore queries + pagination.
+4. **⚠ Triage thresholds are UNVALIDATED defaults** in `lib/domain/config.ts` — BST's experts must
    review them in הגדרות before trusting the verdicts.
-4. לבדיקה תכנונית records the stage change but doesn't yet email the architect.
+5. לבדיקה תכנונית records the stage change but doesn't yet email the architect.
 
 ## Run it
 

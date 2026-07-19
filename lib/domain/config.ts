@@ -81,6 +81,12 @@ export interface TriageConfig {
 
   /** Behavior: auto-generate + send the follow-up questions form on a new lead. */
   autoSendQuestions: boolean;
+
+  /** "לידים חדשים" window: a lead counts as new for this many days after arrival. */
+  newLeadWindowDays: number;
+
+  /** When false, hide seeded/demo leads everywhere — show only email/upload leads. */
+  showSeedData: boolean;
 }
 
 export const DEFAULT_CONFIG: TriageConfig = {
@@ -160,6 +166,8 @@ export const DEFAULT_CONFIG: TriageConfig = {
   reviewAt: 45,
 
   autoSendQuestions: true,
+  newLeadWindowDays: 7,
+  showSeedData: true,
 };
 
 /** Resolve a city's region, with the configured fallback. */

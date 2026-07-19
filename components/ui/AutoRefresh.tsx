@@ -9,7 +9,7 @@ import { cn } from "@/lib/cn";
 
 const OPTIONS = [10, 30, 60] as const;
 const STORAGE_KEY = "bst.autoRefresh";
-const DEFAULT: Prefs = { enabled: true, seconds: 30 };
+const DEFAULT: Prefs = { enabled: true, seconds: 60 };
 
 interface Prefs {
   enabled: boolean;

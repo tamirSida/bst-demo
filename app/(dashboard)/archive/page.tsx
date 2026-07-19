@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBoxArchive, faLocationDot } from "@fortawesome/free-solid-svg-icons";
-import { listLeads } from "@/lib/firebase/repo";
+import { getConfig, listLeads } from "@/lib/firebase/repo";
 import { LeadStatus, REJECTION_REASON_LABEL } from "@/lib/domain/enums";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Card } from "@/components/ui/Card";
@@ -25,9 +25,10 @@ export default async function ArchivePage({
 }) {
   const sp = await searchParams;
   const search = one(sp.search);
+  const config = await getConfig();
 
   // Institutional memory = all inactive (closed) leads, optionally searched.
-  const all = await listLeads({ search });
+  const all = await listLeads({ search, uploadedOnly: !config.showSeedData });
   const closed = all.filter((l) => l.status === LeadStatus.Closed);
 
   return (

@@ -10,10 +10,13 @@
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
-# The AI ingest route runs the extraction pipeline (~20-40s). Netlify's
-# synchronous function limit is 10s (free) / 26s (Pro), so live .eml ingest may
-# time out on Netlify; the seeded demo lead + the (fast) form re-grade flow work
-# regardless. For reliable live ingest, use a plan with a higher timeout or move
-# ingest to a background function.
+# The AI ingest pipeline (~20-40s) exceeds Netlify's synchronous function limit
+# (10s free / 26s Pro), so it runs in the background function
+# `netlify/functions/ingest-background.mts` (15-min budget). The inbound webhook
+# and /api/ingest just enqueue to it and return immediately (see lib/ingest/enqueue.ts).
+# REQUIRED env var: INGEST_FUNCTION_SECRET — shared secret authenticating the
+# enqueue → background-function call. Set the SAME value here and in .env.local.
 [functions]
   node_bundler = "esbuild"
+  # Background function imports our server lib; a scoped tsconfig neutralizes the
+  # `server-only` guard for that bundle only (netlify/functions/tsconfig.json).

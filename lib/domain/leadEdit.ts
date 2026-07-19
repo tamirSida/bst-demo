@@ -27,7 +27,7 @@ export const SYSTEM_KEYS = ["id", "threadKey", "createdAt"] as const;
 /** Always recomputed by recomputeTriage — dropped from input. */
 export const COMPUTED_KEYS = ["flags", "grade", "updatedAt"] as const;
 /** Keys inside `extra` the pipeline depends on — preserved from the server lead. */
-export const RESERVED_EXTRA = ["documentTypes", "threadKey"] as const;
+export const RESERVED_EXTRA = ["documentTypes", "threadKey", "origin"] as const;
 
 /** The fact keys that carry provenance — touched ones get a "manual" stamp. */
 const FACT_KEYS = new Set<LeadFactKey>([

@@ -9,6 +9,7 @@
 
 import "server-only";
 import { adminDb, isAdminConfigured } from "./admin";
+import { createLeadsCache } from "./leadsCache";
 import {
   seedAddTimeline,
   seedDeleteLead,
@@ -43,6 +44,35 @@ const LEADS = "leads";
 const FORMS = "forms";
 const OUTBOUND = "outbound";
 const CONFIG_DOC = "config/thresholds";
+
+/**
+ * The full-book cache. Every leads read goes through it, so the whole
+ * collection is fetched at most once per TTL window instead of on every call.
+ * Each real Firestore fetch is logged with a running doc-read tally so we can
+ * watch read volume and confirm we stay well inside the free-tier daily quota.
+ */
+let leadDocReads = 0;
+let leadFetches = 0;
+const leadsCache = createLeadsCache(async () => {
+  const snap = await adminDb().collection(LEADS).get();
+  leadFetches += 1;
+  leadDocReads += snap.size;
+  console.log(
+    `[firestore] leads full-read #${leadFetches}: ${snap.size} docs · session total ${leadDocReads}`,
+  );
+  return snap.docs.map((d) => d.data() as Lead);
+});
+
+/** Read-volume telemetry — watch this to confirm we stay under the daily quota. */
+export function leadReadStats(): { leadFetches: number; leadDocReads: number } {
+  return { leadFetches, leadDocReads };
+}
+
+/** A lead came in through email or manual upload (vs. seeded/demo data). */
+const isUploaded = (l: Lead): boolean => {
+  const origin = (l.extra as { origin?: unknown } | undefined)?.origin;
+  return origin === "email" || origin === "manual";
+};
 
 /** Firestore rejects `undefined`; deep-strip before every write. */
 function clean<T>(value: T): T {
@@ -79,6 +109,8 @@ export interface LeadFilter {
   city?: string;
   status?: string;
   search?: string;
+  /** Exclude seeded/demo leads — show only email/upload leads. */
+  uploadedOnly?: boolean;
 }
 
 const isActive = (l: Lead) => l.status !== LeadStatus.Closed;
@@ -88,11 +120,11 @@ export async function listLeads(filter: LeadFilter = {}): Promise<Lead[]> {
   if (fromSeed()) {
     leads = seedLeads();
   } else {
-    const snap = await adminDb().collection(LEADS).get();
-    leads = snap.docs.map((d) => d.data() as Lead);
+    leads = await leadsCache.getAll();
   }
 
   if (filter.activeOnly) leads = leads.filter(isActive);
+  if (filter.uploadedOnly) leads = leads.filter(isUploaded);
   if (filter.dealType) leads = leads.filter((l) => l.dealType === filter.dealType);
   if (filter.city) leads = leads.filter((l) => l.city === filter.city);
   if (filter.status) leads = leads.filter((l) => l.status === filter.status);
@@ -104,7 +136,8 @@ export async function listLeads(filter: LeadFilter = {}): Promise<Lead[]> {
         .some((s) => (s as string).includes(q)),
     );
   }
-  return leads.sort((a, b) => (b.leadReceivedAt ?? "").localeCompare(a.leadReceivedAt ?? ""));
+  // Copy before sorting: `leads` may still alias the shared cache array here.
+  return leads.slice().sort((a, b) => (b.leadReceivedAt ?? "").localeCompare(a.leadReceivedAt ?? ""));
 }
 
 export async function getLead(id: string): Promise<Lead | null> {
@@ -116,6 +149,7 @@ export async function getLead(id: string): Promise<Lead | null> {
 export async function saveLead(lead: Lead): Promise<void> {
   if (fromSeed()) return seedSaveLead(lead);
   await adminDb().collection(LEADS).doc(lead.id).set(clean(lead));
+  leadsCache.prime(lead);
 }
 
 /** Batched bulk write for seeding (Firestore caps batches at 500). */
@@ -129,6 +163,7 @@ export async function saveLeadsBatch(leads: Lead[]): Promise<void> {
     }
     await batch.commit();
   }
+  leadsCache.invalidate(); // bulk write — let the next read refetch the whole book
 }
 
 export async function updateLead(id: string, patch: Partial<Lead>): Promise<void> {
@@ -137,10 +172,9 @@ export async function updateLead(id: string, patch: Partial<Lead>): Promise<void
     if (cur) seedSaveLead({ ...cur, ...patch, updatedAt: new Date().toISOString() });
     return;
   }
-  await adminDb()
-    .collection(LEADS)
-    .doc(id)
-    .set(clean({ ...patch, updatedAt: new Date().toISOString() }), { merge: true });
+  const stamped = { ...patch, updatedAt: new Date().toISOString() };
+  await adminDb().collection(LEADS).doc(id).set(clean(stamped), { merge: true });
+  leadsCache.patch(id, stamped);
 }
 
 /**
@@ -172,6 +206,7 @@ export async function deleteLead(id: string): Promise<void> {
         await batch.commit();
       }
     }
+    leadsCache.remove(id);
   }
   await deleteLeadFiles(id);
 }

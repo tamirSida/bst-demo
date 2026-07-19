@@ -1,0 +1,6 @@
+{
+  "name": "server-only",
+  "version": "0.0.0",
+  "description": "Local no-op stub. The real server-only package throws when bundled outside a React Server Component, which breaks our Netlify background function (nft bundler, no tsconfig-alias support). Empty here = safe server-side no-op everywhere.",
+  "main": "index.js"
+}

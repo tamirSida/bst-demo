@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import {
+  faCircleCheck,
   faCircleNotch,
   faFileLines,
   faKeyboard,
@@ -17,13 +18,14 @@ import { Modal } from "@/components/ui/Modal";
 import { cn } from "@/lib/cn";
 
 type Tab = "text" | "file";
-type Phase = "idle" | "uploading" | "error";
+type Phase = "idle" | "uploading" | "queued" | "error";
 
 /**
  * The primary "＋ ליד חדש" action. Two input points, one pipeline:
  *  - paste free text (a message / deal details), or
  *  - upload a file (.eml → parsed as email; PDF/doc → read as a document).
- * POSTs to /api/ingest (~30s AI pipeline), then navigates to the new lead.
+ * POSTs to /api/ingest, which hands the ~30s AI pipeline to a background job;
+ * the new lead appears in the list shortly after (auto-refresh).
  */
 export function NewLeadButton() {
   const router = useRouter();
@@ -50,11 +52,11 @@ export function NewLeadButton() {
     setError(null);
     try {
       const res = await fetch("/api/ingest", { method: "POST", body });
-      const data = (await res.json()) as { leadId?: string; error?: string };
-      if (!res.ok || !data.leadId) throw new Error(data.error ?? "הניתוח נכשל");
-      setOpen(false);
-      reset();
-      router.push(`/leads/${data.leadId}`);
+      const data = (await res.json()) as { queued?: boolean; error?: string };
+      if (!res.ok) throw new Error(data.error ?? "הניתוח נכשל");
+      // The lead is being processed in the background; it will land in the list.
+      setPhase("queued");
+      router.refresh();
     } catch (err) {
       setPhase("error");
       setError((err as Error).message);
@@ -109,6 +111,25 @@ export function NewLeadButton() {
                 {fileName}
               </p>
             )}
+          </div>
+        ) : phase === "queued" ? (
+          <div className="flex flex-col items-center text-center py-8">
+            <FontAwesomeIcon icon={faCircleCheck} className="text-4xl text-go-600 mb-4" />
+            <p className="font-semibold text-ink-900 text-lg">הליד התקבל</p>
+            <p className="text-ink-500 text-sm mt-1">
+              הפנייה מעובדת ברקע — מחלצת נתונים ומריצה סינון. הליד יופיע ברשימה בעוד רגע.
+            </p>
+            <div className="mt-5">
+              <Button
+                variant="primary"
+                onClick={() => {
+                  setOpen(false);
+                  reset();
+                }}
+              >
+                סגירה
+              </Button>
+            </div>
           </div>
         ) : (
           <>

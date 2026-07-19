@@ -9,6 +9,7 @@ import {
   faClock,
   faCity,
   faCoins,
+  faEye,
   faFloppyDisk,
   faPaperPlane,
   faScaleBalanced,
@@ -60,6 +61,26 @@ export function SettingsForm({ initial }: { initial: TriageConfig }) {
           checked={config.autoSendQuestions ?? true}
           onChange={(v) => set("autoSendQuestions", v)}
         />
+      </Section>
+
+      {/* Display */}
+      <Section title="תצוגה" icon={faEye} grid={false}>
+        <div className="space-y-5">
+          <ToggleField
+            label="הצגת נתוני הדגמה"
+            help="כשמכובה — מוצגים רק לידים שנקלטו בפועל (מייל נכנס או העלאה ידנית), ונתוני ההדגמה שיובאו מהאקסל מוסתרים בכל המסכים."
+            checked={config.showSeedData ?? true}
+            onChange={(v) => set("showSeedData", v)}
+          />
+          <div className="border-t border-line pt-4">
+            <NumField
+              label='חלון "לידים חדשים" — בימים'
+              help="ליד נחשב «חדש» ומופיע במסך «היום» למשך מספר הימים הזה מרגע קליטתו. אחריו הוא נשאר בעמוד «לידים» בלבד."
+              value={config.newLeadWindowDays ?? 7}
+              onChange={(v) => set("newLeadWindowDays", v)}
+            />
+          </div>
+        </div>
       </Section>
 
       {/* פינוי-בינוי thresholds */}

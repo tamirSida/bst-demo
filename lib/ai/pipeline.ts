@@ -102,7 +102,7 @@ export async function assembleFromExtraction(
     leadReceivedAt: email.date ?? new Date().toISOString(),
     status: LeadStatus.Triage,
     provenance: provenanceFromExtraction(extraction),
-    extra: { documentTypes, threadKey },
+    extra: { documentTypes, threadKey, origin: deps.origin ?? "email" },
     threadKey,
   });
 
