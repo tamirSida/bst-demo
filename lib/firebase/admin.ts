@@ -1,9 +1,14 @@
 /**
  * Firebase Admin SDK — server-only. All dashboard data access goes through the
  * admin SDK (server components + API routes), so no broad client Firestore
- * rules are needed. Credentials come from env (Netlify-friendly):
- *   FIREBASE_SERVICE_ACCOUNT  — the service-account JSON (raw or base64)
- * or GOOGLE_APPLICATION_CREDENTIALS — a path (local dev).
+ * rules are needed. Credentials are read from env, in priority order:
+ *   1. FIREBASE_SERVICE_ACCOUNT — the whole service-account JSON (raw or base64).
+ *   2. Three separate fields (Netlify-friendly — paste each value on its own):
+ *        FIREBASE_PROJECT_ID
+ *        FIREBASE_CLIENT_EMAIL
+ *        FIREBASE_PRIVATE_KEY   (the -----BEGIN/END PRIVATE KEY----- block;
+ *                                literal "\n" escapes are un-escaped for you)
+ *   3. GOOGLE_APPLICATION_CREDENTIALS — a path / ADC (local dev).
  */
 
 import "server-only";
@@ -36,6 +41,16 @@ function initAdmin(): App {
     return app;
   }
 
+  // Separate-field credentials (Netlify-friendly): three individual env vars.
+  const projectId = process.env.FIREBASE_PROJECT_ID;
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+  // Env stores newlines as literal "\n"; restore real newlines for the PEM.
+  const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
+  if (projectId && clientEmail && privateKey) {
+    app = initializeApp({ credential: cert({ projectId, clientEmail, privateKey }) });
+    return app;
+  }
+
   // Falls back to GOOGLE_APPLICATION_CREDENTIALS / ADC.
   app = initializeApp();
   return app;
@@ -51,6 +66,10 @@ export function adminAuth(): Auth {
 
 export function isAdminConfigured(): boolean {
   return Boolean(
-    process.env.FIREBASE_SERVICE_ACCOUNT || process.env.GOOGLE_APPLICATION_CREDENTIALS,
+    process.env.FIREBASE_SERVICE_ACCOUNT ||
+      (process.env.FIREBASE_PROJECT_ID &&
+        process.env.FIREBASE_CLIENT_EMAIL &&
+        process.env.FIREBASE_PRIVATE_KEY) ||
+      process.env.GOOGLE_APPLICATION_CREDENTIALS,
   );
 }
