@@ -8,6 +8,7 @@ import {
   faCircleCheck,
   faCircleExclamation,
   faCircleXmark,
+  faClipboardList,
   faScaleBalanced,
   faPaperPlane,
   faSpinner,
@@ -19,7 +20,7 @@ import { cn } from "@/lib/cn";
 import { RejectDialog } from "./RejectDialog";
 import { DeleteDialog } from "./DeleteDialog";
 import { AppraiserPackModal, type PackItem } from "./AppraiserPackModal";
-import { promoteLead, reopenLead, type ActionOutcome } from "@/app/actions";
+import { fillYazamAction, promoteLead, reopenLead, type ActionOutcome } from "@/app/actions";
 
 /**
  * The four decision buttons — ALWAYS in the same right-to-left order so muscle
@@ -123,6 +124,19 @@ export function ActionBar({
     });
   };
 
+  const fillYazam = () => {
+    setOutcome(null);
+    startTransition(async () => {
+      try {
+        const res = await fillYazamAction(leadId);
+        setOutcome(res);
+      } catch {
+        setOutcome({ ok: false, message: "הפעולה נכשלה. נסו שוב." });
+      }
+      router.refresh();
+    });
+  };
+
   const questionsBusy = pending && busyTarget === "questions";
   const planningBusy = pending && busyTarget === "planning";
 
@@ -179,6 +193,17 @@ export function ActionBar({
         >
           לא פעיל
         </Button>
+        {!compact && (
+          <Button
+            variant="secondary"
+            size={size}
+            icon={faClipboardList}
+            onClick={fillYazam}
+            disabled={pending}
+          >
+            מלא שאלון יזם
+          </Button>
+        )}
       </div>
 
       {questionsBusy && (

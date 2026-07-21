@@ -27,10 +27,10 @@ describe("recipientAllowed (hard allowlist)", () => {
   });
 
   it("honors exact addresses and @domain suffixes, case-insensitive", () => {
-    process.env.EMAIL_ALLOWED_RECIPIENTS = "tamirsida25@gmail.com,@bst.portfolio-plus.com";
+    process.env.EMAIL_ALLOWED_RECIPIENTS = "tamirsida25@gmail.com,@tippingpoint.portfolio-plus.com";
     expect(recipientAllowed("tamirsida25@gmail.com")).toBe(true);
     expect(recipientAllowed("TamirSida25@Gmail.com")).toBe(true);
-    expect(recipientAllowed("leads@bst.portfolio-plus.com")).toBe(true);
+    expect(recipientAllowed("bst@tippingpoint.portfolio-plus.com")).toBe(true);
     expect(recipientAllowed("Yossef@ykadv.co.il")).toBe(false);
     expect(recipientAllowed("evil@gmail.com")).toBe(false);
   });

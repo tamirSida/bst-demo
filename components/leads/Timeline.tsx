@@ -30,11 +30,56 @@ const KIND_ICON: Record<TimelineKind, IconDefinition> = {
   grade_change: faStar,
 };
 
-/** Vertical activity feed, newest first. */
-export function Timeline({ events }: { events: TimelineEvent[] }) {
+/**
+ * Activity feed. `vertical` (default) is the newest-first list used in cards;
+ * `horizontal` is a full-width chronological strip (oldest→newest, reading
+ * right-to-left in RTL) for the top of the lead page.
+ */
+export function Timeline({
+  events,
+  layout = "vertical",
+}: {
+  events: TimelineEvent[];
+  layout?: "vertical" | "horizontal";
+}) {
   if (!events.length) {
     return (
       <EmptyState icon={faNoteSticky} title="אין פעילות עדיין" compact />
+    );
+  }
+
+  if (layout === "horizontal") {
+    // Chronological so the strip reads as a progression (RTL: oldest on the
+    // right, newest on the left).
+    const ordered = [...events].reverse();
+    return (
+      <div className="overflow-x-auto pb-1">
+        <ol className="flex items-start min-w-min">
+          {ordered.map((e, i) => (
+            <li
+              key={e.id}
+              className="relative flex w-36 shrink-0 flex-col items-center text-center"
+            >
+              {/* connector to the next (left, in RTL) node */}
+              {i < ordered.length - 1 && (
+                <span
+                  className="absolute top-4 start-1/2 h-px w-full bg-line"
+                  aria-hidden
+                />
+              )}
+              <span className="relative z-10 flex h-8 w-8 items-center justify-center rounded-full bg-brand-50 text-brand-600 ring-4 ring-surface">
+                <FontAwesomeIcon icon={KIND_ICON[e.kind]} className="text-sm" />
+              </span>
+              <p className="mt-2 line-clamp-2 px-1 text-xs font-semibold leading-snug text-ink-900">
+                {e.title}
+              </p>
+              <p className="mt-0.5 text-[10px] text-ink-400 ltr-nums">
+                {formatDateTime(e.at)}
+              </p>
+            </li>
+          ))}
+        </ol>
+      </div>
     );
   }
 

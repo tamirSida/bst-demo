@@ -60,7 +60,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           <MobileNav />
         </header>
 
-        <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 lg:py-8 max-w-[1400px] w-full mx-auto">
+        <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 lg:py-8 max-w-[1400px] w-full mx-auto overflow-x-clip">
           {children}
         </main>
       </div>

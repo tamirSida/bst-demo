@@ -6,6 +6,7 @@ import {
   LeadStatus,
 } from "@/lib/domain/enums";
 import { businessDaysUntil } from "@/lib/domain/compute";
+import { densityView } from "@/lib/leads/density";
 import { verdictTone, type Tone } from "@/lib/status";
 import { formatDate, formatNumber } from "@/lib/format/num";
 import type { LeadTableRow } from "@/components/leads/LeadTable";
@@ -38,6 +39,7 @@ const dash = "—";
 
 /** Serialize a lead into a table row (no domain logic leaks to the client). */
 export function toTableRow(lead: Lead): LeadTableRow {
+  const dens = densityView(lead);
   return {
     id: lead.id,
     projectName: lead.projectName,
@@ -47,6 +49,9 @@ export function toTableRow(lead: Lead): LeadTableRow {
     statusTone: STATUS_TONE[lead.status] ?? "neutral",
     unitsExisting: lead.unitsExisting != null ? formatNumber(lead.unitsExisting) : dash,
     unitsPlanned: lead.unitsPlanned != null ? formatNumber(lead.unitsPlanned) : dash,
+    density: dens.text,
+    densityTone: dens.tone,
+    densityNum: dens.num,
     deadline: lead.submissionDeadline ? formatDate(lead.submissionDeadline) : dash,
     deadlineTone: deadlineTone(lead.submissionDeadline),
     verdict: lead.grade ? VERDICT_LABEL[lead.grade.verdict] : null,

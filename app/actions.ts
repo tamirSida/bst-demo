@@ -22,6 +22,7 @@ import {
   saveLead,
   updateLead,
 } from "@/lib/firebase/repo";
+import { YAZAM_QUESTIONS } from "@/lib/leads/yazamQuestions";
 
 function id(): string {
   return globalThis.crypto?.randomUUID?.() ?? `id_${Date.now()}`;
@@ -198,4 +199,62 @@ export async function saveConfigAction(config: TriageConfig): Promise<void> {
   revalidatePath("/today");
   revalidatePath("/leads");
   revalidatePath("/settings");
+}
+
+/* -------------------------------- שאלון יזם ------------------------------- */
+
+const yazamCompanyCount = YAZAM_QUESTIONS.filter((q) => q.scope === "company").length;
+const yazamDealCount = YAZAM_QUESTIONS.length - yazamCompanyCount;
+
+/** Persist per-lead שאלון יזם answers under lead.extra.yazam (merged, not replaced). */
+async function writeYazam(
+  lead: Lead,
+  answers: Record<string, string>,
+): Promise<void> {
+  const clean = Object.fromEntries(
+    Object.entries(answers).map(([k, v]) => [k, (v ?? "").toString()]),
+  );
+  await updateLead(lead.id, {
+    extra: { ...lead.extra, yazam: { answers: clean, updatedAt: new Date().toISOString() } },
+  });
+}
+
+/**
+ * Auto-prepare the שאלון יזם for a lead: snapshot BST's standing company answers
+ * onto the lead (so they're the lead's own editable copy) and log the timeline.
+ * Deal-specific questions stay empty for manual approval.
+ */
+export async function fillYazamAction(leadId: string): Promise<ActionOutcome> {
+  const [lead, config] = await Promise.all([getLead(leadId), getConfig()]);
+  if (!lead) return { ok: false, message: "הליד לא נמצא." };
+
+  const answers: Record<string, string> = { ...(config.yazamAnswers ?? {}) };
+  await writeYazam(lead, answers);
+
+  const filled = YAZAM_QUESTIONS.filter(
+    (q) => q.scope === "company" && answers[q.key]?.trim(),
+  ).length;
+  await addTimelineEvent(
+    timeline(
+      leadId,
+      "note",
+      `שאלון יזם מולא אוטומטית — ${filled}/${YAZAM_QUESTIONS.length} מולאו, ${yazamDealCount} לאישור`,
+    ),
+  );
+  revalidateLead(leadId);
+  return { ok: true, message: "שאלון היזם מולא ונרשם ביומן הפעילות." };
+}
+
+/** Save the user's edits to a lead's שאלון יזם and log the timeline. */
+export async function saveYazamAction(
+  leadId: string,
+  answers: Record<string, string>,
+): Promise<ActionOutcome> {
+  const lead = await getLead(leadId);
+  if (!lead) return { ok: false, message: "הליד לא נמצא." };
+
+  await writeYazam(lead, answers);
+  await addTimelineEvent(timeline(leadId, "note", "שאלון יזם עודכן ידנית"));
+  revalidateLead(leadId);
+  return { ok: true, message: "שאלון היזם נשמר." };
 }

@@ -6,6 +6,7 @@ import {
   faBuilding,
   faChartLine,
   faCircleCheck,
+  faClipboardList,
   faClock,
   faCity,
   faCoins,
@@ -23,6 +24,7 @@ import { Toggle } from "@/components/ui/Toggle";
 import { TagInput } from "./TagInput";
 import { saveConfigAction } from "@/app/actions";
 import { REGION_LABEL, Region, type TriageConfig } from "@/lib/domain/config";
+import { YAZAM_CATEGORIES, YAZAM_QUESTIONS } from "@/lib/leads/yazamQuestions";
 
 /**
  * The settings editor. Holds the whole TriageConfig in local state and writes it
@@ -144,6 +146,50 @@ export function SettingsForm({ initial }: { initial: TriageConfig }) {
                 }
               />
             ))}
+          </div>
+        </div>
+      </Section>
+
+      {/* Developer questionnaire (שאלון יזם) */}
+      <Section title="שאלון יזם" icon={faClipboardList} grid={false}>
+        <div className="space-y-5">
+          <NumField
+            label='סף צפיפות לפתיחת שאלון יזם (יח"ד/דונם)'
+            help='כשצפיפות הליד שווה או גבוהה מסף זה — שאלון היזם נפתח אוטומטית, מולא מהתשובות הקבועות שלמטה, והשאלות התלויות-עסקה מסומנות לאישור ידני.'
+            value={config.yazamGateDensity ?? 8}
+            onChange={(v) => set("yazamGateDensity", v)}
+          />
+          <div className="border-t border-line pt-4">
+            <p className="text-sm font-semibold text-ink-700">תשובות יזם קבועות</p>
+            <p className="text-xs text-ink-400 mt-0.5 leading-relaxed">
+              תשובות החברה שחוזרות על עצמן בכל מכרז. הזינו אותן פעם אחת — הן ימולאו
+              אוטומטית בכל שאלון יזם. שאלות התלויות בעסקה הספציפית לא מופיעות כאן ומסומנות
+              לאישור ידני בכל ליד.
+            </p>
+            <div className="mt-4 space-y-5">
+              {YAZAM_CATEGORIES.map((cat) => (
+                <div key={cat}>
+                  <p className="text-xs font-semibold text-ink-400 mb-2">{cat}</p>
+                  <div className="space-y-3">
+                    {YAZAM_QUESTIONS.filter(
+                      (q) => q.category === cat && q.scope === "company",
+                    ).map((q) => (
+                      <AnswerField
+                        key={q.key}
+                        label={`${q.num}. ${q.text}`}
+                        value={config.yazamAnswers?.[q.key] ?? ""}
+                        onChange={(v) =>
+                          set("yazamAnswers", {
+                            ...(config.yazamAnswers ?? {}),
+                            [q.key]: v,
+                          })
+                        }
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </Section>
@@ -390,6 +436,29 @@ function NumField({
         onChange={(e) => onChange(e.target.value === "" ? 0 : Number(e.target.value))}
         className="ltr-nums text-start"
         dir="ltr"
+      />
+    </Field>
+  );
+}
+
+/** A free-text (multi-line) answer for the standing שאלון יזם answers. */
+function AnswerField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <Field label={label}>
+      <textarea
+        rows={2}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder="—"
+        className="w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink-800 placeholder:text-ink-300 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100 resize-y"
       />
     </Field>
   );

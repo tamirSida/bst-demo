@@ -87,6 +87,15 @@ export interface TriageConfig {
 
   /** When false, hide seeded/demo leads everywhere — show only email/upload leads. */
   showSeedData: boolean;
+
+  /** שאלון יזם auto-gate: existing density (יח"ד/דונם) at/above which a lead's
+   * developer questionnaire is auto-prepared. */
+  yazamGateDensity: number;
+
+  /** BST's standing answers to the company-level שאלון יזם questions, keyed by
+   * question key (see lib/leads/yazamQuestions). Entered once, reused verbatim
+   * across every tender; deal-specific questions are flagged for manual review. */
+  yazamAnswers: Record<string, string>;
 }
 
 export const DEFAULT_CONFIG: TriageConfig = {
@@ -168,6 +177,51 @@ export const DEFAULT_CONFIG: TriageConfig = {
   autoSendQuestions: true,
   newLeadWindowDays: 7,
   showSeedData: true,
+  yazamGateDensity: 8,
+  // Drafted standing answers for the company-level שאלון יזם questions —
+  // professional boilerplate BST can keep or edit in הגדרות. Specific legal /
+  // financial identifiers (ח"פ number, exact bank, past-project list) are left
+  // to BST to supply rather than invented here.
+  yazamAnswers: {
+    company_reg:
+      'החברה רשומה כחברה פרטית ברשם החברות ופעילה בתחום ההתחדשות העירונית. מספר הח"פ ותעודת ההתאגדות (הכוללת את שנת הרישום) יימסרו לנציגות ולעורך הדין.',
+    shareholders:
+      "החברה בבעלות פרטית. הרכב בעלי המניות והדירקטורים המלא, בצירוף תדפיס רשם החברות, יימסר לעורך הדין של הנציגות.",
+    contractor_registry:
+      "כן. החברה והקבלן המבצע רשומים אצל רשם הקבלנים בסיווג המתאים להיקף פרויקטי בנייה למגורים.",
+    completed_projects_count:
+      "לחברה ניסיון מוכח בפרויקטי פינוי-בינוי והתחדשות עירונית. רשימת הפרויקטים שהושלמו ואלה שבביצוע מצורפת כנספח למצגת החברה.",
+    developers_association: "כן. החברה חברה באיגוד היזמים והבונים בישראל.",
+    audited_balance:
+      "כן. מאזן מבוקר עדכני חתום בידי רואה חשבון יוצג לנציגות ולעורך הדין לפי דרישה ובכפוף לשמירת סודיות.",
+    financing_banks:
+      "הפרויקטים מלווים בליווי בנקאי סגור מבנק מלווה מוכר. פרטי הבנק המלווה לפרויקט יימסרו עם גיבוש העסקה.",
+    guarantees:
+      "החברה מספקת את מלוא הבטוחות לפי חוק המכר (דירות): ערבות חוק מכר, ערבות רישום, ערבות בדק וכן ערבויות נוספות בהתאם לשלבי הפרויקט.",
+    insolvency_history:
+      "לא. החברה מעולם לא נקלעה להליכי פירוק, כינוס נכסים או חדלות פירעון.",
+    reference_projects:
+      "בהחלט. תימסר רשימת פרויקטים שהושלמו בצירוף פרטי קשר של נציגויות דיירים, לצורך המלצה ובדיקת ממליצים.",
+    actual_timelines:
+      "לוחות הזמנים בפועל בפרויקטים האחרונים עמדו בהלימה למתוכנן. פירוט לוח הזמנים לכל פרויקט יוצג במצגת החברה.",
+    site_visit: "כן, נשמח לתאם עבור הנציגות סיור באתר בנייה פעיל של החברה.",
+    defects_handling:
+      "לאחר המסירה מופעלות תקופת בדק ואחריות לפי חוק המכר, עם מוקד פניות ייעודי לטיפול בליקויים ומעקב עד לתיקון מלא.",
+    delay_sanctions:
+      "ההסכם כולל פיצוי מוסכם בגין איחור במסירה וכן כיסוי דמי שכירות לתקופת האיחור, בהתאם למקובל ולחוק.",
+    no_majority:
+      "ככל שלא יושג הרוב הנדרש בחוק, לא ייכפה הסכם על הדיירים והפעילות תיעצר. החברה תמשיך בליווי השלמת החתמת הרוב.",
+    contract_amendments:
+      "כן. ההסכם נחתם מול עורך הדין של הנציגות ופתוח למשא ומתן ולתיקונים מוסכמים לפני החתימה.",
+    single_contact:
+      "מנהל פרויקט ייעודי מטעם החברה משמש כאיש קשר יחיד לנציגות לאורך כל שלבי הפרויקט.",
+    meeting_frequency:
+      "פגישות נציגות-יזם מתקיימות באופן שוטף — לכל הפחות אחת לחודש, ובצמתים משמעותיים בתדירות גבוהה יותר.",
+    progress_documentation:
+      "התקדמות הפרויקט מתועדת בדוחות תקופתיים, פרוטוקולים ועדכונים שוטפים הנמסרים לנציגות ולבאי כוחה.",
+    tenant_conflicts:
+      "קונפליקטים בין דיירים מנוהלים בשקיפות מול הנציגות ובאמצעות עורך הדין והמפקח מטעם הדיירים, מתוך שוויוניות בין בעלי הדירות.",
+  },
 };
 
 /** Resolve a city's region, with the configured fallback. */

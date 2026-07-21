@@ -24,11 +24,15 @@ export function DecisionCard({
   form,
   packItems,
   variant = "full",
+  showActions = true,
 }: {
   lead: Lead;
   form: LeadForm | null;
   packItems: PackItem[];
   variant?: "full" | "compact";
+  /** When false, the action buttons are rendered elsewhere (e.g. the detail
+   * sidebar) so this card stays a pure decision panel. */
+  showActions?: boolean;
 }) {
   const compact = variant === "compact";
 
@@ -79,16 +83,18 @@ export function DecisionCard({
 
         {!compact && form && <MissingChecklist form={form} />}
 
-        <div className={cn(!compact && "pt-1")}>
-          <ActionBar
-            leadId={lead.id}
-            leadName={lead.projectName}
-            packItems={packItems}
-            compact={compact}
-            closed={lead.status === LeadStatus.Closed}
-            contactEmail={lead.contact?.email ?? null}
-          />
-        </div>
+        {showActions && (
+          <div className={cn(!compact && "pt-1")}>
+            <ActionBar
+              leadId={lead.id}
+              leadName={lead.projectName}
+              packItems={packItems}
+              compact={compact}
+              closed={lead.status === LeadStatus.Closed}
+              contactEmail={lead.contact?.email ?? null}
+            />
+          </div>
+        )}
       </div>
     </Card>
   );

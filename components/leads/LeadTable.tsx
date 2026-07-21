@@ -32,6 +32,8 @@ export interface LeadTableRow {
   statusTone: Tone;
   unitsExisting: string;
   unitsPlanned: string;
+  density: string;
+  densityTone: Tone;
   deadline: string;
   deadlineTone: Tone | null;
   verdict: string | null;
@@ -41,6 +43,7 @@ export interface LeadTableRow {
   /** Raw values for sorting (display strings above lose type/order). */
   unitsExistingNum: number | null;
   unitsPlannedNum: number | null;
+  densityNum: number | null;
   deadlineTs: number | null;
   /** True when a red/kill flag is present → subtle row tint. */
   alarm: boolean;
@@ -66,6 +69,7 @@ const SORT_ACCESSOR: Record<string, (r: LeadTableRow) => string | number | null>
   status: (r) => r.status,
   unitsExisting: (r) => r.unitsExistingNum,
   unitsPlanned: (r) => r.unitsPlannedNum,
+  density: (r) => r.densityNum,
   deadline: (r) => r.deadlineTs,
   score: (r) => r.score,
 };
@@ -77,6 +81,7 @@ const COLUMNS: { key: string; label: string; sortable: boolean; nowrap?: boolean
   { key: "status", label: "סטטוס", sortable: true },
   { key: "unitsExisting", label: 'יח"ד קיימות', sortable: true, nowrap: true },
   { key: "unitsPlanned", label: 'יח"ד יוצאות', sortable: true, nowrap: true },
+  { key: "density", label: 'צפיפות', sortable: true, nowrap: true },
   { key: "deadline", label: "מועד הגשה", sortable: true },
   { key: "score", label: "ציון והמלצה", sortable: true },
 ];
@@ -126,7 +131,7 @@ export function LeadTable({ rows }: { rows: LeadTableRow[] }) {
   return (
     <div>
       <div className="overflow-x-auto">
-        <table className="w-full text-sm border-collapse">
+        <table className="w-full min-w-[1100px] text-sm border-collapse">
           <thead>
             <tr className="text-ink-500 text-xs font-semibold">
               {COLUMNS.map((col) => {
@@ -183,8 +188,17 @@ export function LeadTable({ rows }: { rows: LeadTableRow[] }) {
                     {r.status}
                   </Badge>
                 </td>
-                <td className="px-4 py-3 text-ink-700 ltr-nums">{r.unitsExisting}</td>
-                <td className="px-4 py-3 text-ink-700 ltr-nums">{r.unitsPlanned}</td>
+                <td className="px-4 py-3 text-ink-700">
+                  <span className="ltr-nums">{r.unitsExisting}</span>
+                </td>
+                <td className="px-4 py-3 text-ink-700">
+                  <span className="ltr-nums">{r.unitsPlanned}</span>
+                </td>
+                <td className="px-4 py-3 whitespace-nowrap">
+                  <span className={cn("ltr-nums font-semibold", TONE_TEXT[r.densityTone])}>
+                    {r.density}
+                  </span>
+                </td>
                 <td className="px-4 py-3 whitespace-nowrap">
                   {r.deadlineTone ? (
                     <span className={cn("font-semibold ltr-nums", TONE_TEXT[r.deadlineTone])}>
