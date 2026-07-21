@@ -1,5 +1,6 @@
 import { Resend } from "resend";
 import type { EmailProvider, SendInput, SendResult } from "./types";
+import { textToBrandedHtml } from "./template";
 
 /** Simulated provider — the demo default. Records nothing external. */
 export class SimulatedProvider implements EmailProvider {
@@ -75,6 +76,10 @@ export class ResendProvider implements EmailProvider {
         to: input.to,
         subject: input.subject,
         text: input.text,
+        // Branded HTML (with the BST logo) is derived from the final text, so it
+        // also carries the redirect test-banner in demo mode. Plain text stays
+        // as the fallback for clients that don't render HTML.
+        html: textToBrandedHtml(input.text),
         replyTo: input.replyTo,
         headers: input.headers,
       });
