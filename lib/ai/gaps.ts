@@ -17,10 +17,9 @@ const GAP_SYSTEM = `אתה עוזר לצוות הפיתוח העסקי של BST 
 מה נדרש לסינון והחלטה:
 - יח"ד קיימות ויוצאות, שטח מגרש (דונם), סטטוס תכנוני ומספר תב"ע.
 - אחוז חתימות/ייצוג הבעלים במתחם.
-- העמלה שהגורם המפנה גובה עבור הליד (סכום ומבנה) — קריטי לתמחור.
 - אחוז דיור ציבורי (עמידר/חלמיש) אם רלוונטי.
 
-חשוב: אל תבקש מהגורם המפנה נסח טאבו או תשריט בית משותף — את המסמכים האלה BST מפיקה בעצמה מהמפה (כפתור "הפק"), ולכן הם לא חלק משאלות ההשלמה.
+חשוב: אל תבקש מהגורם המפנה נסח טאבו, תשריט בית משותף או פרטי עמלה. את נסח הטאבו והתשריט BST מפיקה בעצמה, והעמלה נסגרת בנפרד — לכן אינם חלק משאלות ההשלמה. אין ליצור שאלה לצירוף תשריט/נסח ואין לשאול על עמלה כלל.
 
 כללים:
 - שאל רק על מה שחסר או לא ודאי. אל תשאל על מה שכבר ידוע.
@@ -28,7 +27,7 @@ const GAP_SYSTEM = `אתה עוזר לצוות הפיתוח העסקי של BST 
 - לכל שאלה קבע kind מתאים (number/percent/currency/date/boolean/select/text/file) ו-unit במידת הצורך.
 - אם חסר מסמך רלוונטי (למעט נסח טאבו/תשריט בית משותף) — צור שאלה מסוג file.
 - אם ידוע ערך חלקי ורוצים אישור — הכנס אותו כ-prefill.
-- fact: אם השאלה ממלאת שדה עובדתי ידוע, ציין את שם השדה (unitsExisting, unitsPlanned, lotAreaDunam, planStatus, signaturePct, publicHousingPct, sourceFee), אחרת null.
+- fact: אם השאלה ממלאת שדה עובדתי ידוע, ציין את שם השדה (unitsExisting, unitsPlanned, lotAreaDunam, planStatus, signaturePct, publicHousingPct), אחרת null.
 - החזר JSON תקין בלבד.`;
 
 export async function analyzeGaps(lead: Lead): Promise<FormQuestion[]> {
@@ -56,26 +55,9 @@ export async function analyzeGaps(lead: Lead): Promise<FormQuestion[]> {
     prefill: q.prefillText ?? undefined,
   }));
 
-  return ensureFeeQuestion(lead, questions);
-}
-
-/** The source fee always gets asked when unknown — it drives the final grade. */
-function ensureFeeQuestion(lead: Lead, questions: FormQuestion[]): FormQuestion[] {
-  const feeKnown = lead.sourceFee?.amount != null;
-  const alreadyAsked = questions.some((q) => q.fact === "sourceFee" || q.key === "source_fee");
-  if (feeKnown || alreadyAsked) return questions;
-  return [
-    ...questions,
-    {
-      key: "source_fee",
-      fact: "sourceFee",
-      label: "מהי העמלה שאתם גובים עבור הליד?",
-      kind: "currency",
-      required: true,
-      unit: "₪",
-      help: 'ניתן לציין סכום קבוע, סכום לכל יח"ד או אחוז מהעסקה בהערה.',
-    },
-  ];
+  // The source fee is intentionally NOT asked in the follow-up questionnaire
+  // (it's negotiated separately); it can still be entered manually on the lead.
+  return questions;
 }
 
 function summarizeFactsForGaps(lead: Lead): string {

@@ -29,6 +29,7 @@ import { QuestionnaireTracker } from "@/components/leads/QuestionnaireTracker";
 import { DocumentList } from "@/components/leads/DocumentList";
 import { ActionBar } from "@/components/leads/ActionBar";
 import { LeadMap } from "@/components/leads/LeadMap";
+import { CompoundDocs } from "@/components/leads/CompoundDocs";
 import { DealTypeChip, StatusChip } from "@/components/leads/LeadBadges";
 import { YazamQuestionnaire } from "@/components/leads/YazamQuestionnaire";
 import { appraiserPack } from "@/lib/leads/pack";
@@ -181,6 +182,8 @@ export default async function LeadDetailPage({
               />
             </div>
           </Card>
+
+          <CompoundDocs leadId={lead.id} />
 
           <FactSheet lead={lead} />
         </div>

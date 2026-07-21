@@ -70,7 +70,7 @@ export function LeadMap({
       )}
 
       <a
-        href={`/tabu/${leadId}`}
+        href={`/doc/${leadId}/tabu`}
         target="_blank"
         rel="noopener noreferrer"
         className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-700"
