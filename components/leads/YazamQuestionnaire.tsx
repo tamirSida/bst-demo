@@ -6,7 +6,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCircleCheck,
   faCircleExclamation,
-  faClipboardList,
   faFloppyDisk,
   faRobot,
 } from "@fortawesome/free-solid-svg-icons";
@@ -78,7 +77,7 @@ export function YazamQuestionnaire({
 
   return (
     <Card>
-      <CardHeader title="שאלון יזם" icon={faClipboardList} />
+      <CardHeader title="שאלון יזם" />
       <div className="px-5 pb-5 space-y-4">
         <div className="flex items-start gap-2 rounded-lg border border-brand-100 bg-brand-50/60 p-3 text-sm">
           <FontAwesomeIcon icon={faRobot} className="mt-0.5 text-brand-600" />
@@ -88,7 +87,7 @@ export function YazamQuestionnaire({
                 <>
                   <span className="font-medium">נפתח אוטומטית</span> — צפיפות עומדת
                   בסף: <span className="ltr-nums">{density.toFixed(1)} ≥ {gateDensity}</span>{" "}
-                  יח"ד/דונם.
+                  יח״ד/דונם.
                 </>
               ) : (
                 <span className="font-medium">שאלון יזם</span>

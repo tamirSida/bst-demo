@@ -12,7 +12,6 @@ import { ContactCard } from "./ContactCard";
 import { AdvancedEditDialog } from "./AdvancedEditDialog";
 import { toEditableJson } from "@/lib/domain/leadEdit";
 import { formatNumber, formatPercent, formatCurrency } from "@/lib/format/num";
-import { faTableList } from "@fortawesome/free-solid-svg-icons";
 
 /** Render a value as an LTR-wrapped numeric span (or the em-dash fallback). */
 function num(v: number | null, digits?: number) {
@@ -34,7 +33,6 @@ export function FactSheet({ lead }: { lead: Lead }) {
     <Card>
       <CardHeader
         title="נתוני הליד"
-        icon={faTableList}
         action={<AdvancedEditDialog leadId={lead.id} initialJson={toEditableJson(lead)} />}
       />
       <div className="px-5 pb-3">

@@ -3,20 +3,9 @@
 import { useState, useTransition, type ReactNode } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faBuilding,
-  faChartLine,
   faCircleCheck,
-  faClipboardList,
-  faClock,
-  faCity,
-  faCoins,
-  faEye,
   faFloppyDisk,
-  faPaperPlane,
-  faScaleBalanced,
-  faSliders,
 } from "@fortawesome/free-solid-svg-icons";
-import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Field, Input } from "@/components/ui/Field";
@@ -56,7 +45,7 @@ export function SettingsForm({ initial }: { initial: TriageConfig }) {
   return (
     <div className="space-y-5 pb-24">
       {/* Automation */}
-      <Section title="אוטומציה" icon={faPaperPlane} grid={false}>
+      <Section title="אוטומציה" grid={false}>
         <ToggleField
           label="שליחה אוטומטית של שאלות השלמה"
           help="כשמופעל — עם קליטת ליד חדש המערכת מזהה מה חסר ושולחת טופס השלמה לגורם הפונה. כשמכובה — הליד נקלט בלבד, ותוכלו לשלוח את השאלות ידנית בכפתור «שלח שאלות»."
@@ -66,7 +55,7 @@ export function SettingsForm({ initial }: { initial: TriageConfig }) {
       </Section>
 
       {/* Display */}
-      <Section title="תצוגה" icon={faEye} grid={false}>
+      <Section title="תצוגה" grid={false}>
         <div className="space-y-5">
           <ToggleField
             label="הצגת נתוני הדגמה"
@@ -86,7 +75,7 @@ export function SettingsForm({ initial }: { initial: TriageConfig }) {
       </Section>
 
       {/* פינוי-בינוי thresholds */}
-      <Section title="ספי פינוי-בינוי" icon={faBuilding}>
+      <Section title="ספי פינוי-בינוי">
         <NumField
           label='מינימום יח"ד לפינוי-בינוי'
           help='מתחת לסף זה הליד נפסל אוטומטית (דגל קטלני).'
@@ -113,7 +102,7 @@ export function SettingsForm({ initial }: { initial: TriageConfig }) {
       </Section>
 
       {/* Density & multiplier */}
-      <Section title="צפיפות ומכפיל" icon={faChartLine}>
+      <Section title="צפיפות ומכפיל">
         <NumField
           label='צפיפות נמוכה (יח"ד/דונם)'
           help="מתחת לסף זה — יש עתודת קרקע (דגל ירוק)."
@@ -151,7 +140,7 @@ export function SettingsForm({ initial }: { initial: TriageConfig }) {
       </Section>
 
       {/* Developer questionnaire (שאלון יזם) */}
-      <Section title="שאלון יזם" icon={faClipboardList} grid={false}>
+      <Section title="שאלון יזם" grid={false}>
         <div className="space-y-5">
           <NumField
             label='סף צפיפות לפתיחת שאלון יזם (יח"ד/דונם)'
@@ -195,7 +184,7 @@ export function SettingsForm({ initial }: { initial: TriageConfig }) {
       </Section>
 
       {/* Developer share */}
-      <Section title="חלק היזם" icon={faScaleBalanced}>
+      <Section title="חלק היזם">
         <PctField
           label="חלק יזם — אדום מעל"
           help="חלק היזם מסך יח״ד היוצאות שמעליו נדלק דגל אדום."
@@ -211,7 +200,7 @@ export function SettingsForm({ initial }: { initial: TriageConfig }) {
       </Section>
 
       {/* Deadlines */}
-      <Section title="מועדי הגשה" icon={faClock}>
+      <Section title="מועדי הגשה">
         <NumField
           label="מועד לא ריאלי — עד ימי עבודה"
           help="מתחת למספר זה — מועד ההגשה בלתי אפשרי (דגל אדום; ניתן לבקש דחייה)."
@@ -226,7 +215,7 @@ export function SettingsForm({ initial }: { initial: TriageConfig }) {
       </Section>
 
       {/* Source fee */}
-      <Section title="עמלת מקור" icon={faCoins}>
+      <Section title="עמלת מקור">
         <NumField
           label='עמלה ליח"ד — כתום מעל (₪)'
           value={config.feeYellowPerUnit}
@@ -260,7 +249,7 @@ export function SettingsForm({ initial }: { initial: TriageConfig }) {
       </Section>
 
       {/* Score weights */}
-      <Section title="משקלי ציון" icon={faSliders}>
+      <Section title="משקלי ציון">
         <p className="sm:col-span-2 text-sm text-ink-400 -mt-1 mb-1">
           משקל כל מדד בציון המשוקלל הסופי (סכום רצוי: 100%).
         </p>
@@ -306,7 +295,7 @@ export function SettingsForm({ initial }: { initial: TriageConfig }) {
       </Section>
 
       {/* City lists */}
-      <Section title="רשימות ערים" icon={faCity} grid={false}>
+      <Section title="רשימות ערים" grid={false}>
         <div className="space-y-4">
           <Field label="ערי יעד" help="ערים שבהן BST מעוניינת לפעול.">
             <TagInput
@@ -371,18 +360,16 @@ export function SettingsForm({ initial }: { initial: TriageConfig }) {
 
 function Section({
   title,
-  icon,
   children,
   grid = true,
 }: {
   title: string;
-  icon: IconDefinition;
   children: ReactNode;
   grid?: boolean;
 }) {
   return (
     <Card>
-      <CardHeader title={title} icon={icon} />
+      <CardHeader title={title} />
       <div className={grid ? "px-5 pb-5 grid gap-4 sm:grid-cols-2" : "px-5 pb-5"}>
         {children}
       </div>
@@ -434,7 +421,10 @@ function NumField({
         step={step}
         value={Number.isFinite(value) ? value : ""}
         onChange={(e) => onChange(e.target.value === "" ? 0 : Number(e.target.value))}
-        className="ltr-nums text-start"
+        // `dir="ltr"` re-defines what `start` means, so `text-start` sent the
+        // value to the far LEFT while its Hebrew label sat right — the two ends
+        // of a 600px box. Align to the end so the number sits under its label.
+        className="ltr-nums text-end"
         dir="ltr"
       />
     </Field>
@@ -486,10 +476,13 @@ function PctField({
           onChange={(e) =>
             onChange(e.target.value === "" ? 0 : Number(e.target.value) / 100)
           }
-          className="ltr-nums text-start pe-8"
+          // Same as NumField: align to the end so the value sits under its
+          // label, and pad on the start side — that is where the `%` now sits,
+          // immediately beside the number instead of ~577px away from it.
+          className="ltr-nums text-end ps-8"
           dir="ltr"
         />
-        <span className="absolute top-1/2 -translate-y-1/2 end-3 text-ink-400 text-sm">%</span>
+        <span className="absolute top-1/2 -translate-y-1/2 start-3 text-ink-400 text-sm">%</span>
       </div>
     </Field>
   );

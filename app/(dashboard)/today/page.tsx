@@ -1,3 +1,4 @@
+import { cn } from "@/lib/cn";
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -101,7 +102,10 @@ export default async function TodayPage() {
           </Badge>
         </div>
         {inboxCards.length ? (
-          <div className="grid gap-4 xl:grid-cols-2">
+          // Only pair up when there is something to pair with — a lone card in
+          // a two-column grid sits at half width with an empty half beside it,
+          // which reads as a rendering fault rather than a layout.
+          <div className={cn("grid gap-4", inboxCards.length > 1 && "xl:grid-cols-2")}>
             {inboxCards.map(({ lead, form, packItems }) => (
               <DecisionCard
                 key={lead.id}
@@ -126,7 +130,7 @@ export default async function TodayPage() {
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Upcoming deadlines */}
         <Card>
-          <CardHeader title="מועדי הגשה קרובים" icon={faClock} count={upcoming.length} />
+          <CardHeader title="מועדי הגשה קרובים" count={upcoming.length} />
           {upcoming.length ? (
             <ul className="px-3 pb-3">
               {upcoming.map((lead) => (
@@ -142,7 +146,6 @@ export default async function TodayPage() {
         <Card>
           <CardHeader
             title="נשלחו היום אוטומטית"
-            icon={faPaperPlane}
             count={outboundToday.length}
           />
           {outboundToday.length ? (

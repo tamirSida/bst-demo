@@ -147,7 +147,18 @@ export function FactRow({
         </div>
       ) : (
         <div className="flex items-center gap-2 flex-1 min-w-0">
-          <span className={cn("text-sm font-medium text-ink-900 truncate")}>{value}</span>
+          {/* `truncate` only clips if this flex item is itself allowed to
+              shrink — min-w-0 on the parent alone isn't enough. `bidi-isolate`
+              stops mixed Hebrew/number values (גוש/חלקה, dates) from being
+              reordered across the ellipsis boundary. */}
+          <span
+            className={cn(
+              "min-w-0 flex-1 truncate bidi-isolate text-sm font-medium text-ink-900",
+            )}
+            title={typeof value === "string" ? value : undefined}
+          >
+            {value}
+          </span>
           {icon && (
             <Tooltip content={provenance?.label ?? "מקור לא ידוע"}>
               <FontAwesomeIcon icon={icon} className="text-ink-400 text-xs" />

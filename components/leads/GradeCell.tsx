@@ -49,7 +49,13 @@ export function GradeCell({
 
       {score != null && (
         <span
-          className={cn("hidden md:block h-1 w-24 rounded-full overflow-hidden", TONE_TRACK[tone])}
+          // shrink-0 or the meter collapses to 0px: it's a flex child in an
+          // over-constrained row, so without it the browser takes all its width
+          // back and the bar silently never renders.
+          className={cn(
+            "hidden md:block h-1 w-16 shrink-0 rounded-full overflow-hidden",
+            TONE_TRACK[tone],
+          )}
           aria-hidden="true"
         >
           <span className={cn("block h-full rounded-full", TONE_FILL[tone])} style={{ width: `${pct}%` }} />

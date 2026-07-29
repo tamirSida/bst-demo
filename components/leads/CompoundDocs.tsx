@@ -3,7 +3,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCity,
   faFileLines,
-  faFolderOpen,
   faLayerGroup,
   faScaleBalanced,
   faUpRightFromSquare,
@@ -23,7 +22,7 @@ const ICONS: Record<MockDocType, IconDefinition> = {
 export function CompoundDocs({ leadId }: { leadId: string }) {
   return (
     <Card>
-      <CardHeader title="מסמכי מתחם (הדגמה)" icon={faFolderOpen} />
+      <CardHeader title="מסמכי מתחם (הדגמה)" />
       <div className="px-5 pb-5 space-y-2">
         {MOCK_DOCS.map((d) => (
           <Link

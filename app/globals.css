@@ -177,6 +177,15 @@
     color: var(--color-ink-500);
   }
 
+  /*
+    Keep a mixed Hebrew/Latin/number value as one self-contained bidi run, so
+    the surrounding RTL context can't reorder its parts — and so truncation
+    clips the end of the string rather than the middle of a reordered one.
+  */
+  .bidi-isolate {
+    unicode-bidi: isolate;
+  }
+
   /* Numbers, dates and currency stay LTR even inside RTL text */
   .ltr-nums {
     direction: ltr;

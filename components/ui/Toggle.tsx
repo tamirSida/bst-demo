@@ -36,7 +36,10 @@ export function Toggle({
       <span
         className={cn(
           "relative inline-block w-11 h-6 rounded-full border transition-colors",
-          checked ? "bg-go-500 border-go-500" : "bg-surface-muted border-line",
+          // Brand olive, not go-500: the traffic-light greens mean "this lead
+          // is a go", and spending that signal on a preference switch dilutes
+          // it everywhere else.
+          checked ? "bg-brand-600 border-brand-600" : "bg-surface-muted border-line",
         )}
       >
         <span

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -89,19 +89,21 @@ const COLUMNS: {
   nowrap?: boolean;
   width: string;
 }[] = [
-  { key: "projectName", label: "שם הפרויקט", sortable: true, width: "22rem" },
-  { key: "city", label: "עיר", sortable: true, width: "8rem" },
-  { key: "dealType", label: "סוג עסקה", sortable: true, width: "9rem" },
-  { key: "status", label: "סטטוס", sortable: true, width: "11rem" },
-  { key: "unitsExisting", label: 'יח"ד קיימות', sortable: true, nowrap: true, width: "7.5rem" },
-  { key: "unitsPlanned", label: 'יח"ד יוצאות', sortable: true, nowrap: true, width: "7.5rem" },
-  { key: "density", label: 'צפיפות', sortable: true, nowrap: true, width: "7rem" },
-  { key: "deadline", label: "מועד הגשה", sortable: true, width: "9rem" },
-  { key: "score", label: "ציון והמלצה", sortable: true, width: "12rem" },
+  { key: "projectName", label: "שם הפרויקט", sortable: true, width: "15rem" },
+  { key: "city", label: "עיר", sortable: true, width: "6.5rem" },
+  { key: "dealType", label: "סוג עסקה", sortable: true, width: "7.5rem" },
+  { key: "status", label: "סטטוס", sortable: true, width: "9rem" },
+  { key: "unitsExisting", label: 'יח"ד קיימות', sortable: true, nowrap: true, width: "6rem" },
+  { key: "unitsPlanned", label: 'יח"ד יוצאות', sortable: true, nowrap: true, width: "6rem" },
+  { key: "density", label: 'צפיפות', sortable: true, nowrap: true, width: "5.5rem" },
+  { key: "deadline", label: "מועד הגשה", sortable: true, width: "7.5rem" },
+  // Wide enough for chip + meter + verdict label at their natural widths;
+  // measured at ~17rem, so anything less spills into the chevron cell.
+  { key: "score", label: "ציון והמלצה", sortable: true, width: "17rem" },
 ];
 
 /** Sum of the column widths + the trailing chevron cell — the scroll floor. */
-const TABLE_MIN_WIDTH = "95.5rem";
+const TABLE_MIN_WIDTH = "82.5rem";
 
 /** Compare two rows by a column: numbers numerically, strings by Hebrew locale, nulls last. */
 function compareRows(a: LeadTableRow, b: LeadTableRow, key: string, dir: SortDir): number {
@@ -121,6 +123,20 @@ export function LeadTable({ rows }: { rows: LeadTableRow[] }) {
   const router = useRouter();
   const [shown, setShown] = useState(PAGE);
   const [sort, setSort] = useState<{ key: string; dir: SortDir } | null>(null);
+
+  // Only claim the table scrolls when it actually does — at wide viewports it
+  // may fit, and a hint pointing at nothing is worse than no hint.
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  const [scrollable, setScrollable] = useState(false);
+  useEffect(() => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    const measure = () => setScrollable(el.scrollWidth > el.clientWidth + 1);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   const sorted = useMemo(() => {
     if (!sort) return rows;
@@ -147,7 +163,7 @@ export function LeadTable({ rows }: { rows: LeadTableRow[] }) {
 
   return (
     <div>
-      <div className="overflow-x-auto">
+      <div ref={scrollerRef} className="overflow-x-auto">
         <table
           className="w-full table-fixed text-sm border-collapse"
           style={{ minWidth: TABLE_MIN_WIDTH }}
@@ -245,7 +261,7 @@ export function LeadTable({ rows }: { rows: LeadTableRow[] }) {
                     <span className="text-ink-400 ltr-nums">{r.deadline}</span>
                   )}
                 </td>
-                <td className="px-4 py-3 whitespace-nowrap">
+                <td className="px-4 py-3 overflow-hidden">
                   <GradeCell
                     score={r.score}
                     verdictKey={r.verdictKey}
@@ -265,9 +281,19 @@ export function LeadTable({ rows }: { rows: LeadTableRow[] }) {
       </div>
 
       <div className="flex items-center justify-between gap-3 px-4 py-3 text-sm text-ink-500 border-t border-line">
-        <span>
-          מציג <span className="ltr-nums">{visible.length}</span> מתוך{" "}
-          <span className="ltr-nums">{rows.length}</span> לידים
+        <span className="flex items-center gap-3">
+          <span>
+            מציג <span className="ltr-nums">{visible.length}</span> מתוך{" "}
+            <span className="ltr-nums">{rows.length}</span> לידים
+          </span>
+          {/* The table is wider than the panel by design (all columns stay
+              available). Without saying so it just looks like a table with
+              columns missing. */}
+          {scrollable && (
+            <span className="hidden sm:inline text-ink-400">
+              · גללו לצדדים ליתר העמודות
+            </span>
+          )}
         </span>
         {shown < rows.length && (
           <Button variant="ghost" size="sm" onClick={() => setShown((s) => s + PAGE)}>

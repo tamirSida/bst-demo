@@ -3,12 +3,8 @@ import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBoxArchive,
-  faBolt,
   faChevronRight,
-  faClockRotateLeft,
   faLocationDot,
-  faMapLocationDot,
-  faPaperclip,
 } from "@fortawesome/free-solid-svg-icons";
 import { LeadStatus, REJECTION_REASON_LABEL } from "@/lib/domain/enums";
 import {
@@ -109,7 +105,7 @@ export default async function LeadDetailPage({
 
       {/* Full-width activity timeline across the top, everything else beneath it */}
       <Card>
-        <CardHeader title="פעילות" icon={faClockRotateLeft} />
+        <CardHeader title="פעילות" />
         <div className="px-5 pb-5">
           <Timeline events={events} layout="horizontal" />
         </div>
@@ -146,7 +142,7 @@ export default async function LeadDetailPage({
           )}
 
           <Card>
-            <CardHeader title="מסמכים" icon={faPaperclip} count={documents.length} />
+            <CardHeader title="מסמכים" count={documents.length} />
             <DocumentList documents={documents} />
           </Card>
         </div>
@@ -154,7 +150,7 @@ export default async function LeadDetailPage({
         {/* Sidebar (left in RTL) — actions on top, then the plot map, then facts */}
         <div className="space-y-5">
           <Card>
-            <CardHeader title="פעולות" icon={faBolt} />
+            <CardHeader title="פעולות" />
             <div className="px-5 pb-5">
               <ActionBar
                 leadId={lead.id}
@@ -167,7 +163,7 @@ export default async function LeadDetailPage({
           </Card>
 
           <Card>
-            <CardHeader title="מפת המגרש" icon={faMapLocationDot} />
+            <CardHeader title="מפת המגרש" />
             <div className="px-5 pb-5">
               <LeadMap
                 leadId={lead.id}

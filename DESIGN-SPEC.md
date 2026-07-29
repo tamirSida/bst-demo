@@ -34,14 +34,37 @@ Traffic-light (triage semantics) — kept functional but **muted/earthy** to fit
 - `stop` brick `#A24B3C` (50 `#F4E4E0`, 700 `#6F3126`) — reject / critical
 
 ## Typography
-- Site font is **`fbparking`** (proprietary Hebrew foundry font) — cannot be
-  redistributed. We substitute **Heebo** (geometric Hebrew sans, weights 300–800),
-  the closest free match. Wired via `next/font` in `app/layout.tsx` as `--font-sans`.
-  Do NOT change the font wiring.
-- **Headings are LIGHT and large.** BST sets H1/H2 at ~300 weight, big sizes.
-  Use `font-light` (300) for page titles and section headings; never `font-extrabold`.
-- Body: 400. Labels/eyebrows: 500, letter-spacing slightly wide, often `ink-500`.
-- Numbers/dates stay LTR via the existing `.ltr-nums` class.
+- Site font is **`fbparking`** — BST's own brand face. It is now **self-hosted**
+  from the same `.woff2` files bst.co.il serves (`public/fonts/FbParking*.woff2`),
+  declared as `@font-face` in `app/globals.css` and set as `--font-sans`.
+  Hebrew and Latin are separate cuts split by `unicode-range`, matching the real
+  site. Heebo remains wired in `app/layout.tsx` only as the swap-in fallback.
+  - **Licensing:** FbParking is a commercial foundry font. It is used here on
+    BST's own product; confirm BST's licence covers self-hosting in this app.
+    To revert, delete the `@font-face` blocks and drop `"FbParking"` from
+    `--font-sans` — Heebo takes over with no other change.
+- **The brand has NO bold.** The foundry ships 300 / 400 / 500 only. Never use
+  `font-semibold` or `font-bold`; `font-synthesis-weight: none` on `body` stops
+  the browser faking one. Hierarchy comes from **size, colour and space**.
+- **Headings are LIGHT and large.** Page titles `text-4xl sm:text-5xl font-light`
+  with generous space beneath (`PageHeader` does this).
+- Body: 400. Eyebrow labels: use the `.t-eyebrow` utility (11px, 500, `0.14em`
+  tracking, `ink-500`) — the counterweight that lets light headings stay light.
+- Numbers/dates stay LTR via the existing `.ltr-nums` class. Note `.ltr-nums` is
+  `display:inline-block` — never put it on a `<td>`, it breaks table-cell layout.
+  Put it on a `<span>` inside the cell.
+
+## Photography
+BST's identity is photography-led. Real project images live in `public/img/`
+(pulled from bst.co.il). Use them full-bleed with a **gradient** scrim
+(`from-brand-800/85 via-brand-800/25 to-transparent`), never a flat veil — the
+photograph should stay vivid where nothing sits on top of it.
+
+## Tables
+Always `table-fixed` with an explicit `<colgroup>`. With auto layout the browser
+sizes columns from their content, so one paragraph-length value widens a column
+and every sort or filter visibly shifts the rest. Free-text cells `truncate` and
+carry the full value in `title`.
 
 ## Signature elements (replicate these — they make it read as BST)
 1. **Pill buttons.** Fully rounded (`rounded-full`). Primary = solid `brand-600`
