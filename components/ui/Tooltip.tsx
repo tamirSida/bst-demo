@@ -23,7 +23,9 @@ export function Tooltip({
         role="tooltip"
         className={cn(
           "pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50",
-          "w-max max-w-[16rem] rounded-md bg-ink-900 px-2.5 py-1.5 text-xs text-white text-center leading-snug",
+          // Never wider than the viewport it has to fit inside — at 16rem fixed,
+          // a tooltip on a trigger near the edge of a phone hangs off the side.
+          "w-max max-w-[min(16rem,calc(100vw-2rem))] rounded-md bg-ink-900 px-2.5 py-1.5 text-xs text-white text-center leading-snug",
           "opacity-0 translate-y-1 transition-all duration-100",
           "group-hover:opacity-100 group-hover:translate-y-0",
           "group-focus:opacity-100 group-focus:translate-y-0",

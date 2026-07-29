@@ -113,7 +113,7 @@ export default async function TodayPage() {
           // Only pair up when there is something to pair with — a lone card in
           // a two-column grid sits at half width with an empty half beside it,
           // which reads as a rendering fault rather than a layout.
-          <div className={cn("grid gap-4", inboxCards.length > 1 && "xl:grid-cols-2")}>
+          <div className={cn("grid gap-4 [&>*]:min-w-0", inboxCards.length > 1 && "xl:grid-cols-2")}>
             {inboxCards.map(({ lead, form, packItems }) => (
               <DecisionCard
                 key={lead.id}
@@ -135,7 +135,7 @@ export default async function TodayPage() {
         )}
       </section>
 
-      <div className="rise rise-2 grid gap-6 lg:grid-cols-2">
+      <div className="rise rise-2 grid gap-6 lg:grid-cols-2 [&>*]:min-w-0">
         {/* Upcoming deadlines */}
         <Card>
           <CardHeader title="מועדי הגשה קרובים" count={upcoming.length} />

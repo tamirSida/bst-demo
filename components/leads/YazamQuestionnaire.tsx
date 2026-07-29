@@ -11,6 +11,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { YAZAM_CATEGORIES, YAZAM_QUESTIONS } from "@/lib/leads/yazamQuestions";
 import { Card, CardHeader } from "@/components/ui/Card";
+import { AutoTextarea } from "@/components/ui/AutoTextarea";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
@@ -124,9 +125,8 @@ export function YazamQuestionnaire({
                         </Badge>
                       )}
                     </div>
-                    <textarea
+                    <AutoTextarea
                       id={`yazam-${q.key}`}
-                      rows={2}
                       value={answers[q.key] ?? ""}
                       onChange={(e) => set(q.key, e.target.value)}
                       placeholder={
@@ -135,7 +135,7 @@ export function YazamQuestionnaire({
                           : "—"
                       }
                       className={cn(
-                        "w-full resize-y rounded-lg border bg-surface px-3 py-2 text-sm text-ink-800 placeholder:text-ink-300 focus:outline-none focus:ring-2 focus:ring-brand-100",
+                        "w-full rounded-lg border bg-surface px-3 py-2 text-sm text-ink-800 placeholder:text-ink-300 focus:outline-none focus:ring-2 focus:ring-brand-100",
                         q.scope === "deal" && empty
                           ? "border-warn-300"
                           : "border-line focus:border-brand-400",

@@ -191,6 +191,13 @@
     direction: ltr;
     unicode-bidi: embed;
     display: inline-block;
+    /*
+      inline-block does not shrink to its container, so a long value (a
+      gush/helka pair, say) pushes straight out past the card edge on a narrow
+      screen. Cap it and let the parent's truncation take over.
+    */
+    max-width: 100%;
+    vertical-align: bottom;
   }
 
   /* Modal / popover entrance */

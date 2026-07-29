@@ -54,7 +54,7 @@ export function Timeline({
     const ordered = [...events].reverse();
     return (
       <div className="overflow-x-auto pb-1">
-        <ol className="flex items-start min-w-min">
+        <ol className="flex items-start">
           {ordered.map((e, i) => (
             <li
               key={e.id}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -91,33 +91,41 @@ const SORT_ACCESSOR: Record<string, (r: LeadTableRow) => string | number | null>
  * you scroll for.
  */
 
+/*
+ * `optional` columns are dropped on anything narrower than a large desktop.
+ * Ten columns simply do not fit a 1280–1440 laptop — the content area there is
+ * ~940–1100px — and in RTL the overflow clips from the left, taking the
+ * row-open chevron and the last columns off-screen. These two are the lowest
+ * decision value (planned units are frequently unknown and render "—"), so
+ * they are the ones to shed; everything the go/no-go turns on stays.
+ */
 const COLUMNS: {
   key: string;
   label: string;
   sortable: boolean;
   nowrap?: boolean;
   width: string;
+  optional?: boolean;
 }[] = [
-  { key: "projectName", label: "שם הפרויקט", sortable: true, width: "14rem" },
+  { key: "projectName", label: "שם הפרויקט", sortable: true, width: "12rem" },
   { key: "density", label: 'צפיפות', sortable: true, nowrap: true, width: "5.5rem" },
   // Fits the score chip + meter on one line with the verdict label stacked
   // beneath (see GradeCell) — half what the single-line layout demanded.
   { key: "score", label: "ציון והמלצה", sortable: true, width: "9.5rem" },
   { key: "deadline", label: "מועד הגשה", sortable: true, width: "7.5rem" },
-  { key: "status", label: "סטטוס", sortable: true, width: "8.5rem" },
-  { key: "city", label: "עיר", sortable: true, width: "6.5rem" },
+  { key: "status", label: "סטטוס", sortable: true, width: "8rem" },
+  { key: "city", label: "עיר", sortable: true, width: "6.25rem" },
   { key: "dealType", label: "סוג עסקה", sortable: true, width: "7.5rem" },
-  { key: "unitsExisting", label: 'יח"ד קיימות', sortable: true, nowrap: true, width: "5.5rem" },
-  { key: "unitsPlanned", label: 'יח"ד יוצאות', sortable: true, nowrap: true, width: "5.5rem" },
+  { key: "unitsExisting", label: 'יח"ד קיימות', sortable: true, nowrap: true, width: "5.5rem", optional: true },
+  { key: "unitsPlanned", label: 'יח"ד יוצאות', sortable: true, nowrap: true, width: "5.5rem", optional: true },
 ];
 
-/*
- * Sum of the column widths + the trailing chevron cell. Kept under ~73rem so
- * the whole table fits a standard laptop without scrolling: the score and the
- * row-open chevron are the two things a reader must never have to go looking
- * for, and in RTL an overflow clips exactly those, from the left edge.
- */
-const TABLE_MIN_WIDTH = "72.5rem";
+/** Above this, there is room for the full set; below it, the optional two go. */
+const WIDE_QUERY = "(min-width: 1500px)";
+
+/* Sum of the rendered column widths + the 2.5rem chevron cell. */
+const WIDTH_FULL = "69.75rem"; // all nine columns (>=1500px viewports)
+const WIDTH_COMPACT = "58.75rem"; // without the two יח"ד columns — fits a 1280 laptop
 
 /** Compare two rows by a column: numbers numerically, strings by Hebrew locale, nulls last. */
 function compareRows(a: LeadTableRow, b: LeadTableRow, key: string, dir: SortDir): number {
@@ -137,6 +145,27 @@ export function LeadTable({ rows }: { rows: LeadTableRow[] }) {
   const router = useRouter();
   const [shown, setShown] = useState(PAGE);
   const [sort, setSort] = useState<{ key: string; dir: SortDir } | null>(null);
+
+  /*
+   * Drive the column set from a media query rather than CSS `hidden`, so the
+   * <colgroup>, the headers and the cells always agree about how many columns
+   * exist — a hidden <td> still leaves its <col> reserving width. The server
+   * snapshot renders the full set, and the client narrows it after hydration,
+   * so there is no markup mismatch.
+   */
+  const wide = useSyncExternalStore(
+    (cb) => {
+      const mq = window.matchMedia(WIDE_QUERY);
+      mq.addEventListener("change", cb);
+      return () => mq.removeEventListener("change", cb);
+    },
+    () => window.matchMedia(WIDE_QUERY).matches,
+    () => true,
+  );
+  const columns = useMemo(
+    () => (wide ? COLUMNS : COLUMNS.filter((c) => !c.optional)),
+    [wide],
+  );
 
   // Only claim the table scrolls when it actually does — at wide viewports it
   // may fit, and a hint pointing at nothing is worse than no hint.
@@ -180,24 +209,24 @@ export function LeadTable({ rows }: { rows: LeadTableRow[] }) {
       <div ref={scrollerRef} className="overflow-x-auto">
         <table
           className="w-full table-fixed text-sm border-collapse"
-          style={{ minWidth: TABLE_MIN_WIDTH }}
+          style={{ minWidth: wide ? WIDTH_FULL : WIDTH_COMPACT }}
         >
           <colgroup>
-            {COLUMNS.map((col) => (
+            {columns.map((col) => (
               <col key={col.key} style={{ width: col.width }} />
             ))}
             <col style={{ width: "2.5rem" }} />
           </colgroup>
           <thead>
             <tr className="text-ink-500 text-xs font-medium">
-              {COLUMNS.map((col) => {
+              {columns.map((col) => {
                 const active = sort?.key === col.key;
                 const icon = !active ? faSort : sort.dir === "asc" ? faSortUp : faSortDown;
                 return (
                   <th
                     key={col.key}
                     className={cn(
-                      "text-start font-medium px-4 py-3 select-none",
+                      "text-start font-medium px-3 py-3 select-none",
                       col.nowrap && "whitespace-nowrap",
                     )}
                     aria-sort={active ? (sort.dir === "asc" ? "ascending" : "descending") : "none"}
@@ -235,7 +264,7 @@ export function LeadTable({ rows }: { rows: LeadTableRow[] }) {
                 {/* Free text from an inbound email can be a whole paragraph;
                     clamp it to one line and keep the full value in the title so
                     nothing is actually lost. */}
-                <td className="px-4 py-3 font-medium text-ink-900">
+                <td className="px-3 py-3 font-medium text-ink-900">
                   {/* prefetch={false}: in production Next prefetches every
                       in-viewport row link, server-rendering that lead's whole
                       detail page. Fifty rows × a data fan-out each, re-armed on
@@ -251,12 +280,12 @@ export function LeadTable({ rows }: { rows: LeadTableRow[] }) {
                     {r.projectName}
                   </Link>
                 </td>
-                <td className="px-4 py-3 whitespace-nowrap">
+                <td className="px-3 py-3 whitespace-nowrap">
                   <span className={cn("ltr-nums font-medium", TONE_TEXT[r.densityTone])}>
                     {r.density}
                   </span>
                 </td>
-                <td className="px-4 py-3 overflow-hidden">
+                <td className="px-3 py-3 overflow-hidden">
                   <GradeCell
                     score={r.score}
                     verdictKey={r.verdictKey}
@@ -264,7 +293,7 @@ export function LeadTable({ rows }: { rows: LeadTableRow[] }) {
                     tone={r.verdictTone}
                   />
                 </td>
-                <td className="px-4 py-3 whitespace-nowrap">
+                <td className="px-3 py-3 whitespace-nowrap">
                   {r.deadlineTone ? (
                     <span className={cn("font-medium ltr-nums", TONE_TEXT[r.deadlineTone])}>
                       {r.deadline}
@@ -273,23 +302,27 @@ export function LeadTable({ rows }: { rows: LeadTableRow[] }) {
                     <span className="text-ink-400 ltr-nums">{r.deadline}</span>
                   )}
                 </td>
-                <td className="px-4 py-3">
+                <td className="px-3 py-3">
                   <Badge tone={r.statusTone} size="sm">
                     {r.status}
                   </Badge>
                 </td>
-                <td className="px-4 py-3 text-ink-700">
+                <td className="px-3 py-3 text-ink-700">
                   <span className="block truncate" title={r.city}>
                     {r.city}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-ink-700 whitespace-nowrap">{r.dealType}</td>
-                <td className="px-4 py-3 text-ink-700">
-                  <span className="ltr-nums">{r.unitsExisting}</span>
-                </td>
-                <td className="px-4 py-3 text-ink-700">
-                  <span className="ltr-nums">{r.unitsPlanned}</span>
-                </td>
+                <td className="px-3 py-3 text-ink-700 whitespace-nowrap">{r.dealType}</td>
+                {wide && (
+                  <>
+                    <td className="px-3 py-3 text-ink-700">
+                      <span className="ltr-nums">{r.unitsExisting}</span>
+                    </td>
+                    <td className="px-3 py-3 text-ink-700">
+                      <span className="ltr-nums">{r.unitsPlanned}</span>
+                    </td>
+                  </>
+                )}
                 <td className="px-2 py-3 text-ink-300 group-hover:text-brand-500">
                   <Link href={`/leads/${r.id}`} prefetch={false} aria-label="פתיחת ליד">
                     <FontAwesomeIcon icon={faChevronLeft} />
