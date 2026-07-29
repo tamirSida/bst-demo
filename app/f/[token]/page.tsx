@@ -43,7 +43,7 @@ export default async function PublicFormPage({
           <span className="flex items-center justify-center w-16 h-16 mx-auto rounded-full bg-surface-muted text-ink-400 mb-5">
             <FontAwesomeIcon icon={faFaceFrown} className="text-3xl" />
           </span>
-          <h1 className="text-2xl font-light text-ink-900">הטופס לא נמצא</h1>
+          <h1 className="text-2xl font-semibold text-ink-900">הטופס לא נמצא</h1>
           <p className="text-ink-500 mt-2 leading-relaxed">
             ייתכן שהקישור פג תוקף. אנא פנו לשולח.
           </p>
@@ -58,25 +58,15 @@ export default async function PublicFormPage({
 
   return (
     <div className="min-h-screen bg-canvas">
-      {/* Branded dark-olive bar with the cream logo and a sparse line-art motif. */}
-      <header className="relative overflow-hidden bg-brand-600 text-logo-cream">
-        <svg
-          aria-hidden="true"
-          viewBox="0 0 200 200"
-          fill="none"
-          className="pointer-events-none absolute -top-10 left-0 h-48 w-48 text-logo-cream/10"
-        >
-          <circle cx="0" cy="100" r="70" stroke="currentColor" strokeWidth="1" />
-          <circle cx="0" cy="100" r="120" stroke="currentColor" strokeWidth="1" />
-          <circle cx="0" cy="100" r="170" stroke="currentColor" strokeWidth="1" />
-        </svg>
+      {/* Accent bar — the one branded surface an outside referrer sees. */}
+      <header className="bg-brand-600 text-white">
         <div className="relative max-w-xl mx-auto px-5 pt-8 pb-7 flex items-center gap-4">
-          <Logo className="h-8 text-logo-cream shrink-0" />
+          <Logo className="h-7 text-white shrink-0" />
           <div className="min-w-0">
-            <p className="text-[0.7rem] font-medium tracking-wide text-logo-cream/60">
+            <p className="text-[0.7rem] font-semibold tracking-wide text-white/70">
               פיתוח עסקי
             </p>
-            <h1 className="text-[1.35rem] font-light leading-snug text-logo-cream mt-1">
+            <h1 className="text-[1.35rem] font-semibold leading-snug text-white mt-1">
               {form.title}
             </h1>
           </div>

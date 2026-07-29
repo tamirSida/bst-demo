@@ -36,7 +36,7 @@ export function textToBrandedHtml(text: string): string {
   const body = escapeHtml(text)
     .replace(
       /(https?:\/\/[^\s]+)/g,
-      '<a href="$1" style="color:${p.brand600};font-weight:bold;">$1</a>',
+      `<a href="$1" style="color:${p.brand600};font-weight:600;">$1</a>`,
     )
     .replace(/\n/g, "<br>");
 

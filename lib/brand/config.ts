@@ -71,46 +71,53 @@ export interface Brand {
 }
 
 /**
- * Default, unbranded identity. Deliberately not any client's colours: a cool
- * slate ink over warm paper, with a single restrained accent. Neutral enough
- * to demo to anyone, specific enough not to look like a starter template.
+ * Default identity — deliberately NAMELESS and undecorated.
+ *
+ * No name, no mark. An empty `name` makes the UI describe what it does rather
+ * than announce what it is called; inventing a product name would be one more
+ * thing to strip before showing it to a company.
+ *
+ * Bright and untinted: a near-white page, white panels, near-black text, and a
+ * single saturated blue that is spent only where it means something — the
+ * primary action, the active nav item, focus, links. No beige, no olive, no
+ * slate cast anywhere.
  */
-const migdalor: Brand = {
-  key: "migdalor",
-  name: "מגדלור",
-  productTitle: "מגדלור — ניהול וסינון לידים",
+const unbranded: Brand = {
+  key: "default",
+  name: "",
+  productTitle: "ניהול וסינון לידים",
   productDescription: "מערכת סינון וניתוח לידים להתחדשות עירונית",
   tagline: "סינון לידים · פיתוח עסקי",
   leadMarkerPrefix: "LD",
   fontFamily: '"Heebo", "Assistant", system-ui, sans-serif',
   palette: {
-    brand50: "#eef1f5",
-    brand100: "#dbe1ea",
-    brand300: "#9aa8bd",
-    brand400: "#75859e",
-    brand500: "#566880",
-    brand600: "#3d4c62",
-    brand700: "#313d4f",
-    brand800: "#26303e",
-    brand900: "#1b222c",
-    canvas: "#f0eee9",
-    surface: "#ffffff",
-    surfaceMuted: "#e9e6e0",
-    ink900: "#22282f",
-    ink700: "#3f4854",
-    ink500: "#6b7481",
-    ink400: "#949ca7",
-    line: "#d8d4cc",
-    logoContrast: "#f3f1ec",
+    brand50: "#EFF4FF",
+    brand100: "#DBE6FE",
+    brand300: "#93B4FD",
+    brand400: "#6494FA",
+    brand500: "#3B76F6",
+    brand600: "#2563EB", // the accent
+    brand700: "#1D4FD7",
+    brand800: "#1E40AF",
+    brand900: "#172554",
+    canvas: "#F7F8FA",
+    surface: "#FFFFFF",
+    surfaceMuted: "#F1F3F6",
+    ink900: "#0F1419", // 17.4:1 on white — headings and every numeral
+    ink700: "#3D4753", //  9.1:1 — body
+    ink500: "#6B7684", //  4.8:1 — labels, captions
+    ink400: "#9AA3AF", //  2.9:1 — NOT a text tier; icons and disabled only
+    line: "#E5E7EB",
+    logoContrast: "#FFFFFF",
   },
 };
 
 /** Registry. Add a preset here to make it selectable via NEXT_PUBLIC_BRAND. */
 export const BRANDS: Record<string, Brand> = {
-  [migdalor.key]: migdalor,
+  [unbranded.key]: unbranded,
 };
 
-export const DEFAULT_BRAND_KEY = migdalor.key;
+export const DEFAULT_BRAND_KEY = unbranded.key;
 
 /**
  * The active brand. Read from NEXT_PUBLIC_BRAND so the same value is available

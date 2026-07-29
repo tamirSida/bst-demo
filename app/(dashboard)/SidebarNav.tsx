@@ -35,15 +35,15 @@ export function SidebarNav() {
             aria-current={active ? "page" : undefined}
             className={cn(
               "flex items-center gap-3 rounded-full px-4 h-11 font-medium transition-colors",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-logo-cream/50",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300",
               active
-                ? "bg-logo-cream text-brand-700"
-                : "text-logo-cream/70 hover:bg-brand-500 hover:text-logo-cream",
+                ? "bg-brand-50 text-brand-700"
+                : "text-ink-700 hover:bg-surface-muted hover:text-ink-900",
             )}
           >
             <FontAwesomeIcon
               icon={item.icon}
-              className={cn("text-lg w-5", active ? "text-brand-600" : "text-logo-cream/50")}
+              className={cn("text-lg w-5", active ? "text-brand-600" : "text-ink-400")}
             />
             <span>{item.label}</span>
           </Link>

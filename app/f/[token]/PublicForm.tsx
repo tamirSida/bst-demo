@@ -88,7 +88,7 @@ export function PublicForm({ form, token }: { form: LeadForm; token: string }) {
         <span className="flex items-center justify-center w-16 h-16 rounded-full bg-go-50 text-go-600 mb-5">
           <FontAwesomeIcon icon={faCircleCheck} className="text-3xl" />
         </span>
-        <h2 className="text-2xl font-light text-ink-900">תודה! הפרטים התקבלו</h2>
+        <h2 className="text-2xl font-semibold text-ink-900">תודה! הפרטים התקבלו</h2>
         <p className="text-ink-500 mt-2 leading-relaxed">נחזור אליכם בהקדם. אפשר לסגור את החלון.</p>
       </div>
     );

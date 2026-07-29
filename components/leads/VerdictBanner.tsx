@@ -25,16 +25,16 @@ const TONE_RULE: Record<string, string> = {
   go: "bg-go-500",
   warn: "bg-warn-500",
   stop: "bg-stop-500",
-  brand: "bg-logo-cream/40",
-  neutral: "bg-logo-cream/40",
+  brand: "bg-brand-600",
+  neutral: "bg-line",
 };
 
 const TONE_TEXT: Record<string, string> = {
-  go: "text-go-100",
-  warn: "text-warn-100",
-  stop: "text-stop-100",
-  brand: "text-logo-cream/70",
-  neutral: "text-logo-cream/70",
+  go: "text-go-700",
+  warn: "text-warn-700",
+  stop: "text-stop-700",
+  brand: "text-ink-500",
+  neutral: "text-ink-500",
 };
 
 export function VerdictBanner({
@@ -53,14 +53,14 @@ export function VerdictBanner({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-xl bg-brand-600 text-logo-cream",
-        compact ? "px-4 py-3.5" : "px-6 py-5",
+        "relative overflow-hidden rounded-lg border border-line bg-surface",
+        compact ? "px-4 py-3.5" : "px-5 py-4",
       )}
     >
       {/* Status accent: a single hairline along the inline-start edge. */}
       <span
         aria-hidden
-        className={cn("absolute inset-y-0 start-0 w-[3px]", TONE_RULE[tone])}
+        className={cn("absolute inset-y-0 start-0 w-1", TONE_RULE[tone])}
       />
 
       {/* flex-wrap, and the figures below are allowed to shrink: on a phone this
@@ -69,11 +69,11 @@ export function VerdictBanner({
           the inline-start edge and clipped away entirely. */}
       <div className={cn("flex flex-wrap items-end justify-between gap-x-5 gap-y-4")}>
         <div className="min-w-0">
-          <p className="t-eyebrow !text-logo-cream/55">המלצת המערכת</p>
+          <p className="t-eyebrow">המלצת המערכת</p>
           <p
             className={cn(
-              "mt-1 font-light leading-none",
-              compact ? "text-xl" : "text-3xl",
+              "mt-1 font-semibold leading-tight text-ink-900",
+              compact ? "text-lg" : "text-2xl",
             )}
           >
             {VERDICT_LABEL[verdict]}
@@ -89,35 +89,35 @@ export function VerdictBanner({
         <div className="flex items-end gap-5">
           {dens.num != null && (
             <div className="text-end">
-              <p className="t-eyebrow !text-logo-cream/55">צפיפות קיימת</p>
+              <p className="t-eyebrow">צפיפות קיימת</p>
               <p
                 className={cn(
-                  "font-light leading-none ltr-nums",
-                  compact ? "text-2xl" : "text-4xl",
+                  "font-semibold leading-none ltr-nums text-ink-900",
+                  compact ? "text-2xl" : "text-[2.5rem]",
                 )}
               >
                 {dens.text}
               </p>
-              <p className="mt-1 text-[0.6875rem] text-logo-cream/55">יח״ד לדונם</p>
+              <p className="mt-1 text-[0.6875rem] text-ink-500">יח״ד לדונם</p>
             </div>
           )}
 
           {grade?.score != null && (
             <Tooltip content="ציון פנימי משוקלל מ-0 עד 100, המסכם כלכלה, תכנון, רצינות, אסטרטגיה ולוח זמנים. ניתן לכוונון במסך ההגדרות.">
-              <div className="text-end border-s border-logo-cream/20 ps-5">
-                <p className="t-eyebrow !text-logo-cream/55">
+              <div className="text-end border-s border-line ps-5">
+                <p className="t-eyebrow">
                   ציון
                   <FontAwesomeIcon icon={faCircleInfo} className="ms-1 text-[0.9em]" />
                 </p>
                 <p
                   className={cn(
-                    "font-light leading-none text-logo-cream/80",
-                    compact ? "text-xl" : "text-2xl",
+                    "font-semibold leading-none text-ink-700",
+                    compact ? "text-lg" : "text-xl",
                   )}
                 >
                   <span className="ltr-nums">{grade.score}</span>
                 </p>
-                <p className="mt-1 text-[0.6875rem] text-logo-cream/55">מתוך 100</p>
+                <p className="mt-1 text-[0.6875rem] text-ink-500">מתוך 100</p>
               </div>
             </Tooltip>
           )}

@@ -10,7 +10,7 @@ import { activeBrand } from "@/lib/brand/config";
 // Weights stop at 500 — the design never uses a bold.
 const heebo = Heebo({
   subsets: ["hebrew", "latin"],
-  weight: ["300", "400", "500"],
+  weight: ["400", "500", "600", "700"],
   variable: "--font-heebo",
   display: "swap",
 });

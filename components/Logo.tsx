@@ -4,17 +4,18 @@ import { cn } from "@/lib/cn";
 /**
  * The active brand's mark.
  *
- * When the brand supplies a logo file it is drawn as a CSS mask filled with
- * `currentColor`, so one asset works on both the dark bars and the light
- * surfaces — set the colour with a text class and the height with `className`
- * (e.g. `h-9 text-logo-cream`); the width follows the aspect ratio.
+ * A brand-supplied logo is drawn as a CSS mask filled with `currentColor`, so
+ * one asset works on light and dark alike — set the colour with a text class
+ * and the height with `className`; the width follows the aspect ratio.
  *
- * When it doesn't, we set the brand name as a wordmark rather than shipping a
- * placeholder graphic. An unbranded install should look deliberately unbranded,
- * not like it is still wearing somebody else's logo.
+ * With no logo and no name, this renders NOTHING. A placeholder glyph is a
+ * shape that means nothing to anyone; an unbranded install is better with an
+ * empty slot than with invented decoration.
  */
 export function Logo({ className }: { className?: string }) {
   const brand = activeBrand();
+
+  if (!brand.logo && !brand.name) return null;
 
   if (!brand.logo) {
     return (
@@ -22,7 +23,7 @@ export function Logo({ className }: { className?: string }) {
         role="img"
         aria-label={brand.name}
         className={cn(
-          "inline-flex items-center whitespace-nowrap font-light leading-none tracking-[0.18em]",
+          "inline-flex items-center whitespace-nowrap font-semibold leading-none",
           className,
         )}
       >
