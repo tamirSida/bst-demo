@@ -1,4 +1,5 @@
 import "server-only";
+import { activeBrand } from "../brand/config";
 import { analyzeGaps } from "../ai/gaps";
 import { LeadStatus } from "../domain/enums";
 import { displayName } from "../domain/lead";
@@ -65,7 +66,7 @@ export async function regenerateAndSendQuestions(leadId: string): Promise<{
     `[${lead.threadKey}]`,
     "",
     "בברכה,",
-    "צוות הפיתוח העסקי — קבוצת BST",
+    `צוות הפיתוח העסקי — ${activeBrand().name}`,
   ].join("\n");
 
   let status: "sent" | "simulated" | "failed" | "no_contact" = "no_contact";
@@ -76,7 +77,7 @@ export async function regenerateAndSendQuestions(leadId: string): Promise<{
       subject: `השלמת פרטים — ${lead.projectName} [${lead.threadKey}]`,
       text: body,
       replyTo: process.env.EMAIL_FROM,
-      headers: { "X-BST-Lead": lead.threadKey },
+      headers: { "X-Lead-Thread": lead.threadKey },
     });
     status = res.status;
     providerId = res.id;

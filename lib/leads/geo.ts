@@ -95,7 +95,7 @@ async function geocodeNominatim(street: string, city: string): Promise<LeadGeo |
   const timer = setTimeout(() => controller.abort(), 2500);
   try {
     const res = await fetch(`https://nominatim.openstreetmap.org/search?${params}`, {
-      headers: { "User-Agent": "BST-Leads/1.0 (bst@tippingpoint.portfolio-plus.com)" },
+      headers: { "User-Agent": "UrbanRenewalLeads/1.0 (contact@example.co.il)" },
       signal: controller.signal,
     });
     if (!res.ok) return null;

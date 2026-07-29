@@ -8,4 +8,4 @@ export function isAuthDisabled(): boolean {
   return process.env.AUTH_DISABLED === "true";
 }
 
-export const SESSION_COOKIE = "bst_session";
+export const SESSION_COOKIE = "app_session";

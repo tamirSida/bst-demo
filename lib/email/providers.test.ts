@@ -17,7 +17,7 @@ describe("recipientAllowed (hard allowlist)", () => {
     delete process.env.EMAIL_ALLOWED_RECIPIENTS;
     process.env.EMAIL_REDIRECT_TO = "safe@example.com";
     expect(recipientAllowed("safe@example.com")).toBe(true);
-    expect(recipientAllowed("Yossef@ykadv.co.il")).toBe(false);
+    expect(recipientAllowed("person@other.co.il")).toBe(false);
   });
 
   it("blocks everything when neither allowlist nor redirect are set", () => {
@@ -27,17 +27,17 @@ describe("recipientAllowed (hard allowlist)", () => {
   });
 
   it("honors exact addresses and @domain suffixes, case-insensitive", () => {
-    process.env.EMAIL_ALLOWED_RECIPIENTS = "tamirsida25@gmail.com,@tippingpoint.portfolio-plus.com";
+    process.env.EMAIL_ALLOWED_RECIPIENTS = "tamirsida25@gmail.com,@example.co.il";
     expect(recipientAllowed("tamirsida25@gmail.com")).toBe(true);
     expect(recipientAllowed("TamirSida25@Gmail.com")).toBe(true);
-    expect(recipientAllowed("bst@tippingpoint.portfolio-plus.com")).toBe(true);
-    expect(recipientAllowed("Yossef@ykadv.co.il")).toBe(false);
+    expect(recipientAllowed("leads@example.co.il")).toBe(true);
+    expect(recipientAllowed("person@other.co.il")).toBe(false);
     expect(recipientAllowed("evil@gmail.com")).toBe(false);
   });
 
   it('"*" opens everything (explicit production opt-in)', () => {
     process.env.EMAIL_ALLOWED_RECIPIENTS = "*";
-    expect(recipientAllowed("Yossef@ykadv.co.il")).toBe(true);
+    expect(recipientAllowed("person@other.co.il")).toBe(true);
   });
 });
 

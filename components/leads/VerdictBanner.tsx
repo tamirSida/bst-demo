@@ -10,7 +10,7 @@ import { cn } from "@/lib/cn";
 /**
  * The decision hero.
  *
- * BST's visual signature is the dark-olive band, so the bottom line sits on one
+ * The product's visual signature is the dark brand band, so the bottom line sits on one
  * — not on a saturated red/amber fill, which reads as an error toast and belongs
  * to no brand in particular. Status still carries color, but as a thin rule and
  * a small word rather than a wash, which keeps the band legible and lets the two

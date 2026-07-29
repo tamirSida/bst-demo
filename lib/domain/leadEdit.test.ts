@@ -9,11 +9,11 @@ const server = () =>
     dealType: DealType.PinuiBinui,
     projectName: "מתחם הבדיקה",
     id: "lead-1",
-    threadKey: "BST-L-0007",
+    threadKey: "LD-L-0007",
     createdAt: "2026-01-01T00:00:00.000Z",
     unitsExisting: 40,
     planStatus: PlanStatus.EarlyProcess,
-    extra: { documentTypes: ["invitation"], threadKey: "BST-L-0007" },
+    extra: { documentTypes: ["invitation"], threadKey: "LD-L-0007" },
   });
 
 describe("applyAdvancedPatch", () => {
@@ -26,11 +26,11 @@ describe("applyAdvancedPatch", () => {
   it("never lets input overwrite identity fields", () => {
     const { lead } = applyAdvancedPatch(server(), {
       id: "hacked",
-      threadKey: "BST-L-9999",
+      threadKey: "LD-L-9999",
       createdAt: "1999-01-01",
     });
     expect(lead.id).toBe("lead-1");
-    expect(lead.threadKey).toBe("BST-L-0007");
+    expect(lead.threadKey).toBe("LD-L-0007");
     expect(lead.createdAt).toBe("2026-01-01T00:00:00.000Z");
   });
 
@@ -53,7 +53,7 @@ describe("applyAdvancedPatch", () => {
       extra: { documentTypes: ["HACKED"], threadKey: "nope", mine: 1 },
     });
     expect(lead.extra.documentTypes).toEqual(["invitation"]); // from server, not input
-    expect(lead.extra.threadKey).toBe("BST-L-0007"); // from server
+    expect(lead.extra.threadKey).toBe("LD-L-0007"); // from server
     expect(lead.extra.mine).toBe(1); // user addition kept
   });
 

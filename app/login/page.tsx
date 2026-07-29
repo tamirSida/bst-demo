@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
@@ -9,8 +8,10 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { clientAuth } from "@/lib/firebase/client";
 import { Button } from "@/components/ui/Button";
 import { Logo } from "@/components/Logo";
+import { activeBrand } from "@/lib/brand/config";
 
 export default function LoginPage() {
+  const brand = activeBrand();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -43,28 +44,15 @@ export default function LoginPage() {
     "placeholder:text-ink-400 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100";
 
   return (
-    // BST leads with the buildings, so the sign-in does too: a full-bleed
-    // project photograph holds the left of the screen and the form sits quietly
-    // on cream beside it, rather than floating as a card in empty space.
+    // A quiet brand panel beside the form rather than a card floating in
+    // empty space. No photograph: nothing here should imply a client.
     <div className="min-h-screen grid lg:grid-cols-[1.15fr_1fr] bg-canvas">
-      <div className="relative hidden lg:block overflow-hidden">
-        <Image
-          src="/img/project-kalaniot.jpg"
-          alt="פרויקט מגורים של קבוצת BST"
-          fill
-          priority
-          sizes="(min-width: 1024px) 55vw, 0px"
-          className="object-cover"
-        />
-        {/* Gradient rather than a flat veil: the photograph stays vivid where
-            there is nothing over it, and darkens only under the caption. */}
-        <div className="absolute inset-0 bg-gradient-to-t from-brand-800/85 via-brand-800/25 to-transparent" />
+      <div className="relative hidden overflow-hidden bg-brand-800 lg:block">
+        <HeroMark />
         <div className="absolute inset-x-0 bottom-0 p-10">
-          <p className="t-eyebrow !text-logo-cream/60">קבוצת BST</p>
-          <p className="mt-2 text-3xl font-light leading-tight text-logo-cream">
-            מעל 50 שנות נדל״ן,
-            <br />
-            התחדשות עירונית ובנייה.
+          <p className="t-eyebrow !text-logo-cream/55">{brand.name}</p>
+          <p className="mt-2 max-w-md text-3xl font-light leading-tight text-logo-cream">
+            {brand.productDescription}
           </p>
         </div>
       </div>
@@ -74,7 +62,7 @@ export default function LoginPage() {
         <div className="mb-10">
           <Logo className="h-12 text-ink-900" />
           <p className="text-sm text-ink-500 mt-4 tracking-wide">
-            מערכת סינון לידים · פיתוח עסקי
+            {brand.tagline}
           </p>
         </div>
 
@@ -129,6 +117,40 @@ export default function LoginPage() {
         </form>
         </div>
       </div>
+    </div>
+  );
+}
+
+/**
+ * The sign-in panel's backdrop: the same drawn plot motif as the page heroes,
+ * so the product reads as one system from the first screen. No photography —
+ * an unbranded install must not imply a client it doesn't have.
+ */
+function HeroMark() {
+  return (
+    <div aria-hidden className="pointer-events-none absolute inset-0">
+      <svg
+        className="absolute inset-0 h-full w-full text-logo-cream"
+        viewBox="0 0 600 900"
+        preserveAspectRatio="xMidYMid slice"
+        fill="none"
+      >
+        <g stroke="currentColor" strokeWidth="1" opacity="0.13">
+          <path d="M0 640 H600 M0 520 H600" />
+          <path d="M120 900 V520 M300 900 V520 M440 900 V640" />
+        </g>
+        <g stroke="currentColor" strokeWidth="1" opacity="0.19">
+          <rect x="150" y="380" width="120" height="260" />
+          <rect x="176" y="330" width="70" height="50" />
+          <rect x="330" y="440" width="96" height="200" />
+        </g>
+        <g fill="currentColor" opacity="0.28">
+          <circle cx="150" cy="640" r="3" />
+          <circle cx="270" cy="640" r="3" />
+          <circle cx="426" cy="640" r="3" />
+        </g>
+      </svg>
+      <div className="absolute inset-0 bg-gradient-to-b from-brand-800 via-brand-800/60 to-brand-900/80" />
     </div>
   );
 }

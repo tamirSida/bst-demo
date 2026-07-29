@@ -67,7 +67,7 @@ export function MockDocShell({
         {children}
 
         <footer className="mt-6 border-t border-line pt-4 text-center text-xs text-ink-400">
-          מסמך זה הופק לצורכי הדגמה במערכת BST בלבד ואינו מהווה מסמך רשמי.
+          מסמך זה הופק לצורכי הדגמה בלבד ואינו מהווה מסמך רשמי.
         </footer>
       </article>
     </div>

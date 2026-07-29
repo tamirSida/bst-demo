@@ -1,10 +1,10 @@
 /**
  * The standard "שאלון יזם" (developer questionnaire) for פינוי-בינוי tenders —
- * the 25 questions BST must answer when bidding on a compound. Source:
+ * the 25 questions a developer must answer when bidding on a compound. Source:
  * hithadshut.co.il/madrichim/sheelot-shalemot-leyazam-pinui-binui.
  *
  * Most are company-level facts that repeat verbatim across every tender
- * (`scope: "company"`) and can be auto-filled from BST's company profile.
+ * (`scope: "company"`) and can be auto-filled from the company profile.
  * A few are deal-specific (`scope: "deal"`) and must be reviewed/approved by a
  * human before they go out — those are flagged in the UI.
  */

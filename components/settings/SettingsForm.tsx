@@ -298,7 +298,7 @@ export function SettingsForm({ initial }: { initial: TriageConfig }) {
       {/* City lists */}
       <Section title="רשימות ערים" grid={false}>
         <div className="space-y-4">
-          <Field label="ערי יעד" help="ערים שבהן BST מעוניינת לפעול.">
+          <Field label="ערי יעד" help="ערים שבהן החברה מעוניינת לפעול.">
             <TagInput
               values={config.cityWhitelist}
               onChange={(v) => set("cityWhitelist", v)}
@@ -321,7 +321,7 @@ export function SettingsForm({ initial }: { initial: TriageConfig }) {
           </Field>
           <Field
             label="ערים בהן אנו רשומים במאגר"
-            help="ערים שבהן BST כבר רשומה במאגר היזמים."
+            help="ערים שבהן החברה כבר רשומה במאגר היזמים."
           >
             <TagInput
               values={config.registeredMaagarCities}

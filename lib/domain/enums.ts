@@ -1,5 +1,5 @@
 /**
- * Core domain enumerations for the BST urban-renewal lead system.
+ * Core domain enumerations for the urban-renewal lead system.
  *
  * Pattern: each enum is a frozen value object + a derived string-literal type,
  * paired with a Hebrew label map for display. Stable machine keys never change;

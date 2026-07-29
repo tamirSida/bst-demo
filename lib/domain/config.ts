@@ -60,7 +60,7 @@ export interface TriageConfig {
   cityBlacklist: string[];
   cityWhitelist: string[]; // target cities
   maagarRequiredCities: string[]; // cities requiring מאגר יזמים registration
-  registeredMaagarCities: string[]; // where BST IS registered
+  registeredMaagarCities: string[]; // where the company IS registered
 
   /** City → region classification (fallback = defaultRegion). */
   cityRegion: Record<string, Region>;
@@ -92,7 +92,7 @@ export interface TriageConfig {
    * developer questionnaire is auto-prepared. */
   yazamGateDensity: number;
 
-  /** BST's standing answers to the company-level שאלון יזם questions, keyed by
+  /** The company's standing answers to the company-level שאלון יזם questions, keyed by
    * question key (see lib/leads/yazamQuestions). Entered once, reused verbatim
    * across every tender; deal-specific questions are flagged for manual review. */
   yazamAnswers: Record<string, string>;
@@ -179,9 +179,9 @@ export const DEFAULT_CONFIG: TriageConfig = {
   showSeedData: true,
   yazamGateDensity: 8,
   // Drafted standing answers for the company-level שאלון יזם questions —
-  // professional boilerplate BST can keep or edit in הגדרות. Specific legal /
+  // professional boilerplate the company can keep or edit in הגדרות. Specific legal /
   // financial identifiers (ח"פ number, exact bank, past-project list) are left
-  // to BST to supply rather than invented here.
+  // left to the company to supply rather than invented here.
   yazamAnswers: {
     company_reg:
       'החברה רשומה כחברה פרטית ברשם החברות ופעילה בתחום ההתחדשות העירונית. מספר הח"פ ותעודת ההתאגדות (הכוללת את שנת הרישום) יימסרו לנציגות ולעורך הדין.',

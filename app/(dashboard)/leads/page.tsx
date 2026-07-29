@@ -48,7 +48,6 @@ export default async function LeadsPage({
         eyebrow={todayLabel()}
         title="לידים"
         subtitle="כל הלידים במבט אחד — תחליף לאקסל"
-        image="/img/project-kalaniot.jpg"
         stats={[
           { label: "בתצוגה", value: <span className="ltr-nums">{rows.length}</span> },
           { label: "ערים", value: <span className="ltr-nums">{cities.length}</span> },

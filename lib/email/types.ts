@@ -9,7 +9,7 @@ export interface SendInput {
   subject: string;
   text: string;
   replyTo?: string;
-  /** Hidden thread marker etc. — e.g. { "X-BST-Lead": "BST-L-0042" }. */
+  /** Hidden thread marker etc. — e.g. { "X-Lead-Thread": "LD-L-0042" }. */
   headers?: Record<string, string>;
 }
 

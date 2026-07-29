@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-const SESSION_COOKIE = "bst_session";
+const SESSION_COOKIE = "app_session";
 
 // Paths that never require auth: login, the public form, inbound/form webhooks,
 // and the session endpoint itself.

@@ -7,6 +7,7 @@
  */
 
 import { DealType, type FeeStructure, FlagSeverity, LeadStatus, PlanStatus } from "../domain/enums";
+import { activeBrand } from "../brand/config";
 import type { TriageConfig } from "../domain/config";
 import { createLead, displayName, nextThreadKey, recomputeTriage } from "../domain/lead";
 import type {
@@ -231,7 +232,7 @@ function buildFormEmail(lead: Lead, form: LeadForm, base?: string): OutboundEmai
     `[${lead.threadKey}]`,
     "",
     "בברכה,",
-    "צוות הפיתוח העסקי — קבוצת BST",
+    `צוות הפיתוח העסקי — ${activeBrand().name}`,
   ].join("\n");
 
   return {

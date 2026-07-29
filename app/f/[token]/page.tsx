@@ -109,7 +109,7 @@ export default async function PublicFormPage({
         </section>
 
         <p className="text-center text-xs text-ink-400 pb-6 leading-relaxed">
-          המידע נשמר באופן מאובטח ומשמש את צוות הפיתוח העסקי של BST בלבד.
+          המידע נשמר באופן מאובטח ומשמש את צוות הפיתוח העסקי בלבד.
         </p>
       </main>
     </div>

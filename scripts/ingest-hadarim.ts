@@ -15,7 +15,8 @@ import { parseEml, type EmailAttachment } from "../lib/eml/parse";
 import { runIngestPipeline } from "../lib/ai/pipeline";
 import { DEFAULT_CONFIG } from "../lib/domain/config";
 
-const BST = resolve(process.cwd(), "..", "BST_files");
+// Local folder of source .eml/attachments for the one-off demo import.
+const SOURCE_DIR = resolve(process.cwd(), "..", process.env.INGEST_SOURCE_DIR ?? "source_files");
 const OUT = resolve(process.cwd(), "data", "seed", "hadarim.json");
 
 const EML = "RE_ הדרים 21-23 לוד (להלן_ _הפרוייקט_) - הזמנה להציע הצעות (3).eml";
@@ -25,12 +26,12 @@ const ENRICH_PDFS = [
 ];
 
 async function main() {
-  const raw = await readFile(resolve(BST, EML));
+  const raw = await readFile(resolve(SOURCE_DIR, EML));
   const email = await parseEml(raw);
 
   // Enrich with the real tender PDFs so the extractor has the full context.
   for (const name of ENRICH_PDFS) {
-    const content = await readFile(resolve(BST, name));
+    const content = await readFile(resolve(SOURCE_DIR, name));
     const doc: EmailAttachment = {
       filename: name,
       contentType: "application/pdf",

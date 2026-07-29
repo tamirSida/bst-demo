@@ -4,6 +4,7 @@
  */
 
 import { DealType, LeadStatus, PlanStatus } from "./enums";
+import { activeBrand } from "../brand/config";
 import type { TriageConfig } from "./config";
 import type { Flag, Lead } from "./types";
 import { evaluateFlags, sortFlags } from "./flags/engine";
@@ -14,11 +15,11 @@ let threadCounter = 0;
 /** Deterministic-ish thread key for outbound email matching. */
 export function nextThreadKey(seq?: number): string {
   const n = seq ?? ++threadCounter;
-  return `BST-L-${String(n).padStart(4, "0")}`;
+  return `${activeBrand().leadMarkerPrefix}-L-${String(n).padStart(4, "0")}`;
 }
 
 /**
- * The next collision-free thread sequence: one above the highest BST-L-#### key
+ * The next collision-free thread sequence: one above the highest <PREFIX>-L-#### key
  * among existing leads. Derived from stored data (not an in-memory counter) so a
  * server restart can't reissue a key that's already taken — which would let an
  * email reply thread-match the wrong lead.
@@ -26,7 +27,7 @@ export function nextThreadKey(seq?: number): string {
 export function nextThreadSeq(leads: Pick<Lead, "threadKey">[]): number {
   let max = 0;
   for (const l of leads) {
-    const m = /^BST-L-(\d+)$/.exec(l.threadKey ?? "");
+    const m = new RegExp(`^${activeBrand().leadMarkerPrefix}-L-(\\d+)$`).exec(l.threadKey ?? "");
     if (m) max = Math.max(max, Number(m[1]));
   }
   return max + 1;

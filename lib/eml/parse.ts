@@ -2,7 +2,7 @@
  * .eml parsing via mailparser. Normalises a raw RFC-822 message into the fields
  * the pipeline needs: headers (for thread matching), body text, and attachments
  * split into "documents" (PDF/DOCX we feed to Claude) vs "images" (skipped —
- * signatures, logos, tracking pixels that bloat the real BST threads).
+ * signatures, logos, tracking pixels that bloat real threads).
  */
 
 import { simpleParser, type AddressObject } from "mailparser";

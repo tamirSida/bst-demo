@@ -49,7 +49,7 @@ export function recipientAllowed(to: string): boolean {
   );
 }
 
-/** Live Resend provider. Sends from EMAIL_FROM (e.g. leads@bst-sub.domain). */
+/** Live Resend provider. Sends from EMAIL_FROM (e.g. leads@sub.example.com). */
 export class ResendProvider implements EmailProvider {
   readonly name = "resend";
   private client: Resend;
@@ -76,7 +76,7 @@ export class ResendProvider implements EmailProvider {
         to: input.to,
         subject: input.subject,
         text: input.text,
-        // Branded HTML (with the BST logo) is derived from the final text, so it
+        // Branded HTML (with the brand logo) is derived from the final text, so it
         // also carries the redirect test-banner in demo mode. Plain text stays
         // as the fallback for clients that don't render HTML.
         html: textToBrandedHtml(input.text),

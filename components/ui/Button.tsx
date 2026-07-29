@@ -6,12 +6,12 @@ import { cn } from "@/lib/cn";
 type Variant = "primary" | "secondary" | "ghost" | "danger" | "go";
 type Size = "sm" | "md" | "lg";
 
-// BST: fully-rounded pills. Primary = solid olive; secondary = outlined olive;
-// ghost = text only; danger = outlined brick; go = solid sage.
+// Fully-rounded pills. Primary = solid brand; secondary = outlined;
+// ghost = text only; danger = outlined; go = solid positive.
 /*
- * Measured off bst.co.il's own `.c-button`: fully-rounded pill, 1px border on
- * every variant (transparent where it shouldn't show, so all variants share one
- * silhouette), light weight, and a 300ms transition rather than Tailwind's 150.
+ * One silhouette for every variant: fully-rounded pill, 1px border (transparent
+ * where it shouldn't show), light weight, 300ms transition rather than
+ * Tailwind's default 150.
  */
 const VARIANT: Record<Variant, string> = {
   primary: "bg-brand-600 text-white border-transparent hover:bg-brand-500 active:bg-brand-700",

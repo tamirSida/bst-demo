@@ -12,6 +12,7 @@ import {
   listLeads,
 } from "../firebase/repo";
 import { saveLeadFile } from "../storage/files";
+import { activeBrand } from "../brand/config";
 import { persistIngestResult } from "./persist";
 
 export interface IngestOutcome {
@@ -38,7 +39,7 @@ export async function ingestParsedEmail(
   opts?: { skipThreadMatch?: boolean; origin?: "email" | "manual" },
 ): Promise<IngestOutcome> {
   // Manual leads skip thread-matching: pasted text could contain an old
-  // [BST-L-xxxx] marker and must not silently attach to another lead.
+  // [<PREFIX>-L-xxxx] marker and must not silently attach to another lead.
   if (!opts?.skipThreadMatch) {
     const existing = await matchThread(email);
     if (existing) {
@@ -67,7 +68,9 @@ export async function ingestParsedEmail(
 /** Find an existing lead this email belongs to (marker in subject/body). */
 async function matchThread(email: ParsedEmail): Promise<string | null> {
   const haystack = `${email.subject}\n${email.text.slice(0, 2000)}`;
-  const marker = haystack.match(/BST-L-\d{4}/)?.[0];
+  const marker = haystack.match(
+    new RegExp(`${activeBrand().leadMarkerPrefix}-L-\\d{4}`),
+  )?.[0];
   if (!marker) return null;
   const leads = await listLeads();
   return leads.find((l) => l.threadKey === marker)?.id ?? null;

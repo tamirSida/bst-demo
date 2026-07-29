@@ -21,7 +21,7 @@ export async function persistIngestResult(result: IngestResult): Promise<void> {
         subject: result.outbound.subject,
         text: result.outbound.body,
         replyTo: process.env.EMAIL_FROM,
-        headers: { "X-BST-Lead": result.lead.threadKey },
+        headers: { "X-Lead-Thread": result.lead.threadKey },
       });
       status = res.status;
       providerId = res.id;

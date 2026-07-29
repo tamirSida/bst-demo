@@ -1,28 +1,45 @@
+import { activeBrand } from "@/lib/brand/config";
 import { cn } from "@/lib/cn";
 
 /**
- * BST logo (from public/logo.svg — wordmark + "מעל 50 שנות נדל״ן" tagline).
- * Rendered as a CSS mask filled with `currentColor`, so it inherits the text
- * color: cream (`text-logo-cream`) on the dark-olive bars, olive (`text-ink-900`)
- * on light surfaces. Size it by setting a height in `className` (e.g. `h-9`);
- * width follows the logo's aspect ratio automatically.
+ * The active brand's mark.
+ *
+ * When the brand supplies a logo file it is drawn as a CSS mask filled with
+ * `currentColor`, so one asset works on both the dark bars and the light
+ * surfaces — set the colour with a text class and the height with `className`
+ * (e.g. `h-9 text-logo-cream`); the width follows the aspect ratio.
+ *
+ * When it doesn't, we set the brand name as a wordmark rather than shipping a
+ * placeholder graphic. An unbranded install should look deliberately unbranded,
+ * not like it is still wearing somebody else's logo.
  */
-export function Logo({
-  className,
-  label = "BST",
-}: {
-  className?: string;
-  label?: string;
-}) {
+export function Logo({ className }: { className?: string }) {
+  const brand = activeBrand();
+
+  if (!brand.logo) {
+    return (
+      <span
+        role="img"
+        aria-label={brand.name}
+        className={cn(
+          "inline-flex items-center whitespace-nowrap font-light leading-none tracking-[0.18em]",
+          className,
+        )}
+      >
+        {brand.name}
+      </span>
+    );
+  }
+
   return (
     <span
       role="img"
-      aria-label={label}
+      aria-label={brand.name}
       className={cn("inline-block bg-current", className)}
       style={{
-        aspectRatio: "1667 / 834",
-        WebkitMaskImage: "url(/logo.svg)",
-        maskImage: "url(/logo.svg)",
+        aspectRatio: brand.logo.aspectRatio,
+        WebkitMaskImage: `url(${brand.logo.src})`,
+        maskImage: `url(${brand.logo.src})`,
         WebkitMaskRepeat: "no-repeat",
         maskRepeat: "no-repeat",
         WebkitMaskPosition: "center",

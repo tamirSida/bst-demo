@@ -17,7 +17,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 
   return (
     <div className="min-h-screen flex bg-canvas">
-      {/* Sidebar (right in RTL) — BST's signature dark-olive bar carrying the cream logo */}
+      {/* Sidebar (right in RTL) — the dark brand bar carrying the logo */}
       <aside className="hidden lg:flex flex-col w-64 shrink-0 bg-brand-600 border-s border-brand-700 relative overflow-hidden">
         <div className="flex items-center px-5 h-20 border-b border-brand-700/70">
           <Logo className="h-9 text-logo-cream" />

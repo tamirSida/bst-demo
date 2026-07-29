@@ -1,7 +1,7 @@
 /**
  * Server-side cache of the full leads book.
  *
- * The dataset is bounded (~750 leads) and nearly every operation — substring
+ * The dataset is bounded (a few hundred leads) and nearly every operation — substring
  * search, gush/helka dedup, thread-key matching — needs the whole set, so
  * Firestore queries/pagination wouldn't help. Instead we read the collection
  * once per TTL window and serve all reads from memory, shared across every

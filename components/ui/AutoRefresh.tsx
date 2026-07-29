@@ -16,7 +16,7 @@ import { Toggle } from "./Toggle";
  * they're no longer in OPTIONS.
  */
 const OPTIONS = [60, 300] as const;
-const STORAGE_KEY = "bst.autoRefresh";
+const STORAGE_KEY = "app.autoRefresh";
 const DEFAULT: Prefs = { enabled: true, seconds: 60 };
 
 interface Prefs {

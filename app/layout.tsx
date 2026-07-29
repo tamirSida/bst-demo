@@ -2,11 +2,12 @@ import type { Metadata } from "next";
 import { Heebo } from "next/font/google";
 import "@/lib/fontawesome";
 import "./globals.css";
+import { BrandStyle } from "@/components/BrandStyle";
+import { activeBrand } from "@/lib/brand/config";
 
-// The primary face is BST's own FbParking, self-hosted and declared in
-// globals.css. Heebo stays wired only as the fallback that renders while the
-// brand woff2 files load, and for any glyph they don't cover — so it carries the
-// same 300/400/500 range and nothing heavier.
+// Default typeface. A brand can override --font-sans entirely (see
+// lib/brand/config.ts); this stays as the shipped default and the fallback.
+// Weights stop at 500 — the design never uses a bold.
 const heebo = Heebo({
   subsets: ["hebrew", "latin"],
   weight: ["300", "400", "500"],
@@ -14,10 +15,10 @@ const heebo = Heebo({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: "BST — ניהול לידים והתחדשות עירונית",
-  description: "מערכת סינון וניתוח לידים לפיתוח עסקי — קבוצת BST",
-};
+export const metadata: Metadata = (() => {
+  const brand = activeBrand();
+  return { title: brand.productTitle, description: brand.productDescription };
+})();
 
 export default function RootLayout({
   children,
@@ -26,7 +27,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="he" dir="rtl" className={`${heebo.variable} h-full`}>
-      <body className="min-h-full antialiased">{children}</body>
+      <body className="min-h-full antialiased">
+        <BrandStyle />
+        {children}
+      </body>
     </html>
   );
 }

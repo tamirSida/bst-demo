@@ -220,7 +220,7 @@ async function writeYazam(
 }
 
 /**
- * Auto-prepare the שאלון יזם for a lead: snapshot BST's standing company answers
+ * Auto-prepare the שאלון יזם for a lead: snapshot the standing company answers
  * onto the lead (so they're the lead's own editable copy) and log the timeline.
  * Deal-specific questions stay empty for manual approval.
  */

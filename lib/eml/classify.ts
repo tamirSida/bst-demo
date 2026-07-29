@@ -1,7 +1,7 @@
 import { DocType } from "../domain/enums";
 
 /**
- * Classify an attachment by its (Hebrew) filename. Reliable for the BST tender
+ * Classify an attachment by its (Hebrew) filename. Reliable for the tender
  * corpus and far cheaper than asking the model — keeps the extraction schema
  * small enough to compile.
  */

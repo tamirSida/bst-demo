@@ -49,7 +49,7 @@ function binRes(buf: Buffer, contentType: string) {
 const emailPayload = (attachment: Record<string, unknown>) => ({
   id: ID,
   from: 'עו"ד דנה <dana@example.com>',
-  to: "bst@tippingpoint.portfolio-plus.com",
+  to: "leads@example.co.il",
   subject: "הזמנה להציע הצעות",
   text: "גוף המייל",
   attachments: [attachment],

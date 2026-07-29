@@ -1,14 +1,14 @@
-# HANDOFF — BST Lead Triage
+# HANDOFF — the product Lead Triage
 
 Compact orientation for whoever picks this up. Last updated: 2026-07-18.
 
 ## What this is
 
-A Hebrew-RTL webapp for BST Group's urban-renewal business development that replaces
-their manual Excel (`../BST_files/פיתוח עסקי.xlsx`). Core loop, fully working E2E:
+A Hebrew-RTL webapp for the client's urban-renewal business development that replaces
+their manual Excel (`../the product_files/פיתוח עסקי.xlsx`). Core loop, fully working E2E:
 
 ```
-email arrives (leads@bst.portfolio-plus.com) OR manual upload (paste text / file)
+email arrives (leads@leads.yourdomain.com) OR manual upload (paste text / file)
   → Claude extracts facts from the Hebrew email + PDF attachments
   → deterministic triage flags + 0-100 grade + Hebrew AI summary
   → AI generates this-lead's missing-info questions → public form (token link)
@@ -16,9 +16,9 @@ email arrives (leads@bst.portfolio-plus.com) OR manual upload (paste text / file
   → answers re-grade the lead → human picks: לשמאי / תכנונית / שאלות / לא פעיל
 ```
 
-**Client context:** BST = Israeli developer, recently IPO'd. Users: Adi Berko (biz-dev
+**Client context:** the product = Israeli developer, recently IPO'd. Users: Adi Berko (biz-dev
 PM, main user), Eitan Sadan (סמנכ"ל). Non-technical, rejected Monday. The reference
-deal is הדרים 21-23 לוד — its real emails/PDFs live in `../BST_files/` and drive the
+deal is הדרים 21-23 לוד — its real emails/PDFs live in `../the product_files/` and drive the
 fixtures and tests.
 
 ## Where the knowledge sits
@@ -26,7 +26,7 @@ fixtures and tests.
 | What | Where |
 |---|---|
 | The main app | `nextjs/` (this folder) — Next.js 16, React 19, Tailwind 4 |
-| Design system / BST brand | `app/globals.css` (@theme tokens), `DESIGN-SPEC.md`, `components/Logo.tsx` |
+| Design system / the product brand | `app/globals.css` (@theme tokens), `DESIGN-SPEC.md`, `components/Logo.tsx` |
 | Domain brain (flags, grading, enums, thresholds, lead edit policy) | `lib/domain/` — pure TS, unit-tested |
 | AI pipeline (extract → gaps → summary) | `lib/ai/` — Claude Sonnet 4.6, Hebrew prompts |
 | Email in/out | `lib/email/` (Resend + 2 safety layers), `lib/ingest/` (shared ingest path) |
@@ -35,7 +35,7 @@ fixtures and tests.
 | **File storage** | `lib/storage/files.ts` — **Vercel Blob (private) in prod, local disk in dev — see below** |
 | Screens | `app/(dashboard)/` + public form `app/f/[token]/` + `components/` |
 | Env & secrets | `.env.local` (gitignored) — Anthropic key, Resend key, Firebase config, toggles |
-| Original client materials | `../BST_files/` — real emails, questionnaires, agreements, the Excel |
+| Original client materials | `../the product_files/` — real emails, questionnaires, agreements, the Excel |
 
 ## Key toggles (.env.local)
 
@@ -45,7 +45,7 @@ fixtures and tests.
 | `EMPTY_START=true` | no demo seed data — only pipeline-created leads |
 | `EMAIL_LIVE=true` | real sends via Resend (else simulated + logged) |
 | `EMAIL_REDIRECT_TO` | **safety 1**: ALL outbound rerouted to this inbox with a test banner |
-| `EMAIL_ALLOWED_RECIPIENTS` | **safety 2**: hard allowlist. Currently `tamirsida25@gmail.com,tamir@tippingpointc.com,leads@bst.portfolio-plus.com` |
+| `EMAIL_ALLOWED_RECIPIENTS` | **safety 2**: hard allowlist. Currently `tamirsida25@gmail.com,tamir@tippingpointc.com,leads@leads.yourdomain.com` |
 | `CLAUDE_MODEL` | default `claude-sonnet-4-6` |
 | `GOOGLE_APPLICATION_CREDENTIALS` | uncomment to switch from local store to real Firestore |
 
@@ -80,16 +80,16 @@ would need `resource_type:raw` + signed-URL redirects + a PDF-delivery toggle, a
 **⚠ What the user must do before prod works (one-time, ~3 min):**
 1. Create a **free Vercel account** (does NOT deploy the app there — Netlify stays the host).
 2. Dashboard → **Storage → Create → Blob**, set access to **Private**. (Or CLI:
-   `vercel blob create-store bst-lead-files --access private`.)
+   `vercel blob create-store lead-files --access private`.)
 3. Copy the store's **`BLOB_READ_WRITE_TOKEN`** into Netlify env vars (Site settings → Environment
    variables) — and into local `.env.local` only if testing the Blob path locally via `netlify dev`.
    Without the token, the app silently uses local disk.
 
 ## Status — done this session (all committed; see git log)
 
-- **Full BST visual rebrand** (`e7b5d90`) matching bst.co.il: cream/bone canvas, dark-olive ink,
-  thin Heebo headings (Heebo substitutes BST's proprietary `fbparking` — swap font files in if
-  BST licenses it), pill buttons, dark-olive sidebar with the cream logo. Removed all "מגדלור"
+- **Full the product visual rebrand** (`e7b5d90`) matching the client site: cream/bone canvas, dark-olive ink,
+  thin Heebo headings (Heebo substitutes the product's proprietary `fbparking` — swap font files in if
+  the product licenses it), pill buttons, dark-olive sidebar with the cream logo. Removed all "מגדלור"
   branding; `components/Logo.tsx` from `public/logo.svg` (currentColor mask). Tokens documented in
   `DESIGN-SPEC.md`. Verified by 4 UX/logic agents.
 - **F1: grade in the leads table** (`1791f1a`) — traffic-light grade cell (score + tone meter +
@@ -110,7 +110,7 @@ would need `resource_type:raw` + signed-URL redirects + a PDF-delivery toggle, a
 
 1. **Deploy** — `netlify.toml` + README ready; needs `netlify login` + env vars. Caveat: AI ingest
    (~30s) exceeds Netlify sync-function limits — use a background function / higher plan at scale.
-2. **Firestore** — ✅ LIVE (2026-07-18). Project `bst-demo-54800`; service-account key at
+2. **Firestore** — ✅ LIVE (2026-07-18). Project `<firebase-project-id>`; service-account key at
    `nextjs/serviceAccount.json` (gitignored), base64-encoded into `FIREBASE_SERVICE_ACCOUNT` in
    `.env.local`. Already seeded: 750 leads (749 Excel + הדרים), config/thresholds, 1 form. App reads
    lead *data* from Firestore; lead *files* live on Vercel Blob. For Netlify, put the same base64
@@ -124,7 +124,7 @@ would need `resource_type:raw` + signed-URL redirects + a PDF-delivery toggle, a
    re-read; bulk seed calls `invalidate`. Auto-refresh default relaxed 30s → 60s. A warm page view
    now costs ~0 reads instead of ~1,500. If you ever move off the "whole book in memory" model
    (dataset grows well past ~750), revisit with real Firestore queries + pagination.
-4. **⚠ Triage thresholds are UNVALIDATED defaults** in `lib/domain/config.ts` — BST's experts must
+4. **⚠ Triage thresholds are UNVALIDATED defaults** in `lib/domain/config.ts` — the product's experts must
    review them in הגדרות before trusting the verdicts.
 5. לבדיקה תכנונית records the stage change but doesn't yet email the architect.
 

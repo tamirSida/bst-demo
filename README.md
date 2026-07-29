@@ -1,6 +1,6 @@
-# מגדלור — מערכת סינון לידים ל-BST
+# מגדלור — מערכת סינון לידים ל-the product
 
-Internal lead-triage webapp for BST's urban-renewal business development. Replaces
+Internal lead-triage webapp for the product's urban-renewal business development. Replaces
 the manual `פיתוח עסקי.xlsx`. An email arrives → the system extracts the facts,
 runs deterministic triage flags + AI analysis, grades the lead, auto-generates a
 "complete the details" form for the referrer, and — once the form comes back —
@@ -66,12 +66,12 @@ seed fallback. Set `AUTH_DISABLED=` (empty) to require login.
 
 Outbound is **Resend**; inbound is a webhook to `POST /api/inbound`.
 
-1. Resend → add a **subdomain** of your GoDaddy domain (e.g. `bst.yourdomain.com`)
+1. Resend → add a **subdomain** of your GoDaddy domain (e.g. `leads.yourdomain.com`)
    → Resend shows MX + SPF + DKIM records.
-2. GoDaddy → Manage DNS → add those records on the `bst` subdomain (root mail
+2. GoDaddy → Manage DNS → add those records on the `leads` subdomain (root mail
    untouched). Verify in Resend.
 3. Point Resend inbound (or Mailgun — interchangeable) at `https://<app>/api/inbound`.
-4. Set `EMAIL_LIVE=true`, `RESEND_API_KEY`, `EMAIL_FROM=leads@bst.yourdomain.com`.
+4. Set `EMAIL_LIVE=true`, `RESEND_API_KEY`, `EMAIL_FROM=leads@leads.yourdomain.com`.
 
 Until then, use the **＋ליד חדש** button to upload an `.eml` (same pipeline).
 

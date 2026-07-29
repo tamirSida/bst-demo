@@ -7,7 +7,7 @@ import type { Lead } from "../domain/types";
 import { structuredCall, toJsonSchema } from "./client";
 import { SummarySchema } from "./schemas";
 
-const SUMMARY_SYSTEM = `אתה כותב תקציר ניהולי קצר (3–5 שורות) על ליד להתחדשות עירונית עבור הנהלת BST.
+const SUMMARY_SYSTEM = `אתה כותב תקציר ניהולי קצר (3–5 שורות) על ליד להתחדשות עירונית עבור הנהלת החברה.
 הצג עובדות תחילה: סוג עסקה, מיקום, יח"ד, צפיפות/מכפיל אם ידועים, סטטוס תכנוני, מקור הליד ומועד הגשה.
 כתוב בעברית עניינית, בלי סופרלטיבים ובלי אימוג'י. החזר JSON עם השדה summary בלבד.`;
 

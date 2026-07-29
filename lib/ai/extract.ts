@@ -11,7 +11,7 @@ import { RawExtractionSchema, normalizeExtraction, type ExtractionResult } from 
 const MAX_DOCS = 6;
 const MAX_DOC_BYTES = 9 * 1024 * 1024; // keep each PDF well under the request cap
 
-const EXTRACTION_SYSTEM = `אתה מנתח לידים לפיתוח עסקי בחברת BST (התחדשות עירונית בישראל).
+const EXTRACTION_SYSTEM = `אתה מנתח לידים לפיתוח עסקי בחברת ייזום להתחדשות עירונית בישראל.
 קיבלת מייל ונספחים (הזמנה להציע הצעות, שאלון ליזמים, טיוטות הסכם, נסחים ועוד) בעברית.
 משימתך: לחלץ את כל העובדות לשדות מובנים עבור מנוע הסינון (טריאז').
 

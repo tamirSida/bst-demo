@@ -1,5 +1,5 @@
 /**
- * Entity types for the BST lead system.
+ * Entity types for the lead system.
  *
  * Design choice: Lead fields are FLAT plain values (numbers/strings/enums/null),
  * so the flags engine and grading operate on a clean data model with no wrapper
@@ -177,7 +177,7 @@ export interface Lead {
   provenance: ProvenanceMap;
   /** Deal-type overflow (RAMI tender fields, etc.) kept loosely typed. */
   extra: Record<string, unknown>;
-  /** Hidden thread marker embedded in outbound email, e.g. "BST-L-0042". */
+  /** Hidden thread marker embedded in outbound email, e.g. "LD-L-0042". */
   threadKey: string;
   createdAt: string;
   updatedAt: string;

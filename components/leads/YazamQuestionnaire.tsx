@@ -18,7 +18,7 @@ import { cn } from "@/lib/cn";
 import { saveYazamAction, type ActionOutcome } from "@/app/actions";
 
 /**
- * שאלון יזם — BST's developer questionnaire for a compound. Editable per lead:
+ * שאלון יזם — the developer questionnaire for a compound. Editable per lead:
  * company answers seed from the standing answers in settings, deal-specific ones
  * start empty for manual approval. Saving persists the lead's own copy and logs
  * the timeline.
@@ -33,7 +33,7 @@ export function YazamQuestionnaire({
   leadId: string;
   density: number | null;
   gateDensity: number;
-  /** BST's standing company answers (config.yazamAnswers). */
+  /** The company's standing answers (config.yazamAnswers). */
   companyDefaults: Record<string, string>;
   /** This lead's saved answers (lead.extra.yazam.answers), if any. */
   initialAnswers: Record<string, string>;

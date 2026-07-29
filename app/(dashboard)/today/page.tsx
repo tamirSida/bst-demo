@@ -84,7 +84,6 @@ export default async function TodayPage() {
         eyebrow={todayLabel()}
         title="היום"
         subtitle="מה דורש החלטה עכשיו"
-        image="/img/hero-havatzelet.jpg"
         stats={[
           { label: "ממתינים להחלטה", value: <span className="ltr-nums">{inboxCards.length}</span> },
           { label: "מועדי הגשה קרובים", value: <span className="ltr-nums">{upcoming.length}</span> },
