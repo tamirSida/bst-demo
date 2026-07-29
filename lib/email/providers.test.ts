@@ -44,7 +44,7 @@ describe("recipientAllowed (hard allowlist)", () => {
 describe("applyRedirect", () => {
   it("reroutes to the redirect inbox and names the original recipient", () => {
     process.env.EMAIL_REDIRECT_TO = "safe@example.com";
-    const out = applyRedirect({ to: "real@lawyer.co.il", subject: "נושא", text: "גוף" });
+    const out = applyRedirect({ to: "real@lawyer.co.il", subject: "נושא", text: "גוף" }, process.env.EMAIL_REDIRECT_TO);
     expect(out.to).toBe("safe@example.com");
     expect(out.subject).toContain("[בדיקה]");
     expect(out.text).toContain("real@lawyer.co.il");
@@ -52,7 +52,7 @@ describe("applyRedirect", () => {
 
   it("is a no-op when unset", () => {
     delete process.env.EMAIL_REDIRECT_TO;
-    const out = applyRedirect({ to: "a@b.com", subject: "s", text: "t" });
+    const out = applyRedirect({ to: "a@b.com", subject: "s", text: "t" }, process.env.EMAIL_REDIRECT_TO);
     expect(out.to).toBe("a@b.com");
   });
 });

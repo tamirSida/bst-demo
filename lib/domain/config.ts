@@ -88,6 +88,20 @@ export interface TriageConfig {
   /** When false, hide seeded/demo leads everywhere — show only email/upload leads. */
   showSeedData: boolean;
 
+  /**
+   * SAFETY — outbound redirect. While enabled, every outbound email is
+   * rerouted to `emailRedirectTo` with a [בדיקה] subject prefix, whatever the
+   * real recipient. Editable here so it can be changed (or lifted for a live
+   * demo) without a redeploy.
+   *
+   * This is the SOFT guard. The hard one is EMAIL_ALLOWED_RECIPIENTS, which
+   * stays env-only and is enforced in code after the redirect — turning this
+   * off does not let mail reach an address outside that allowlist.
+   */
+  emailRedirectEnabled: boolean;
+  /** Where redirected mail goes. Empty falls back to EMAIL_REDIRECT_TO. */
+  emailRedirectTo: string;
+
   /** שאלון יזם auto-gate: existing density (יח"ד/דונם) at/above which a lead's
    * developer questionnaire is auto-prepared. */
   yazamGateDensity: number;
@@ -175,6 +189,8 @@ export const DEFAULT_CONFIG: TriageConfig = {
   reviewAt: 45,
 
   autoSendQuestions: true,
+  emailRedirectEnabled: true,
+  emailRedirectTo: "",
   newLeadWindowDays: 7,
   showSeedData: true,
   yazamGateDensity: 8,

@@ -12,12 +12,15 @@ export class SimulatedProvider implements EmailProvider {
 }
 
 /**
- * SAFETY LAYER 1 — redirect: while EMAIL_REDIRECT_TO is set, every outbound
+ * SAFETY LAYER 1 — redirect: while a redirect target is active, every outbound
  * email is rerouted to that inbox instead of the real recipient, with a test
- * banner naming the original address. Unset it only in production.
+ * banner naming the original address.
+ *
+ * Pure: the caller resolves the target (see `resolveRedirectTarget`) and passes
+ * it in, so this stays trivially testable and has no hidden dependency on env
+ * or on the database.
  */
-export function applyRedirect(input: SendInput): SendInput {
-  const redirect = process.env.EMAIL_REDIRECT_TO;
+export function applyRedirect(input: SendInput, redirect?: string | null): SendInput {
   if (!redirect) return input;
   return {
     ...input,
@@ -61,7 +64,7 @@ export class ResendProvider implements EmailProvider {
   }
 
   async send(rawInput: SendInput): Promise<SendResult> {
-    const input = applyRedirect(rawInput);
+    const input = applyRedirect(rawInput, await resolveRedirectTarget());
     if (!input.to) return { id: null, status: "failed", error: "missing recipient" };
     if (!recipientAllowed(input.to)) {
       return {
@@ -88,6 +91,25 @@ export class ResendProvider implements EmailProvider {
     } catch (err) {
       return { id: null, status: "failed", error: (err as Error).message };
     }
+  }
+}
+
+/**
+ * Resolve where redirected mail should go: the settings value first, then
+ * EMAIL_REDIRECT_TO as the fallback, and nothing at all once the toggle is off.
+ *
+ * Fails SAFE — if the config read throws, we fall back to the env target rather
+ * than silently deciding there is no redirect and mailing the real recipient.
+ */
+export async function resolveRedirectTarget(): Promise<string | null> {
+  const envTarget = process.env.EMAIL_REDIRECT_TO?.trim() || null;
+  try {
+    const { getConfig } = await import("../firebase/repo");
+    const config = await getConfig();
+    if (config.emailRedirectEnabled === false) return null;
+    return config.emailRedirectTo?.trim() || envTarget;
+  } catch {
+    return envTarget;
   }
 }
 

@@ -55,6 +55,41 @@ export function SettingsForm({ initial }: { initial: TriageConfig }) {
         />
       </Section>
 
+      {/* Outbound email safety */}
+      <Section title="בטיחות דיוור" grid={false}>
+        <div className="space-y-5">
+          <ToggleField
+            label="הפניית כל הדיוור היוצא לתיבת בדיקה"
+            help="כשמופעל — כל מייל יוצא נשלח לכתובת הבדיקה שלמטה במקום לנמען האמיתי, עם הקידומת «[בדיקה]» בנושא. כבו רק כשרוצים שהמערכת תפנה לגורמים אמיתיים."
+            checked={config.emailRedirectEnabled ?? true}
+            onChange={(v) => set("emailRedirectEnabled", v)}
+          />
+          {(config.emailRedirectEnabled ?? true) && (
+            <div className="border-t border-line pt-4">
+              <Field
+                label="כתובת תיבת הבדיקה"
+                help="לאן יופנה הדיוור. אם יישאר ריק — תשמש הכתובת שהוגדרה בשרת (EMAIL_REDIRECT_TO)."
+              >
+                <Input
+                  type="email"
+                  dir="ltr"
+                  className="text-end"
+                  placeholder={process.env.NEXT_PUBLIC_FALLBACK_REDIRECT ?? "ברירת מחדל מהשרת"}
+                  value={config.emailRedirectTo ?? ""}
+                  onChange={(e) => set("emailRedirectTo", e.target.value)}
+                />
+              </Field>
+            </div>
+          )}
+          {config.emailRedirectEnabled === false && (
+            <p className="rounded-lg border border-warn-100 bg-warn-50 px-3.5 py-2.5 text-sm text-warn-700">
+              הפניית הבדיקה כבויה — מיילים יישלחו לנמענים האמיתיים. רשימת ההיתר
+              בשרת עדיין חוסמת כל כתובת שאינה מאושרת.
+            </p>
+          )}
+        </div>
+      </Section>
+
       {/* Display */}
       <Section title="תצוגה" grid={false}>
         <div className="space-y-5">
