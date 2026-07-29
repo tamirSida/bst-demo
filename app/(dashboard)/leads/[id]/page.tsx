@@ -115,8 +115,13 @@ export default async function LeadDetailPage({
           main (right in RTL) = decision + completion form;
           sidebar (left) = action buttons → map → lead facts. */}
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+        {/* min-w-0 on both columns: a grid item defaults to min-width:auto, so
+            it refuses to shrink below its content and the widest child sets the
+            column width. At mobile that stretched this column to 769px inside a
+            390px page, pushing the decision figures off the edge — where main's
+            overflow-x:clip meant they couldn't be scrolled back. */}
         {/* Main column (first in RTL) — the decision hero + form + documents */}
-        <div className="space-y-5">
+        <div className="min-w-0 space-y-5">
           <DecisionCard
             lead={lead}
             form={form}
@@ -148,7 +153,7 @@ export default async function LeadDetailPage({
         </div>
 
         {/* Sidebar (left in RTL) — actions on top, then the plot map, then facts */}
-        <div className="space-y-5">
+        <div className="min-w-0 space-y-5">
           <Card>
             <CardHeader title="פעולות" />
             <div className="px-5 pb-5">

@@ -63,7 +63,11 @@ export function VerdictBanner({
         className={cn("absolute inset-y-0 start-0 w-[3px]", TONE_RULE[tone])}
       />
 
-      <div className={cn("flex items-end justify-between gap-5")}>
+      {/* flex-wrap, and the figures below are allowed to shrink: on a phone this
+          row needed ~687px inside a 354px card, and because the stats block was
+          shrink-0 the whole of it — density and score both — was laid out off
+          the inline-start edge and clipped away entirely. */}
+      <div className={cn("flex flex-wrap items-end justify-between gap-x-5 gap-y-4")}>
         <div className="min-w-0">
           <p className="t-eyebrow !text-logo-cream/55">המלצת המערכת</p>
           <p
@@ -82,7 +86,7 @@ export function VerdictBanner({
         </div>
 
         {/* The two numbers, density first — it's the metric the call turns on. */}
-        <div className="flex shrink-0 items-end gap-5">
+        <div className="flex items-end gap-5">
           {dens.num != null && (
             <div className="text-end">
               <p className="t-eyebrow !text-logo-cream/55">צפיפות קיימת</p>

@@ -104,7 +104,10 @@ export function AutoRefresh() {
   }, [enabled, seconds, refresh]);
 
   return (
-    <div className="inline-flex items-center gap-3 rounded-full border border-line bg-surface h-11 ps-2 pe-4">
+    // Wraps and grows rather than holding a fixed 44px line: four controls in a
+    // rigid pill is wider than a phone, and the overflow gets clipped away with
+    // no way to scroll it back.
+    <div className="inline-flex flex-wrap items-center gap-x-3 gap-y-1 rounded-3xl border border-line bg-surface min-h-11 px-2 py-1">
       <button
         type="button"
         onClick={refresh}

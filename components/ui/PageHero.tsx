@@ -65,7 +65,11 @@ export function PageHero({
               <p className="mt-3 text-[0.9375rem] text-logo-cream/70">{subtitle}</p>
             )}
           </div>
-          {action && <div className="shrink-0">{action}</div>}
+          {/* No shrink-0. On a phone the toolbar is wider than the column, and
+              refusing to shrink pushed it clean off the inline-start edge —
+              where an ancestor's overflow-x:clip meant it could not even be
+              scrolled back into view. Let it wrap instead. */}
+          {action && <div className="w-full sm:w-auto">{action}</div>}
         </div>
 
         {stats && stats.length > 0 && (
