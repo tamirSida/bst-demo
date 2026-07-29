@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { enqueueIngest } from "@/lib/ingest/enqueue";
 import { verifyResendWebhook } from "@/lib/email/resendInbound";
+import { endProcessing, startProcessing } from "@/lib/ingest/processingStore";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -22,7 +23,12 @@ export async function POST(request: Request) {
       const payload = await request.text();
       const body = JSON.parse(payload) as {
         type?: string;
-        data?: { email_id?: string; id?: string };
+        data?: {
+          email_id?: string;
+          id?: string;
+          subject?: string;
+          from?: string | { address?: string };
+        };
         raw?: string;
       };
 
@@ -46,7 +52,29 @@ export async function POST(request: Request) {
         if (!emailId) return NextResponse.json({ error: "missing email id" }, { status: 400 });
 
         console.log(`[inbound] webhook email.received emailId=${emailId}`);
-        const { background } = await enqueueIngest({ kind: "email-id", emailId });
+        // Mark in-flight BEFORE dispatching, so the dashboard banner appears at
+        // once instead of after the ~30s pipeline. The webhook payload usually
+        // carries subject/from; when it doesn't, the banner falls back to a
+        // generic line. Never let a marker failure block the actual ingest.
+        const from = body.data?.from;
+        await startProcessing({
+          id: emailId,
+          subject: body.data?.subject ?? "",
+          from: (typeof from === "string" ? from : from?.address) ?? null,
+          at: new Date().toISOString(),
+        }).catch((err) =>
+          console.error(`[inbound] marker write failed emailId=${emailId}: ${(err as Error).message}`),
+        );
+
+        let background: boolean;
+        try {
+          ({ background } = await enqueueIngest({ kind: "email-id", emailId }));
+        } catch (err) {
+          // Dispatch failed — drop the marker now rather than leaving the banner
+          // spinning until the staleness cutoff.
+          await endProcessing(emailId).catch(() => {});
+          throw err;
+        }
         return NextResponse.json({ ok: true, queued: background }, { status: background ? 202 : 200 });
       }
 

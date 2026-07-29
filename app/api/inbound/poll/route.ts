@@ -1,14 +1,12 @@
 import { NextResponse } from "next/server";
 import { fetchReceivedEmail, listReceived } from "@/lib/email/resendInbound";
 import { ingestParsedEmail } from "@/lib/ingest/run";
+import { markInboundSeen, recordInboundFailure, seenInboundIds } from "@/lib/ingest/pollState";
 import {
   endProcessing,
-  markInboundSeen,
   processingIds,
-  recordInboundFailure,
-  seenInboundIds,
   startProcessing,
-} from "@/lib/ingest/pollState";
+} from "@/lib/ingest/processingStore";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -30,7 +28,7 @@ export async function POST() {
   try {
     const received = await listReceived();
     const seen = seenInboundIds();
-    const inFlight = processingIds();
+    const inFlight = await processingIds();
     const fresh = received.filter((e) => !seen.has(e.id) && !inFlight.has(e.id));
 
     const results: {
@@ -42,7 +40,7 @@ export async function POST() {
       gaveUp?: boolean;
     }[] = [];
     for (const item of fresh) {
-      startProcessing({
+      await startProcessing({
         id: item.id,
         subject: item.subject,
         from: item.from,
@@ -61,7 +59,7 @@ export async function POST() {
         if (gaveUp) markInboundSeen([item.id]);
         results.push({ id: item.id, error: (err as Error).message, attempt, gaveUp });
       } finally {
-        endProcessing(item.id);
+        await endProcessing(item.id);
       }
     }
 

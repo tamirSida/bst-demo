@@ -3,39 +3,32 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 
 /**
- * Dedup state for the inbound poller. `seen` ids are done (ingested, or given up
- * after too many failures). `attempts` counts failures per id so a transient or
- * fixable error is retried a few times instead of being dropped on first sight —
- * while a genuinely poison message still can't wedge the loop forever.
+ * Dedup state for the inbound poller (the dev-only pull transport). `seen` ids
+ * are done (ingested, or given up after too many failures). `attempts` counts
+ * failures per id so a transient or fixable error is retried a few times instead
+ * of being dropped on first sight — while a genuinely poison message still can't
+ * wedge the loop forever.
+ *
+ * In-flight "processing" markers deliberately do NOT live here: they must be
+ * shared with the webhook + background function on Netlify, which have no shared
+ * filesystem. See `processingStore.ts`.
  */
 const FILE = resolve(process.cwd(), ".data", "inbound-seen.json");
-
-/** A received email currently being ingested — drives the live dashboard banner. */
-export interface InboundProcessing {
-  id: string;
-  subject: string;
-  from: string | null;
-  at: string; // ISO — when processing started
-}
 
 interface PollState {
   seen: string[];
   attempts: Record<string, number>;
-  processing: InboundProcessing[];
 }
-
-/** A processing entry older than this is treated as dead (crashed mid-run). */
-const STALE_MS = 3 * 60 * 1000;
 
 function load(): PollState {
   try {
-    if (!existsSync(FILE)) return { seen: [], attempts: {}, processing: [] };
+    if (!existsSync(FILE)) return { seen: [], attempts: {} };
     const raw = JSON.parse(readFileSync(FILE, "utf8"));
     // Back-compat: the file used to be a bare array of seen ids.
-    if (Array.isArray(raw)) return { seen: raw as string[], attempts: {}, processing: [] };
-    return { seen: raw.seen ?? [], attempts: raw.attempts ?? {}, processing: raw.processing ?? [] };
+    if (Array.isArray(raw)) return { seen: raw as string[], attempts: {} };
+    return { seen: raw.seen ?? [], attempts: raw.attempts ?? {} };
   } catch {
-    return { seen: [], attempts: {}, processing: [] };
+    return { seen: [], attempts: {} };
   }
 }
 
@@ -67,27 +60,12 @@ export function recordInboundFailure(id: string): number {
   return next;
 }
 
-/** Emails currently being ingested (stale entries filtered out). */
-export function getProcessing(): InboundProcessing[] {
-  const now = Date.now();
-  return load().processing.filter((p) => now - Date.parse(p.at) < STALE_MS);
-}
-
-/** Ids currently being ingested — used as an in-flight lock across poll cycles. */
-export function processingIds(): Set<string> {
-  return new Set(getProcessing().map((p) => p.id));
-}
-
-/** Mark an email as in-flight (shown on the dashboard, and skipped by other polls). */
-export function startProcessing(entry: InboundProcessing): void {
-  const state = load();
-  if (!state.processing.some((p) => p.id === entry.id)) state.processing.push(entry);
-  save(state);
-}
-
-/** Clear the in-flight marker once ingestion finishes (success or give-up). */
-export function endProcessing(id: string): void {
-  const state = load();
-  state.processing = state.processing.filter((p) => p.id !== id);
-  save(state);
-}
+// In-flight markers moved to `processingStore.ts` (Firestore-backed) so the
+// webhook, the background function and the dashboard all see the same state.
+export {
+  endProcessing,
+  getProcessing,
+  processingIds,
+  startProcessing,
+  type InboundProcessing,
+} from "./processingStore";

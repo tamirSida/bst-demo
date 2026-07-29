@@ -10,6 +10,7 @@
 // observe what happened.
 import { timingSafeEqual } from "node:crypto";
 import { runIngestJob, type IngestJob } from "../../lib/ingest/jobs";
+import { endProcessing } from "../../lib/ingest/processingStore";
 
 function authorized(provided: string | null): boolean {
   const expected = process.env.INGEST_FUNCTION_SECRET;
@@ -41,6 +42,16 @@ const handler = async (req: Request): Promise<Response> => {
     // cleanly (a thrown background function is just noise — the lead is lost
     // either way and the [ingest] FAILED line is the actionable record).
     console.error(`[ingest-bg] job kind=${job.kind} did not complete — see [ingest] FAILED above`);
+  } finally {
+    // Clear the in-flight marker written by the webhook — success or failure.
+    // This is what flips the dashboard from "מתקבל ליד חדש…" to the green
+    // "ליד חדש התקבל ונותח" flash and triggers the list refresh. Without it the
+    // banner would spin until the 3-minute staleness cutoff.
+    if (job.kind === "email-id") {
+      await endProcessing(job.emailId).catch((err) =>
+        console.error(`[ingest-bg] marker clear failed: ${(err as Error).message}`),
+      );
+    }
   }
   return new Response(null, { status: 202 });
 };
