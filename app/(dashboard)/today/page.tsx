@@ -1,4 +1,5 @@
 import { cn } from "@/lib/cn";
+import { todayLabel } from "@/lib/dates";
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -17,7 +18,7 @@ import {
 import { businessDaysUntil } from "@/lib/domain/compute";
 import { LeadStatus } from "@/lib/domain/enums";
 import type { Lead } from "@/lib/domain/types";
-import { PageHeader } from "@/components/ui/PageHeader";
+import { PageHero } from "@/components/ui/PageHero";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { CountdownChip } from "@/components/ui/CountdownChip";
@@ -79,9 +80,16 @@ export default async function TodayPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
+      <PageHero
+        eyebrow={todayLabel()}
         title="היום"
         subtitle="מה דורש החלטה עכשיו"
+        image="/img/hero-havatzelet.jpg"
+        stats={[
+          { label: "ממתינים להחלטה", value: <span className="ltr-nums">{inboxCards.length}</span> },
+          { label: "מועדי הגשה קרובים", value: <span className="ltr-nums">{upcoming.length}</span> },
+          { label: "נשלחו היום", value: <span className="ltr-nums">{outboundToday.length}</span> },
+        ]}
         action={
           <div className="flex flex-wrap items-center justify-end gap-2">
             <AutoRefresh />
@@ -93,7 +101,7 @@ export default async function TodayPage() {
       <InboundStatus />
 
       {/* New leads needing a decision */}
-      <section>
+      <section className="rise rise-1">
         <div className="flex items-center gap-2.5 mb-3">
           <FontAwesomeIcon icon={faInbox} className="text-ink-400 text-lg" />
           <h2 className="text-xl font-light text-ink-900">לידים חדשים</h2>
@@ -127,7 +135,7 @@ export default async function TodayPage() {
         )}
       </section>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="rise rise-2 grid gap-6 lg:grid-cols-2">
         {/* Upcoming deadlines */}
         <Card>
           <CardHeader title="מועדי הגשה קרובים" count={upcoming.length} />
@@ -178,7 +186,7 @@ function DeadlineRow({ lead }: { lead: Lead }) {
   return (
     <li>
       <Link
-        href={`/leads/${lead.id}`}
+        href={`/leads/${lead.id}`} prefetch={false}
         className="flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 hover:bg-surface-muted transition-colors"
       >
         <div className="min-w-0">

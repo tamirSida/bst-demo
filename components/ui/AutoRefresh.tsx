@@ -5,9 +5,16 @@ import { useRouter } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRotate } from "@fortawesome/free-solid-svg-icons";
 import { Toggle } from "./Toggle";
-import { cn } from "@/lib/cn";
 
-const OPTIONS = [10, 30, 60] as const;
+/*
+ * No 10s option any more. Each refresh re-renders the whole server tree and, in
+ * production, re-arms link prefetching for every visible row — at 10s that is a
+ * standing load on Firestore for a list that changes a few times a day. A
+ * minute is plenty, and the explicit "refresh now" button covers the moments
+ * when someone wants it immediately. Stored prefs of 10 or 30 fall back to the
+ * default automatically, since they're no longer in OPTIONS.
+ */
+const OPTIONS = [60, 300] as const;
 const STORAGE_KEY = "bst.autoRefresh";
 const DEFAULT: Prefs = { enabled: true, seconds: 60 };
 
@@ -97,12 +104,17 @@ export function AutoRefresh() {
   }, [enabled, seconds, refresh]);
 
   return (
-    <div className="inline-flex items-center gap-3 rounded-lg border border-line bg-surface h-11 px-3">
-      <FontAwesomeIcon
-        icon={faRotate}
-        spin={spinning}
-        className={cn("text-sm", enabled ? "text-go-600" : "text-ink-400")}
-      />
+    <div className="inline-flex items-center gap-3 rounded-full border border-line bg-surface h-11 ps-2 pe-4">
+      <button
+        type="button"
+        onClick={refresh}
+        title="רענון עכשיו"
+        className="inline-flex h-8 items-center gap-2 rounded-full px-3 text-sm text-ink-700 transition-colors hover:bg-surface-muted hover:text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+      >
+        <FontAwesomeIcon icon={faRotate} spin={spinning} className="text-sm text-ink-400" />
+        רענן עכשיו
+      </button>
+      <span aria-hidden className="h-5 w-px bg-line" />
       <Toggle
         checked={enabled}
         onChange={(v) => writePrefs({ enabled: v, seconds })}
@@ -116,9 +128,8 @@ export function AutoRefresh() {
           aria-label="תדירות רענון"
           className="h-9 rounded-full border border-line bg-surface px-3 text-sm font-medium text-ink-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
         >
-          <option value={10}>כל 10 שניות</option>
-          <option value={30}>כל 30 שניות</option>
           <option value={60}>כל דקה</option>
+          <option value={300}>כל 5 דקות</option>
         </select>
       )}
     </div>

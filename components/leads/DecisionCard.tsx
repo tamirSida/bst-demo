@@ -44,7 +44,7 @@ export function DecisionCard({
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <Link
-                href={`/leads/${lead.id}`}
+                href={`/leads/${lead.id}`} prefetch={false}
                 className="text-lg font-medium text-ink-900 hover:text-brand-700 transition-colors line-clamp-1"
               >
                 {lead.projectName}

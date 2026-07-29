@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, type TextareaHTMLAttributes } from "react";
+import { cn } from "@/lib/cn";
 
 /**
  * A textarea that grows to fit its content.
@@ -46,7 +47,10 @@ export function AutoTextarea({
       rows={minRows}
       value={value}
       onInput={resize}
-      className={className}
+      // Enforced here rather than left to each caller: the box already grows to
+      // fit, so the native grabber does nothing except render — on the wrong
+      // side under RTL, in a style nothing else in the app shares.
+      className={cn("resize-none overflow-hidden", className)}
       {...rest}
     />
   );

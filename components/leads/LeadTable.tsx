@@ -82,6 +82,15 @@ const SORT_ACCESSOR: Record<string, (r: LeadTableRow) => string | number | null>
  * or filtering visibly shifts every column. Fixed widths make the geometry a
  * property of the table instead of of whichever rows happen to be on screen.
  */
+/*
+ * Order is by decision value, not by how the data happens to be shaped. Ten
+ * columns will not fit a laptop, so something has to scroll — and in RTL that
+ * clips from the left, i.e. whatever is last. Density and the verdict are what
+ * the go/no-go actually turns on, so they sit immediately after the name and
+ * are always on screen; unit counts are reference detail and can be the ones
+ * you scroll for.
+ */
+
 const COLUMNS: {
   key: string;
   label: string;
@@ -89,21 +98,26 @@ const COLUMNS: {
   nowrap?: boolean;
   width: string;
 }[] = [
-  { key: "projectName", label: "שם הפרויקט", sortable: true, width: "15rem" },
+  { key: "projectName", label: "שם הפרויקט", sortable: true, width: "14rem" },
+  { key: "density", label: 'צפיפות', sortable: true, nowrap: true, width: "5.5rem" },
+  // Fits the score chip + meter on one line with the verdict label stacked
+  // beneath (see GradeCell) — half what the single-line layout demanded.
+  { key: "score", label: "ציון והמלצה", sortable: true, width: "9.5rem" },
+  { key: "deadline", label: "מועד הגשה", sortable: true, width: "7.5rem" },
+  { key: "status", label: "סטטוס", sortable: true, width: "8.5rem" },
   { key: "city", label: "עיר", sortable: true, width: "6.5rem" },
   { key: "dealType", label: "סוג עסקה", sortable: true, width: "7.5rem" },
-  { key: "status", label: "סטטוס", sortable: true, width: "9rem" },
-  { key: "unitsExisting", label: 'יח"ד קיימות', sortable: true, nowrap: true, width: "6rem" },
-  { key: "unitsPlanned", label: 'יח"ד יוצאות', sortable: true, nowrap: true, width: "6rem" },
-  { key: "density", label: 'צפיפות', sortable: true, nowrap: true, width: "5.5rem" },
-  { key: "deadline", label: "מועד הגשה", sortable: true, width: "7.5rem" },
-  // Wide enough for chip + meter + verdict label at their natural widths;
-  // measured at ~17rem, so anything less spills into the chevron cell.
-  { key: "score", label: "ציון והמלצה", sortable: true, width: "17rem" },
+  { key: "unitsExisting", label: 'יח"ד קיימות', sortable: true, nowrap: true, width: "5.5rem" },
+  { key: "unitsPlanned", label: 'יח"ד יוצאות', sortable: true, nowrap: true, width: "5.5rem" },
 ];
 
-/** Sum of the column widths + the trailing chevron cell — the scroll floor. */
-const TABLE_MIN_WIDTH = "82.5rem";
+/*
+ * Sum of the column widths + the trailing chevron cell. Kept under ~73rem so
+ * the whole table fits a standard laptop without scrolling: the score and the
+ * row-open chevron are the two things a reader must never have to go looking
+ * for, and in RTL an overflow clips exactly those, from the left edge.
+ */
+const TABLE_MIN_WIDTH = "72.5rem";
 
 /** Compare two rows by a column: numbers numerically, strings by Hebrew locale, nulls last. */
 function compareRows(a: LeadTableRow, b: LeadTableRow, key: string, dir: SortDir): number {
@@ -222,35 +236,33 @@ export function LeadTable({ rows }: { rows: LeadTableRow[] }) {
                     clamp it to one line and keep the full value in the title so
                     nothing is actually lost. */}
                 <td className="px-4 py-3 font-medium text-ink-900">
+                  {/* prefetch={false}: in production Next prefetches every
+                      in-viewport row link, server-rendering that lead's whole
+                      detail page. Fifty rows × a data fan-out each, re-armed on
+                      every auto-refresh, is a standing load for navigations
+                      that mostly never happen. The click costs a moment; the
+                      spike costs the day's quota. */}
                   <Link
                     href={`/leads/${r.id}`}
+                    prefetch={false}
                     title={r.projectName}
                     className="block truncate hover:text-brand-700"
                   >
                     {r.projectName}
                   </Link>
                 </td>
-                <td className="px-4 py-3 text-ink-700">
-                  <span className="block truncate" title={r.city}>
-                    {r.city}
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-ink-700 whitespace-nowrap">{r.dealType}</td>
-                <td className="px-4 py-3">
-                  <Badge tone={r.statusTone} size="sm">
-                    {r.status}
-                  </Badge>
-                </td>
-                <td className="px-4 py-3 text-ink-700">
-                  <span className="ltr-nums">{r.unitsExisting}</span>
-                </td>
-                <td className="px-4 py-3 text-ink-700">
-                  <span className="ltr-nums">{r.unitsPlanned}</span>
-                </td>
                 <td className="px-4 py-3 whitespace-nowrap">
                   <span className={cn("ltr-nums font-medium", TONE_TEXT[r.densityTone])}>
                     {r.density}
                   </span>
+                </td>
+                <td className="px-4 py-3 overflow-hidden">
+                  <GradeCell
+                    score={r.score}
+                    verdictKey={r.verdictKey}
+                    verdictLabel={r.verdict}
+                    tone={r.verdictTone}
+                  />
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap">
                   {r.deadlineTone ? (
@@ -261,16 +273,25 @@ export function LeadTable({ rows }: { rows: LeadTableRow[] }) {
                     <span className="text-ink-400 ltr-nums">{r.deadline}</span>
                   )}
                 </td>
-                <td className="px-4 py-3 overflow-hidden">
-                  <GradeCell
-                    score={r.score}
-                    verdictKey={r.verdictKey}
-                    verdictLabel={r.verdict}
-                    tone={r.verdictTone}
-                  />
+                <td className="px-4 py-3">
+                  <Badge tone={r.statusTone} size="sm">
+                    {r.status}
+                  </Badge>
+                </td>
+                <td className="px-4 py-3 text-ink-700">
+                  <span className="block truncate" title={r.city}>
+                    {r.city}
+                  </span>
+                </td>
+                <td className="px-4 py-3 text-ink-700 whitespace-nowrap">{r.dealType}</td>
+                <td className="px-4 py-3 text-ink-700">
+                  <span className="ltr-nums">{r.unitsExisting}</span>
+                </td>
+                <td className="px-4 py-3 text-ink-700">
+                  <span className="ltr-nums">{r.unitsPlanned}</span>
                 </td>
                 <td className="px-2 py-3 text-ink-300 group-hover:text-brand-500">
-                  <Link href={`/leads/${r.id}`} aria-label="פתיחת ליד">
+                  <Link href={`/leads/${r.id}`} prefetch={false} aria-label="פתיחת ליד">
                     <FontAwesomeIcon icon={faChevronLeft} />
                   </Link>
                 </td>

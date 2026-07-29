@@ -5,15 +5,7 @@ import { LogoutButton } from "./LogoutButton";
 import { requireAuth } from "@/lib/auth/session";
 import { isAuthDisabled } from "@/lib/auth/guard";
 
-/** Hebrew long date, e.g. "יום רביעי, 15 ביולי 2026". */
-function todayLabel(): string {
-  return new Intl.DateTimeFormat("he-IL", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(new Date());
-}
+import { todayLabel } from "@/lib/dates";
 
 /**
  * The app shell: a fixed RTL sidebar on the right, a top bar with the brand +
@@ -60,8 +52,9 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           <MobileNav />
         </header>
 
+        {/* No date line here any more — pages with a hero carry it themselves,
+            and a second copy above the hero read as a stray label. */}
         <main className="flex-1 px-4 sm:px-6 lg:px-10 py-6 lg:py-10 max-w-[1400px] w-full mx-auto overflow-x-clip">
-          <p className="t-eyebrow hidden lg:block mb-6">{todayLabel()}</p>
           {children}
         </main>
       </div>

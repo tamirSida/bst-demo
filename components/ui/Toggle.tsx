@@ -53,7 +53,8 @@ export function Toggle({
       <span
         className={cn(
           "text-sm font-medium",
-          checked ? "text-go-700" : "text-ink-500",
+          // Not go-700: the on-state of a preference switch is not a triage verdict.
+          checked ? "text-ink-700" : "text-ink-500",
         )}
       >
         {checked ? labelOn : labelOff}

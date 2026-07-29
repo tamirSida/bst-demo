@@ -1,5 +1,6 @@
 import { getConfig, listLeads } from "@/lib/firebase/repo";
-import { PageHeader } from "@/components/ui/PageHeader";
+import { PageHero } from "@/components/ui/PageHero";
+import { todayLabel } from "@/lib/dates";
 import { Card } from "@/components/ui/Card";
 import { PipelineFilters } from "@/components/leads/PipelineFilters";
 import { LeadTable } from "@/components/leads/LeadTable";
@@ -43,9 +44,15 @@ export default async function LeadsPage({
 
   return (
     <div className="space-y-5">
-      <PageHeader
+      <PageHero
+        eyebrow={todayLabel()}
         title="לידים"
         subtitle="כל הלידים במבט אחד — תחליף לאקסל"
+        image="/img/project-kalaniot.jpg"
+        stats={[
+          { label: "בתצוגה", value: <span className="ltr-nums">{rows.length}</span> },
+          { label: "ערים", value: <span className="ltr-nums">{cities.length}</span> },
+        ]}
         action={
           <div className="flex flex-wrap items-center justify-end gap-2">
             <AutoRefresh />
@@ -56,11 +63,11 @@ export default async function LeadsPage({
 
       <InboundStatus />
 
-      <Card className="p-4 sm:p-5">
+      <Card className="rise rise-1 p-4 sm:p-5">
         <PipelineFilters cities={cities} />
       </Card>
 
-      <Card className="overflow-hidden">
+      <Card className="rise rise-2 overflow-hidden">
         <LeadTable rows={rows} />
       </Card>
     </div>

@@ -89,14 +89,28 @@ function clean<T>(value: T): T {
 
 /* ------------------------------- config --------------------------------- */
 
+/*
+ * Config is one document that changes maybe a handful of times ever, but it is
+ * read on every single server render — list pages, every lead detail, every
+ * prefetch. Cached for a minute it costs ~60 reads/hour instead of one per
+ * render, and saveConfig clears it so an edit still shows up immediately.
+ */
+let configCache: { at: number; value: TriageConfig } | null = null;
+const CONFIG_TTL_MS = 60_000;
+
 export async function getConfig(): Promise<TriageConfig> {
   if (fromSeed()) return devStore.config() ?? DEFAULT_CONFIG;
+  if (configCache && Date.now() - configCache.at < CONFIG_TTL_MS) return configCache.value;
   const snap = await adminDb().doc(CONFIG_DOC).get();
-  if (!snap.exists) return DEFAULT_CONFIG;
-  return { ...DEFAULT_CONFIG, ...(snap.data() as Partial<TriageConfig>) };
+  const value = snap.exists
+    ? { ...DEFAULT_CONFIG, ...(snap.data() as Partial<TriageConfig>) }
+    : DEFAULT_CONFIG;
+  configCache = { at: Date.now(), value };
+  return value;
 }
 
 export async function saveConfig(config: TriageConfig): Promise<void> {
+  configCache = null; // an edit must be visible on the very next render
   if (fromSeed()) return devStore.setConfig(config);
   await adminDb().doc(CONFIG_DOC).set(clean(config));
 }
@@ -142,6 +156,11 @@ export async function listLeads(filter: LeadFilter = {}): Promise<Lead[]> {
 
 export async function getLead(id: string): Promise<Lead | null> {
   if (fromSeed()) return seedLead(id);
+  // The whole book is already in memory for the list pages, and writes prime it
+  // — so a detail render can serve from there instead of billing a fresh doc
+  // read. Only fall through to Firestore for an id the cache hasn't seen.
+  const cached = (await leadsCache.getAll()).find((l) => l.id === id);
+  if (cached) return cached;
   const snap = await adminDb().collection(LEADS).doc(id).get();
   return snap.exists ? (snap.data() as Lead) : null;
 }

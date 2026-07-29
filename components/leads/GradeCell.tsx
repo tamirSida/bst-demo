@@ -29,8 +29,15 @@ export function GradeCell({
 
   const pct = score == null ? 0 : Math.max(0, Math.min(100, score));
 
+  /*
+   * Two lines, not one. Laid out inline, chip + meter + verdict label needed
+   * ~17rem, which pushed the whole table past its container and clipped the
+   * verdict and the row-open chevron off the RTL edge entirely. Stacking the
+   * label under the score reads the same and costs half the width.
+   */
   return (
-    <div className="flex items-center gap-2.5">
+    <div className="flex flex-col gap-1">
+      <div className="flex items-center gap-2.5">
       <span
         className={cn(
           "inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5",
@@ -62,8 +69,10 @@ export function GradeCell({
         </span>
       )}
 
+      </div>
+
       {verdictLabel && (
-        <span className={cn("text-xs font-medium whitespace-nowrap", TONE_TEXT[tone])}>
+        <span className={cn("block truncate text-xs font-medium", TONE_TEXT[tone])}>
           {verdictLabel}
         </span>
       )}

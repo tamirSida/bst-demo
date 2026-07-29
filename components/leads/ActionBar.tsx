@@ -142,7 +142,19 @@ export function ActionBar({
 
   return (
     <>
-      <div className="flex flex-wrap items-center gap-2">
+      {/*
+        In the sidebar these are five pills of five different widths, and
+        wrapping left a ragged edge on both axes. A two-up grid of equal-width
+        buttons gives them a single alignment; the inline row is kept for the
+        compact (Today cockpit) variant, where they sit on one line anyway.
+      */}
+      <div
+        className={cn(
+          compact
+            ? "flex flex-wrap items-center gap-2"
+            : "grid grid-cols-2 gap-2 [&>*]:w-full",
+        )}
+      >
         <Button
           variant="primary"
           size={size}

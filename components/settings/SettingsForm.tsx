@@ -7,6 +7,7 @@ import {
   faFloppyDisk,
 } from "@fortawesome/free-solid-svg-icons";
 import { Card, CardHeader } from "@/components/ui/Card";
+import { AutoTextarea } from "@/components/ui/AutoTextarea";
 import { Button } from "@/components/ui/Button";
 import { Field, Input } from "@/components/ui/Field";
 import { Toggle } from "@/components/ui/Toggle";
@@ -443,12 +444,11 @@ function AnswerField({
 }) {
   return (
     <Field label={label}>
-      <textarea
-        rows={2}
+      <AutoTextarea
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="—"
-        className="w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink-800 placeholder:text-ink-300 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100 resize-y"
+        className="w-full resize-none overflow-hidden rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink-800 placeholder:text-ink-300 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
       />
     </Field>
   );
@@ -467,23 +467,21 @@ function PctField({
   onChange: (v: number) => void;
 }) {
   return (
-    <Field label={label} help={help}>
-      <div className="relative" dir="ltr">
-        <Input
-          type="number"
-          step={1}
-          value={Math.round(value * 100)}
-          onChange={(e) =>
-            onChange(e.target.value === "" ? 0 : Number(e.target.value) / 100)
-          }
-          // Same as NumField: align to the end so the value sits under its
-          // label, and pad on the start side — that is where the `%` now sits,
-          // immediately beside the number instead of ~577px away from it.
-          className="ltr-nums text-end ps-8"
-          dir="ltr"
-        />
-        <span className="absolute top-1/2 -translate-y-1/2 start-3 text-ink-400 text-sm">%</span>
-      </div>
+    // The unit belongs in the label, not floating in the field. Any absolute
+    // suffix ends up at one edge of a ~600px input while the value sits at the
+    // other — the two are never adjacent, whichever edge you pick. The ₪ fields
+    // already state their unit this way, so this also makes them consistent.
+    <Field label={`${label} (%)`} help={help}>
+      <Input
+        type="number"
+        step={1}
+        value={Math.round(value * 100)}
+        onChange={(e) =>
+          onChange(e.target.value === "" ? 0 : Number(e.target.value) / 100)
+        }
+        className="ltr-nums text-end"
+        dir="ltr"
+      />
     </Field>
   );
 }
