@@ -186,7 +186,7 @@ function DeadlineRow({ lead }: { lead: Lead }) {
   return (
     <li>
       <Link
-        href={`/leads/${lead.id}`} prefetch={false}
+        href={`/leads/${lead.id}`}
         className="flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 hover:bg-surface-muted transition-colors"
       >
         <div className="min-w-0">

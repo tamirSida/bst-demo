@@ -39,7 +39,16 @@ export function createLeadsCache(
   fetchAll: () => Promise<Lead[]>,
   opts: { ttlMs?: number; now?: () => number } = {},
 ): LeadsCache {
-  const ttlMs = opts.ttlMs ?? 60_000;
+  /*
+   * 5 minutes, not 1. This window is the single biggest lever on Firestore
+   * spend: every miss is a full-collection read (~750 billed documents), and
+   * ~66 misses exhausts the free tier's 50k/day on their own. On serverless the
+   * cache is per function instance, so misses are far more frequent than one
+   * per window. Staleness costs nothing here — writes call prime()/patch(), so
+   * anything this app changes shows up immediately regardless of the window;
+   * the TTL only bounds how long an edit made *outside* the app stays unseen.
+   */
+  const ttlMs = opts.ttlMs ?? 300_000;
   const now = opts.now ?? (() => Date.now());
 
   let snap: Snapshot | null = null;

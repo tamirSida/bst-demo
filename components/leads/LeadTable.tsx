@@ -265,15 +265,8 @@ export function LeadTable({ rows }: { rows: LeadTableRow[] }) {
                     clamp it to one line and keep the full value in the title so
                     nothing is actually lost. */}
                 <td className="px-3 py-3 font-medium text-ink-900">
-                  {/* prefetch={false}: in production Next prefetches every
-                      in-viewport row link, server-rendering that lead's whole
-                      detail page. Fifty rows × a data fan-out each, re-armed on
-                      every auto-refresh, is a standing load for navigations
-                      that mostly never happen. The click costs a moment; the
-                      spike costs the day's quota. */}
                   <Link
                     href={`/leads/${r.id}`}
-                    prefetch={false}
                     title={r.projectName}
                     className="block truncate hover:text-brand-700"
                   >
@@ -324,7 +317,7 @@ export function LeadTable({ rows }: { rows: LeadTableRow[] }) {
                   </>
                 )}
                 <td className="px-2 py-3 text-ink-300 group-hover:text-brand-500">
-                  <Link href={`/leads/${r.id}`} prefetch={false} aria-label="פתיחת ליד">
+                  <Link href={`/leads/${r.id}`} aria-label="פתיחת ליד">
                     <FontAwesomeIcon icon={faChevronLeft} />
                   </Link>
                 </td>

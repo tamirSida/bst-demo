@@ -46,7 +46,7 @@ export default async function ArchivePage({
             {closed.map((lead) => (
               <li key={lead.id}>
                 <Link
-                  href={`/leads/${lead.id}`} prefetch={false}
+                  href={`/leads/${lead.id}`}
                   className="flex items-center gap-3 px-5 py-3.5 border-b border-line last:border-0 hover:bg-surface-muted/60 transition-colors"
                 >
                   <div className="min-w-0 flex-1">

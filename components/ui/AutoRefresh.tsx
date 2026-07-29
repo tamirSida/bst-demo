@@ -7,12 +7,13 @@ import { faRotate } from "@fortawesome/free-solid-svg-icons";
 import { Toggle } from "./Toggle";
 
 /*
- * No 10s option any more. Each refresh re-renders the whole server tree and, in
- * production, re-arms link prefetching for every visible row — at 10s that is a
- * standing load on Firestore for a list that changes a few times a day. A
- * minute is plenty, and the explicit "refresh now" button covers the moments
- * when someone wants it immediately. Stored prefs of 10 or 30 fall back to the
- * default automatically, since they're no longer in OPTIONS.
+ * No 10s option any more. Each refresh re-renders the list server-side, and
+ * that render reads the full leads collection whenever the cache window has
+ * lapsed — hundreds of billed documents. At 10s that is a standing load for a
+ * list that changes a few times a day. A minute is plenty, and the explicit
+ * "refresh now" button covers the moments when someone wants it immediately.
+ * Stored prefs of 10 or 30 fall back to the default automatically, since
+ * they're no longer in OPTIONS.
  */
 const OPTIONS = [60, 300] as const;
 const STORAGE_KEY = "bst.autoRefresh";
