@@ -70,7 +70,7 @@ export function Timeline({
               <span className="relative z-10 flex h-8 w-8 items-center justify-center rounded-full bg-brand-50 text-brand-600 ring-4 ring-surface">
                 <FontAwesomeIcon icon={KIND_ICON[e.kind]} className="text-sm" />
               </span>
-              <p className="mt-2 line-clamp-2 px-1 text-xs font-semibold leading-snug text-ink-900">
+              <p className="mt-2 line-clamp-2 px-1 text-xs font-medium leading-snug text-ink-900">
                 {e.title}
               </p>
               <p className="mt-0.5 text-[10px] text-ink-400 ltr-nums">
@@ -95,7 +95,7 @@ export function Timeline({
             <FontAwesomeIcon icon={KIND_ICON[e.kind]} className="text-sm" />
           </span>
           <div className="min-w-0 pt-0.5">
-            <p className="text-sm font-semibold text-ink-900 leading-snug">{e.title}</p>
+            <p className="text-sm font-medium text-ink-900 leading-snug">{e.title}</p>
             {e.body && <p className="text-sm text-ink-500 mt-0.5">{e.body}</p>}
             <p className="text-xs text-ink-400 mt-0.5 ltr-nums">{formatDateTime(e.at)}</p>
           </div>

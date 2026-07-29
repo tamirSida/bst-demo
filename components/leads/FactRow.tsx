@@ -147,7 +147,7 @@ export function FactRow({
         </div>
       ) : (
         <div className="flex items-center gap-2 flex-1 min-w-0">
-          <span className={cn("text-sm font-semibold text-ink-900 truncate")}>{value}</span>
+          <span className={cn("text-sm font-medium text-ink-900 truncate")}>{value}</span>
           {icon && (
             <Tooltip content={provenance?.label ?? "מקור לא ידוע"}>
               <FontAwesomeIcon icon={icon} className="text-ink-400 text-xs" />

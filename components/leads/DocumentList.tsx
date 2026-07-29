@@ -31,7 +31,7 @@ export function DocumentList({ documents }: { documents: LeadDocument[] }) {
         <div key={type}>
           <div className="flex items-center gap-2 mb-1.5">
             <FontAwesomeIcon icon={faFolderOpen} className="text-ink-400 text-sm" />
-            <span className="text-sm font-bold text-ink-700">{DOC_TYPE_LABEL[type]}</span>
+            <span className="text-sm font-medium text-ink-700">{DOC_TYPE_LABEL[type]}</span>
             <Badge tone="neutral" size="sm">
               <span className="ltr-nums">{docs.length}</span>
             </Badge>

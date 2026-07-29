@@ -12,7 +12,15 @@ interface Processing {
   at: string;
 }
 
-const POLL_MS = 2500;
+/*
+ * Poll cadence. Fast only while something is actually in flight; idle tabs back
+ * off hard. At 2.5s a single tab left open all day is ~35k requests — each one a
+ * Firestore read behind the endpoint, which alone can exhaust the free-tier
+ * daily quota. Idle detection can afford to lag: the pipeline itself takes ~30s,
+ * so a banner that appears a few seconds late is still on screen for most of it.
+ */
+const POLL_BUSY_MS = 2500;
+const POLL_IDLE_MS = 10000;
 const FLASH_MS = 5000;
 
 /** Human line describing which email is being processed. */
@@ -40,6 +48,7 @@ export function InboundStatus() {
   useEffect(() => {
     let alive = true;
     let timer: number;
+    let busy = false; // something in flight (or just finished) → poll fast
 
     const poll = async () => {
       try {
@@ -56,6 +65,7 @@ export function InboundStatus() {
         });
         prevIds.current = nextIds;
         setProcessing(data.processing);
+        busy = nextIds.size > 0 || finished;
 
         if (finished) {
           router.refresh(); // pull the new lead into the server-rendered list
@@ -69,15 +79,23 @@ export function InboundStatus() {
       }
     };
 
-    const loop = () => {
-      if (document.visibilityState === "visible") void poll();
-      timer = window.setTimeout(loop, POLL_MS);
+    const loop = async () => {
+      if (document.visibilityState === "visible") await poll();
+      timer = window.setTimeout(loop, busy ? POLL_BUSY_MS : POLL_IDLE_MS);
     };
-    loop();
+    void loop();
+
+    // A backgrounded tab stops polling entirely; catch up the moment it returns
+    // rather than waiting out the idle interval.
+    const onVisible = () => {
+      if (document.visibilityState === "visible") void poll();
+    };
+    document.addEventListener("visibilitychange", onVisible);
 
     return () => {
       alive = false;
       window.clearTimeout(timer);
+      document.removeEventListener("visibilitychange", onVisible);
     };
   }, [router]);
 
@@ -86,7 +104,7 @@ export function InboundStatus() {
       <div className="flex items-center gap-3 rounded-xl border border-brand-100 bg-brand-50/70 px-4 py-3">
         <FontAwesomeIcon icon={faCircleNotch} spin className="text-brand-600 text-lg" />
         <div className="min-w-0">
-          <p className="text-sm font-bold text-brand-800">
+          <p className="text-sm font-medium text-brand-800">
             {processing.length === 1
               ? "מתקבל ליד חדש — המערכת מנתחת את הפנייה…"
               : `מתקבלים ${processing.length} לידים — המערכת מנתחת…`}
@@ -103,7 +121,7 @@ export function InboundStatus() {
     return (
       <div className="flex items-center gap-3 rounded-xl border border-go-100 bg-go-50/70 px-4 py-3">
         <FontAwesomeIcon icon={faCircleCheck} className="text-go-600 text-lg" />
-        <p className="text-sm font-bold text-go-800">ליד חדש התקבל ונותח — נוסף לרשימה למטה</p>
+        <p className="text-sm font-medium text-go-800">ליד חדש התקבל ונותח — נוסף לרשימה למטה</p>
       </div>
     );
   }

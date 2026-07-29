@@ -43,7 +43,7 @@ export function DeleteDialog({
     <Modal open={open} onClose={close} title="מחיקת הליד לצמיתות" size="md">
       <p className="text-sm text-ink-700 leading-relaxed">
         פעולה זו תסיר את הליד{" "}
-        <span className="font-semibold text-ink-900">{leadName}</span> לצמיתות —
+        <span className="font-medium text-ink-900">{leadName}</span> לצמיתות —
         כולל המסמכים, הטופס ויומן הפעילות. לא ניתן לשחזר.
       </p>
       <p className="mt-3 rounded-lg bg-surface-muted px-3 py-2.5 text-sm text-ink-500 leading-relaxed">

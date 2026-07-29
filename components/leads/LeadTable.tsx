@@ -74,17 +74,34 @@ const SORT_ACCESSOR: Record<string, (r: LeadTableRow) => string | number | null>
   score: (r) => r.score,
 };
 
-const COLUMNS: { key: string; label: string; sortable: boolean; nowrap?: boolean }[] = [
-  { key: "projectName", label: "שם הפרויקט", sortable: true },
-  { key: "city", label: "עיר", sortable: true },
-  { key: "dealType", label: "סוג עסקה", sortable: true },
-  { key: "status", label: "סטטוס", sortable: true },
-  { key: "unitsExisting", label: 'יח"ד קיימות', sortable: true, nowrap: true },
-  { key: "unitsPlanned", label: 'יח"ד יוצאות', sortable: true, nowrap: true },
-  { key: "density", label: 'צפיפות', sortable: true, nowrap: true },
-  { key: "deadline", label: "מועד הגשה", sortable: true },
-  { key: "score", label: "ציון והמלצה", sortable: true },
+/*
+ * Every column carries an explicit width and the table is laid out `table-fixed`.
+ * With the default `auto` layout the browser sizes columns from their content,
+ * so one lead with a paragraph-length project name widens that column and
+ * squeezes the rest — and because the widths are recomputed per render, sorting
+ * or filtering visibly shifts every column. Fixed widths make the geometry a
+ * property of the table instead of of whichever rows happen to be on screen.
+ */
+const COLUMNS: {
+  key: string;
+  label: string;
+  sortable: boolean;
+  nowrap?: boolean;
+  width: string;
+}[] = [
+  { key: "projectName", label: "שם הפרויקט", sortable: true, width: "22rem" },
+  { key: "city", label: "עיר", sortable: true, width: "8rem" },
+  { key: "dealType", label: "סוג עסקה", sortable: true, width: "9rem" },
+  { key: "status", label: "סטטוס", sortable: true, width: "11rem" },
+  { key: "unitsExisting", label: 'יח"ד קיימות', sortable: true, nowrap: true, width: "7.5rem" },
+  { key: "unitsPlanned", label: 'יח"ד יוצאות', sortable: true, nowrap: true, width: "7.5rem" },
+  { key: "density", label: 'צפיפות', sortable: true, nowrap: true, width: "7rem" },
+  { key: "deadline", label: "מועד הגשה", sortable: true, width: "9rem" },
+  { key: "score", label: "ציון והמלצה", sortable: true, width: "12rem" },
 ];
+
+/** Sum of the column widths + the trailing chevron cell — the scroll floor. */
+const TABLE_MIN_WIDTH = "95.5rem";
 
 /** Compare two rows by a column: numbers numerically, strings by Hebrew locale, nulls last. */
 function compareRows(a: LeadTableRow, b: LeadTableRow, key: string, dir: SortDir): number {
@@ -131,9 +148,18 @@ export function LeadTable({ rows }: { rows: LeadTableRow[] }) {
   return (
     <div>
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[1100px] text-sm border-collapse">
+        <table
+          className="w-full table-fixed text-sm border-collapse"
+          style={{ minWidth: TABLE_MIN_WIDTH }}
+        >
+          <colgroup>
+            {COLUMNS.map((col) => (
+              <col key={col.key} style={{ width: col.width }} />
+            ))}
+            <col style={{ width: "2.5rem" }} />
+          </colgroup>
           <thead>
-            <tr className="text-ink-500 text-xs font-semibold">
+            <tr className="text-ink-500 text-xs font-medium">
               {COLUMNS.map((col) => {
                 const active = sort?.key === col.key;
                 const icon = !active ? faSort : sort.dir === "asc" ? faSortUp : faSortDown;
@@ -141,7 +167,7 @@ export function LeadTable({ rows }: { rows: LeadTableRow[] }) {
                   <th
                     key={col.key}
                     className={cn(
-                      "text-start font-semibold px-4 py-3 select-none",
+                      "text-start font-medium px-4 py-3 select-none",
                       col.nowrap && "whitespace-nowrap",
                     )}
                     aria-sort={active ? (sort.dir === "asc" ? "ascending" : "descending") : "none"}
@@ -176,12 +202,23 @@ export function LeadTable({ rows }: { rows: LeadTableRow[] }) {
                   r.alarm ? "bg-stop-50/40 hover:bg-stop-50" : "hover:bg-surface-muted/60",
                 )}
               >
-                <td className="px-4 py-3 font-semibold text-ink-900">
-                  <Link href={`/leads/${r.id}`} className="block hover:text-brand-700">
+                {/* Free text from an inbound email can be a whole paragraph;
+                    clamp it to one line and keep the full value in the title so
+                    nothing is actually lost. */}
+                <td className="px-4 py-3 font-medium text-ink-900">
+                  <Link
+                    href={`/leads/${r.id}`}
+                    title={r.projectName}
+                    className="block truncate hover:text-brand-700"
+                  >
                     {r.projectName}
                   </Link>
                 </td>
-                <td className="px-4 py-3 text-ink-700">{r.city}</td>
+                <td className="px-4 py-3 text-ink-700">
+                  <span className="block truncate" title={r.city}>
+                    {r.city}
+                  </span>
+                </td>
                 <td className="px-4 py-3 text-ink-700 whitespace-nowrap">{r.dealType}</td>
                 <td className="px-4 py-3">
                   <Badge tone={r.statusTone} size="sm">
@@ -195,13 +232,13 @@ export function LeadTable({ rows }: { rows: LeadTableRow[] }) {
                   <span className="ltr-nums">{r.unitsPlanned}</span>
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap">
-                  <span className={cn("ltr-nums font-semibold", TONE_TEXT[r.densityTone])}>
+                  <span className={cn("ltr-nums font-medium", TONE_TEXT[r.densityTone])}>
                     {r.density}
                   </span>
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap">
                   {r.deadlineTone ? (
-                    <span className={cn("font-semibold ltr-nums", TONE_TEXT[r.deadlineTone])}>
+                    <span className={cn("font-medium ltr-nums", TONE_TEXT[r.deadlineTone])}>
                       {r.deadline}
                     </span>
                   ) : (

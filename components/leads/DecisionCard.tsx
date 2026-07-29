@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faLocationDot, faRobot } from "@fortawesome/free-solid-svg-icons";
+import { faLocationDot } from "@fortawesome/free-solid-svg-icons";
 import type { Lead, LeadForm } from "@/lib/domain/types";
 import type { PackItem } from "./AppraiserPackModal";
 import { Card } from "@/components/ui/Card";
@@ -45,7 +45,7 @@ export function DecisionCard({
             <div className="min-w-0">
               <Link
                 href={`/leads/${lead.id}`}
-                className="text-lg font-semibold text-ink-900 hover:text-brand-700 transition-colors line-clamp-1"
+                className="text-lg font-medium text-ink-900 hover:text-brand-700 transition-colors line-clamp-1"
               >
                 {lead.projectName}
               </Link>
@@ -63,18 +63,17 @@ export function DecisionCard({
           </div>
         )}
 
-        <VerdictBanner grade={lead.grade} compact={compact} />
+        <VerdictBanner lead={lead} compact={compact} />
 
         <SourceMemoryBanner flags={lead.flags} />
 
         {lead.flags.length > 0 && <FlagChips flags={lead.flags} />}
 
+        {/* Summary sits on a hairline, not in a tinted box — a panel inside a
+            panel inside a card is three frames around one paragraph. */}
         {lead.aiSummary && (
-          <div className="rounded-lg bg-brand-50/60 border border-brand-100 p-3.5">
-            <p className="flex items-center gap-1.5 text-xs font-semibold text-brand-700 mb-1">
-              <FontAwesomeIcon icon={faRobot} />
-              סיכום אוטומטי
-            </p>
+          <div className="border-t border-line pt-4">
+            <p className="t-eyebrow mb-1.5">סיכום אוטומטי</p>
             <p className="text-sm text-ink-700 leading-relaxed whitespace-pre-line">
               {lead.aiSummary}
             </p>

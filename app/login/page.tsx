@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
@@ -42,31 +43,42 @@ export default function LoginPage() {
     "placeholder:text-ink-400 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100";
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center bg-canvas px-4 overflow-hidden">
-      {/* Sparse geometric line-art, kept faint so the login stays calm and minimal. */}
-      <svg
-        aria-hidden="true"
-        viewBox="0 0 220 220"
-        fill="none"
-        className="pointer-events-none absolute -bottom-16 -start-16 h-64 w-64 text-line/60"
-      >
-        <circle cx="110" cy="110" r="60" stroke="currentColor" strokeWidth="1" />
-        <circle cx="110" cy="110" r="95" stroke="currentColor" strokeWidth="1" />
-        <circle cx="110" cy="110" r="130" stroke="currentColor" strokeWidth="1" />
-      </svg>
+    // BST leads with the buildings, so the sign-in does too: a full-bleed
+    // project photograph holds the left of the screen and the form sits quietly
+    // on cream beside it, rather than floating as a card in empty space.
+    <div className="min-h-screen grid lg:grid-cols-[1.15fr_1fr] bg-canvas">
+      <div className="relative hidden lg:block overflow-hidden">
+        <Image
+          src="/img/project-kalaniot.jpg"
+          alt="פרויקט מגורים של קבוצת BST"
+          fill
+          priority
+          sizes="(min-width: 1024px) 55vw, 0px"
+          className="object-cover"
+        />
+        {/* Gradient rather than a flat veil: the photograph stays vivid where
+            there is nothing over it, and darkens only under the caption. */}
+        <div className="absolute inset-0 bg-gradient-to-t from-brand-800/85 via-brand-800/25 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 p-10">
+          <p className="t-eyebrow !text-logo-cream/60">קבוצת BST</p>
+          <p className="mt-2 text-3xl font-light leading-tight text-logo-cream">
+            מעל 50 שנות נדל״ן,
+            <br />
+            התחדשות עירונית ובנייה.
+          </p>
+        </div>
+      </div>
 
-      <div className="relative w-full max-w-sm">
-        <div className="flex flex-col items-center text-center mb-9">
+      <div className="flex items-center justify-center px-6 py-12">
+        <div className="w-full max-w-sm">
+        <div className="mb-10">
           <Logo className="h-12 text-ink-900" />
           <p className="text-sm text-ink-500 mt-4 tracking-wide">
             מערכת סינון לידים · פיתוח עסקי
           </p>
         </div>
 
-        <form
-          onSubmit={onSubmit}
-          className="bg-surface border border-line rounded-xl shadow-card p-6 sm:p-7 space-y-5"
-        >
+        <form onSubmit={onSubmit} className="space-y-5">
           <div className="space-y-1.5">
             <label htmlFor="email" className="text-sm font-medium text-ink-700">
               כתובת מייל
@@ -115,6 +127,7 @@ export default function LoginPage() {
             )}
           </Button>
         </form>
+        </div>
       </div>
     </div>
   );

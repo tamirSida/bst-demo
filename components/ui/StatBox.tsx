@@ -23,7 +23,7 @@ export function StatBox({
         {icon && <FontAwesomeIcon icon={icon} className="text-[0.9em]" />}
         <span>{label}</span>
       </div>
-      <div className="text-ink-900 text-xl font-semibold leading-tight">{value}</div>
+      <div className="text-ink-900 text-xl font-medium leading-tight">{value}</div>
       {hint && <div className="text-ink-400 text-xs mt-0.5">{hint}</div>}
     </div>
   );

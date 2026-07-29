@@ -86,12 +86,12 @@ export function YazamQuestionnaire({
             <p className="text-ink-700">
               {gated && density != null ? (
                 <>
-                  <span className="font-semibold">נפתח אוטומטית</span> — צפיפות עומדת
+                  <span className="font-medium">נפתח אוטומטית</span> — צפיפות עומדת
                   בסף: <span className="ltr-nums">{density.toFixed(1)} ≥ {gateDensity}</span>{" "}
                   יח"ד/דונם.
                 </>
               ) : (
-                <span className="font-semibold">שאלון יזם</span>
+                <span className="font-medium">שאלון יזם</span>
               )}
             </p>
             <p className="mt-0.5 text-ink-500">
@@ -106,7 +106,7 @@ export function YazamQuestionnaire({
 
         {YAZAM_CATEGORIES.map((cat) => (
           <div key={cat}>
-            <p className="mb-2 text-xs font-semibold text-ink-400">{cat}</p>
+            <p className="mb-2 text-xs font-medium text-ink-400">{cat}</p>
             <ul className="space-y-3">
               {YAZAM_QUESTIONS.filter((q) => q.category === cat).map((q) => {
                 const empty = !answers[q.key]?.trim();
@@ -154,7 +154,7 @@ export function YazamQuestionnaire({
             {outcome ? (
               <span
                 className={cn(
-                  "inline-flex items-center gap-1.5 font-semibold",
+                  "inline-flex items-center gap-1.5 font-medium",
                   outcome.ok ? "text-go-700" : "text-stop-700",
                 )}
               >

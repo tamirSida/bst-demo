@@ -1,6 +1,65 @@
 @import "tailwindcss";
 
 /*
+  FbParking — BST's actual brand typeface, self-hosted from the same woff2 files
+  bst.co.il serves. Hebrew and Latin are separate families on the real site,
+  split by unicode-range; we keep that split so Hebrew and English each get the
+  face they were drawn for.
+
+  The foundry ships THREE weights: 300 / 400 / 500. There is no bold. That
+  constraint is the brand — hierarchy comes from size, color and space, never
+  from weight. Do not add a synthetic bold.
+*/
+@font-face {
+  font-family: "FbParking";
+  src: url("/fonts/FbParking-Light.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: u+0590-05ff;
+}
+@font-face {
+  font-family: "FbParking";
+  src: url("/fonts/FbParking-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: u+0590-05ff;
+}
+@font-face {
+  font-family: "FbParking";
+  src: url("/fonts/FbParking-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: u+0590-05ff;
+}
+@font-face {
+  font-family: "FbParking";
+  src: url("/fonts/FbParking-EN-Light.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: u+0020-007f;
+}
+@font-face {
+  font-family: "FbParking";
+  src: url("/fonts/FbParking-EN-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: u+0020-007f;
+}
+@font-face {
+  font-family: "FbParking";
+  src: url("/fonts/FbParking-EN-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: u+0020-007f;
+}
+
+/*
   BST — design tokens (matched to bst.co.il). See DESIGN-SPEC.md.
   Warm bone canvas, dark-olive ink, thin airy type, muted earthy status colors.
   Calm, editorial, architectural. RTL-first.
@@ -61,8 +120,8 @@
   --color-stop-600: #8b3e30;
   --color-stop-700: #6f3126;
 
-  /* Font families wired to the next/font CSS variable set in layout.tsx */
-  --font-sans: var(--font-heebo), "Heebo", "Assistant", "Segoe UI", system-ui, sans-serif;
+  /* BST's own face first; Heebo only as a metric-adjacent fallback. */
+  --font-sans: "FbParking", var(--font-heebo), "Heebo", "Assistant", system-ui, sans-serif;
 
   /* Radii — soft; buttons use rounded-full (pills) per BST */
   --radius-sm: 0.5rem;
@@ -86,6 +145,36 @@
     font-family: var(--font-sans);
     /* Hebrew reads better with slightly looser tracking */
     letter-spacing: -0.006em;
+    /*
+      The brand has no bold. Without this the browser fakes one by smearing the
+      500 weight whenever something asks for 600/700 — which is exactly the
+      heavy, generic look this design is trying to get away from. Let it fall
+      back to 500 instead.
+    */
+    font-synthesis-weight: none;
+  }
+
+  /*
+    Type scale. BST sets headings LIGHT and LARGE — the opposite of the usual
+    dashboard instinct of small-and-heavy. Hierarchy is carried by size and
+    space, so headings need room above them to read as headings at all.
+  */
+  h1,
+  .t-display {
+    font-weight: 300;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+
+  /*
+    Eyebrow labels — small, 500, widely tracked, muted. The counterweight that
+    lets the light headings stay light and still feel deliberate.
+  */
+  .t-eyebrow {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    color: var(--color-ink-500);
   }
 
   /* Numbers, dates and currency stay LTR even inside RTL text */

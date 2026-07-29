@@ -3,11 +3,13 @@ import { Heebo } from "next/font/google";
 import "@/lib/fontawesome";
 import "./globals.css";
 
-// Heebo — closest free match to BST's proprietary "fbparking". Light weights
-// (300) carry the airy headings; 400 body. See DESIGN-SPEC.md.
+// The primary face is BST's own FbParking, self-hosted and declared in
+// globals.css. Heebo stays wired only as the fallback that renders while the
+// brand woff2 files load, and for any glyph they don't cover — so it carries the
+// same 300/400/500 range and nothing heavier.
 const heebo = Heebo({
   subsets: ["hebrew", "latin"],
-  weight: ["300", "400", "500", "600", "700", "800"],
+  weight: ["300", "400", "500"],
   variable: "--font-heebo",
   display: "swap",
 });

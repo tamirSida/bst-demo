@@ -128,7 +128,7 @@ function renderDoc(type: MockDocType, lead: Lead) {
                   <tr key={i} className="border-b border-line/60">
                     <td className="py-2 text-ink-600">{r.label}</td>
                     <td
-                      className={`py-2 text-start ltr-nums font-semibold ${
+                      className={`py-2 text-start ltr-nums font-medium ${
                         r.emphasis ? "text-brand-700" : "text-ink-900"
                       }`}
                     >
@@ -237,7 +237,7 @@ function Table({
       <thead>
         <tr className="border-b border-line text-xs text-ink-500">
           {head.map((h, i) => (
-            <th key={i} className="py-2 text-start font-semibold">
+            <th key={i} className="py-2 text-start font-medium">
               {h}
             </th>
           ))}

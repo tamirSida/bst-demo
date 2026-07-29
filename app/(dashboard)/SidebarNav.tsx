@@ -66,7 +66,7 @@ export function MobileNav() {
             key={item.href}
             href={item.href}
             className={cn(
-              "flex items-center gap-2 rounded-full px-3.5 h-9 text-sm font-semibold whitespace-nowrap",
+              "flex items-center gap-2 rounded-full px-3.5 h-9 text-sm font-medium whitespace-nowrap",
               active ? "bg-brand-600 text-white" : "text-ink-700 bg-surface-muted",
             )}
           >

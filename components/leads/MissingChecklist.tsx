@@ -25,8 +25,8 @@ export function MissingChecklist({ form }: { form: LeadForm }) {
   return (
     <div>
       <div className="flex items-center justify-between mb-2">
-        <p className="text-sm font-bold text-ink-700">מה חסר להשלמה</p>
-        <span className="text-xs font-semibold text-ink-400 ltr-nums">
+        <p className="text-sm font-medium text-ink-700">מה חסר להשלמה</p>
+        <span className="text-xs font-medium text-ink-400 ltr-nums">
           {done}/{total}
         </span>
       </div>

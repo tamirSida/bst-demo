@@ -73,7 +73,7 @@ export function LeadMap({
         href={`/doc/${leadId}/tabu`}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-700"
+        className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-brand-700"
       >
         <FontAwesomeIcon icon={faFileLines} />
         הפק נסח טאבו
@@ -84,7 +84,7 @@ export function LeadMap({
         href={govmapUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-line px-4 py-2 text-xs font-semibold text-ink-600 transition-colors hover:bg-surface-muted"
+        className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-line px-4 py-2 text-xs font-medium text-ink-600 transition-colors hover:bg-surface-muted"
       >
         <FontAwesomeIcon icon={faMap} className="text-ink-400" />
         צפה בגוש/חלקה במפת ממשל (govmap)

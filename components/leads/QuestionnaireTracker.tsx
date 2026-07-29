@@ -18,7 +18,7 @@ export function QuestionnaireTracker({ form }: { form: LeadForm }) {
 
   return (
     <div className="rounded-lg border border-line bg-surface-muted/50 p-4">
-      <p className="text-sm font-bold text-ink-700 mb-3">שאלון השלמת פרטים</p>
+      <p className="text-sm font-medium text-ink-700 mb-3">שאלון השלמת פרטים</p>
       <ol className="flex items-center">
         {STEPS.map((step, i) => {
           const done = current >= ORDER[step.status];
@@ -28,7 +28,7 @@ export function QuestionnaireTracker({ form }: { form: LeadForm }) {
               <div className="flex flex-col items-center gap-1.5">
                 <span
                   className={cn(
-                    "flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold border-2 transition-colors",
+                    "flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium border-2 transition-colors",
                     done
                       ? "bg-go-500 border-go-500 text-white"
                       : active
@@ -40,7 +40,7 @@ export function QuestionnaireTracker({ form }: { form: LeadForm }) {
                 </span>
                 <span
                   className={cn(
-                    "text-xs font-semibold",
+                    "text-xs font-medium",
                     done ? "text-go-700" : active ? "text-brand-700" : "text-ink-400",
                   )}
                 >

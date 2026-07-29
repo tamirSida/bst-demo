@@ -131,7 +131,7 @@ export function SettingsForm({ initial }: { initial: TriageConfig }) {
           onChange={(v) => set("densityHighRed", v)}
         />
         <div className="sm:col-span-2">
-          <p className="text-sm font-semibold text-ink-700 mb-2">
+          <p className="text-sm font-medium text-ink-700 mb-2">
             מכפיל מינימלי לפי אזור
           </p>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -160,7 +160,7 @@ export function SettingsForm({ initial }: { initial: TriageConfig }) {
             onChange={(v) => set("yazamGateDensity", v)}
           />
           <div className="border-t border-line pt-4">
-            <p className="text-sm font-semibold text-ink-700">תשובות יזם קבועות</p>
+            <p className="text-sm font-medium text-ink-700">תשובות יזם קבועות</p>
             <p className="text-xs text-ink-400 mt-0.5 leading-relaxed">
               תשובות החברה שחוזרות על עצמן בכל מכרז. הזינו אותן פעם אחת — הן ימולאו
               אוטומטית בכל שאלון יזם. שאלות התלויות בעסקה הספציפית לא מופיעות כאן ומסומנות
@@ -169,7 +169,7 @@ export function SettingsForm({ initial }: { initial: TriageConfig }) {
             <div className="mt-4 space-y-5">
               {YAZAM_CATEGORIES.map((cat) => (
                 <div key={cat}>
-                  <p className="text-xs font-semibold text-ink-400 mb-2">{cat}</p>
+                  <p className="text-xs font-medium text-ink-400 mb-2">{cat}</p>
                   <div className="space-y-3">
                     {YAZAM_QUESTIONS.filter(
                       (q) => q.category === cat && q.scope === "company",
@@ -347,7 +347,7 @@ export function SettingsForm({ initial }: { initial: TriageConfig }) {
           <div className="bg-surface border-t lg:border border-line lg:rounded-xl shadow-pop px-5 py-3 flex items-center justify-between gap-4 lg:gap-6">
             <span className="text-sm text-ink-500">
               {saved && !dirty ? (
-                <span className="inline-flex items-center gap-1.5 text-go-700 font-semibold">
+                <span className="inline-flex items-center gap-1.5 text-go-700 font-medium">
                   <FontAwesomeIcon icon={faCircleCheck} />
                   ההגדרות נשמרו
                 </span>
@@ -404,7 +404,7 @@ function ToggleField({
   return (
     <div className="flex items-start justify-between gap-4">
       <div className="min-w-0">
-        <p className="text-sm font-semibold text-ink-800">{label}</p>
+        <p className="text-sm font-medium text-ink-800">{label}</p>
         {help && <p className="text-xs text-ink-400 mt-0.5 leading-relaxed">{help}</p>}
       </div>
       <div className="shrink-0 pt-0.5">

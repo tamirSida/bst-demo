@@ -53,11 +53,34 @@ function fresh(rows: InboundProcessing[]): InboundProcessing[] {
   return rows.filter((p) => now - Date.parse(p.at) < STALE_MS);
 }
 
+/*
+ * Read cache. The dashboard polls this constantly and the answer is almost
+ * always "nothing in flight", so an uncached read would burn a Firestore read
+ * every couple of seconds per open tab — enough to exhaust the free-tier daily
+ * quota on its own. Cache briefly, and cache an EMPTY result longer than a busy
+ * one: when nothing is happening a few seconds of staleness costs nothing, but
+ * once an email is in flight we want the banner to track it closely.
+ */
+let cache: { at: number; rows: InboundProcessing[] } | null = null;
+const CACHE_IDLE_MS = 8_000;
+const CACHE_BUSY_MS = 1_500;
+
+/** Drop the cache after a write so the next poll reflects it immediately. */
+function invalidate(): void {
+  cache = null;
+}
+
 /** Emails currently being ingested (stale markers filtered out). */
 export async function getProcessing(): Promise<InboundProcessing[]> {
-  if (fromSeed()) return fresh(readFile());
-  const snap = await adminDb().collection(COLLECTION).get();
-  return fresh(snap.docs.map((d) => d.data() as InboundProcessing));
+  if (cache) {
+    const ttl = cache.rows.length ? CACHE_BUSY_MS : CACHE_IDLE_MS;
+    if (Date.now() - cache.at < ttl) return cache.rows;
+  }
+  const rows = fromSeed()
+    ? fresh(readFile())
+    : fresh((await adminDb().collection(COLLECTION).get()).docs.map((d) => d.data() as InboundProcessing));
+  cache = { at: Date.now(), rows };
+  return rows;
 }
 
 /** Ids currently in flight — also acts as a lock so a poll can't double-ingest. */
@@ -72,6 +95,7 @@ export async function processingIds(): Promise<Set<string>> {
  * call (it merges), once the email has actually been fetched.
  */
 export async function startProcessing(entry: InboundProcessing): Promise<void> {
+  invalidate();
   if (fromSeed()) {
     const rows = readFile();
     const at = rows.findIndex((p) => p.id === entry.id);
@@ -85,6 +109,7 @@ export async function startProcessing(entry: InboundProcessing): Promise<void> {
 
 /** Clear the marker once ingestion finishes (success or give-up). */
 export async function endProcessing(id: string): Promise<void> {
+  invalidate();
   if (fromSeed()) {
     writeFile(readFile().filter((p) => p.id !== id));
     return;

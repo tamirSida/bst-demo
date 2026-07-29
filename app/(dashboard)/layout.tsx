@@ -48,19 +48,20 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 
       {/* Main column */}
       <div className="flex-1 min-w-0 flex flex-col">
-        {/* Top bar — dark-olive strip on mobile (carries the cream logo), light on desktop */}
-        <header className="sticky top-0 z-30 bg-brand-600 lg:bg-surface/90 lg:backdrop-blur border-b border-brand-700 lg:border-line">
+        {/* Mobile only: the dark-olive strip carrying the cream logo + nav. On
+            desktop the sidebar already does both jobs, so a second bar would be
+            64px of chrome holding a single date — the date moves into the page
+            instead, where it reads as context rather than furniture. */}
+        <header className="lg:hidden sticky top-0 z-30 bg-brand-600 border-b border-brand-700">
           <div className="flex items-center justify-between gap-3 px-5 h-16">
-            <div className="flex items-center lg:hidden">
-              <Logo className="h-7 text-logo-cream" />
-            </div>
-            <div className="hidden lg:block" />
-            <p className="text-sm font-medium text-logo-cream/70 lg:text-ink-500">{todayLabel()}</p>
+            <Logo className="h-7 text-logo-cream" />
+            <p className="text-sm text-logo-cream/70">{todayLabel()}</p>
           </div>
           <MobileNav />
         </header>
 
-        <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 lg:py-8 max-w-[1400px] w-full mx-auto overflow-x-clip">
+        <main className="flex-1 px-4 sm:px-6 lg:px-10 py-6 lg:py-10 max-w-[1400px] w-full mx-auto overflow-x-clip">
+          <p className="t-eyebrow hidden lg:block mb-6">{todayLabel()}</p>
           {children}
         </main>
       </div>

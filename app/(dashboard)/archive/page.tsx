@@ -50,7 +50,7 @@ export default async function ArchivePage({
                   className="flex items-center gap-3 px-5 py-3.5 border-b border-line last:border-0 hover:bg-surface-muted/60 transition-colors"
                 >
                   <div className="min-w-0 flex-1">
-                    <p className="font-semibold text-ink-900 truncate">{lead.projectName}</p>
+                    <p className="font-medium text-ink-900 truncate">{lead.projectName}</p>
                     <div className="flex items-center gap-2 mt-0.5 text-xs text-ink-400">
                       {lead.city && (
                         <span className="inline-flex items-center gap-1">

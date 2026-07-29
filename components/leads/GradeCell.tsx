@@ -40,7 +40,7 @@ export function GradeCell({
         <FontAwesomeIcon icon={VERDICT_ICON[verdictKey]} className={cn("text-xs", TONE_TEXT[tone])} />
         {/* score omitted when a kill flag voided it (score null) */}
         {score != null && (
-          <span className="ltr-nums text-base font-semibold leading-none text-ink-900">
+          <span className="ltr-nums text-base font-medium leading-none text-ink-900">
             {score}
             <span className="text-[11px] font-medium text-ink-400">/100</span>
           </span>

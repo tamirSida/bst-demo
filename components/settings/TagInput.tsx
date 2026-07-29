@@ -28,7 +28,7 @@ export function TagInput({
       {values.map((tag) => (
         <span
           key={tag}
-          className="inline-flex items-center gap-1.5 rounded-full bg-brand-50 text-brand-700 px-3 h-8 text-sm font-semibold"
+          className="inline-flex items-center gap-1.5 rounded-full bg-brand-50 text-brand-700 px-3 h-8 text-sm font-medium"
         >
           {tag}
           <button

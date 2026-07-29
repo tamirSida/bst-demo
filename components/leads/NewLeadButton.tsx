@@ -102,7 +102,7 @@ export function NewLeadButton() {
         {uploading ? (
           <div className="flex flex-col items-center text-center py-8">
             <FontAwesomeIcon icon={faCircleNotch} spin className="text-4xl text-brand-600 mb-4" />
-            <p className="font-semibold text-ink-900 text-lg">מנתח את הליד…</p>
+            <p className="font-medium text-ink-900 text-lg">מנתח את הליד…</p>
             <p className="text-ink-500 text-sm mt-1">
               קורא את הפנייה, מחלץ נתונים ומריץ סינון. זה עשוי לקחת כחצי דקה.
             </p>
@@ -115,7 +115,7 @@ export function NewLeadButton() {
         ) : phase === "queued" ? (
           <div className="flex flex-col items-center text-center py-8">
             <FontAwesomeIcon icon={faCircleCheck} className="text-4xl text-go-600 mb-4" />
-            <p className="font-semibold text-ink-900 text-lg">הליד התקבל</p>
+            <p className="font-medium text-ink-900 text-lg">הליד התקבל</p>
             <p className="text-ink-500 text-sm mt-1">
               הפנייה מעובדת ברקע — מחלצת נתונים ומריצה סינון. הליד יופיע ברשימה בעוד רגע.
             </p>
@@ -181,7 +181,7 @@ export function NewLeadButton() {
                   )}
                 >
                   <FontAwesomeIcon icon={faUpload} className="text-3xl text-ink-400" />
-                  <span className="text-ink-700 font-semibold">בחירת קובץ</span>
+                  <span className="text-ink-700 font-medium">בחירת קובץ</span>
                   <span className="text-ink-400 text-xs ltr-nums">PDF · .eml · עד 15MB</span>
                 </button>
                 <input

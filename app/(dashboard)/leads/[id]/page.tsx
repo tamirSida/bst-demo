@@ -97,7 +97,7 @@ export default async function LeadDetailPage({
       {lead.status === LeadStatus.Closed && (
         <div className="flex flex-wrap items-center gap-2 rounded-lg bg-surface-muted border border-line px-4 py-3 text-sm text-ink-700">
           <FontAwesomeIcon icon={faBoxArchive} className="text-ink-400" />
-          <span className="font-semibold">הליד נמצא בארכיון</span>
+          <span className="font-medium">הליד נמצא בארכיון</span>
           {lead.rejectionReason && (
             <span className="text-ink-500">
               — סיבת הסגירה: {REJECTION_REASON_LABEL[lead.rejectionReason]}

@@ -44,22 +44,22 @@ export function MockDocShell({
         <div className="mb-6 flex items-start gap-2 rounded-lg border border-warn-300 bg-warn-50 px-4 py-3 text-sm text-warn-800">
           <FontAwesomeIcon icon={faTriangleExclamation} className="mt-0.5" />
           <span>
-            <span className="font-semibold">מסמך הדגמה</span> · נתונים לדוגמה בלבד ·
+            <span className="font-medium">מסמך הדגמה</span> · נתונים לדוגמה בלבד ·
             אינו מסמך רשמי.
           </span>
         </div>
 
         <header className="border-b border-line pb-4 text-center">
-          <h1 className="text-2xl font-bold text-ink-900">{title}</h1>
+          <h1 className="text-2xl font-medium text-ink-900">{title}</h1>
           <p className="mt-1 text-sm text-ink-500">{subtitle}</p>
           <div className="mt-3 flex justify-center gap-6 text-xs text-ink-500">
             <span>
               {docLabel}:{" "}
-              <span className="ltr-nums font-semibold text-ink-700">{docNumber}</span>
+              <span className="ltr-nums font-medium text-ink-700">{docNumber}</span>
             </span>
             <span>
               תאריך הפקה:{" "}
-              <span className="ltr-nums font-semibold text-ink-700">{issuedAt}</span>
+              <span className="ltr-nums font-medium text-ink-700">{issuedAt}</span>
             </span>
           </div>
         </header>
@@ -79,7 +79,7 @@ export function MockDocShell({
 export function DocSection({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="mt-6">
-      <h2 className="mb-3 text-sm font-bold text-brand-700">{title}</h2>
+      <h2 className="mb-3 text-sm font-medium text-brand-700">{title}</h2>
       {children}
     </section>
   );
