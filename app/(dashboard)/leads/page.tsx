@@ -1,7 +1,6 @@
 import { getConfig, listLeads } from "@/lib/firebase/repo";
 import { PageHero } from "@/components/ui/PageHero";
 import { todayLabel } from "@/lib/dates";
-import { Card } from "@/components/ui/Card";
 import { PipelineFilters } from "@/components/leads/PipelineFilters";
 import { LeadTable } from "@/components/leads/LeadTable";
 import { ExportCsvButton } from "@/components/leads/ExportCsvButton";
@@ -81,13 +80,17 @@ export default async function LeadsPage({
 
       <InboundStatus />
 
-      <Card className="rise rise-1 p-4 sm:p-5">
+      {/* No cards. A filter panel in a white box above a table in another white
+          box is the silhouette of every generated CRUD screen. The controls are
+          a toolbar on the page ground, the data sits directly on the paper, and
+          hairlines do the separating that borders were doing. */}
+      <div className="rise rise-1 border-y border-line py-3">
         <PipelineFilters cities={cities} />
-      </Card>
+      </div>
 
-      <Card className="rise rise-2 overflow-hidden">
+      <div className="rise rise-2">
         <LeadTable rows={rows} />
-      </Card>
+      </div>
     </div>
   );
 }

@@ -169,7 +169,7 @@ export function LeadTable({ rows }: { rows: LeadTableRow[] }) {
             <col style={{ width: "2.5rem" }} />
           </colgroup>
           <thead>
-            <tr className="text-ink-500 text-xs font-medium">
+            <tr className="border-b border-line text-ink-500 text-[0.6875rem] font-semibold tracking-[0.04em]">
               {columns.map((col) => {
                 const active = sort?.key === col.key;
                 const icon = !active ? faSort : sort.dir === "asc" ? faSortUp : faSortDown;
@@ -177,7 +177,7 @@ export function LeadTable({ rows }: { rows: LeadTableRow[] }) {
                   <th
                     key={col.key}
                     className={cn(
-                      "text-start font-medium px-3 py-3 select-none",
+                      "text-start font-semibold px-3 pb-2.5 pt-0 select-none",
                       col.nowrap && "whitespace-nowrap",
                     )}
                     aria-sort={active ? (sort.dir === "asc" ? "ascending" : "descending") : "none"}
@@ -214,7 +214,7 @@ export function LeadTable({ rows }: { rows: LeadTableRow[] }) {
               >
                 <td
                   className={cn(
-                    "border-s-[3px] px-3 py-3 whitespace-nowrap text-ink-500",
+                    "border-s-[3px] px-3 py-4 whitespace-nowrap text-ink-500",
                     TONE_EDGE[r.verdictTone ?? "neutral"],
                   )}
                 >
@@ -223,16 +223,19 @@ export function LeadTable({ rows }: { rows: LeadTableRow[] }) {
                 {/* Free text from an inbound email can be a whole paragraph;
                     clamp it to one line and keep the full value in the title so
                     nothing is actually lost. */}
-                <td className="px-3 py-3 font-medium text-ink-900">
+                <td className="px-3 py-4 text-ink-900">
                   <Link
                     href={`/leads/${r.id}`}
                     title={r.projectName}
-                    className="block truncate hover:text-brand-700"
+                    className="block truncate text-[0.9375rem] font-semibold leading-snug hover:text-brand-700"
                   >
                     {r.projectName}
                   </Link>
+                  <span className="mt-0.5 block truncate text-xs text-ink-500">
+                    {[r.city, r.dealType].filter((v) => v && v !== "—").join(" · ")}
+                  </span>
                 </td>
-                <td className="px-3 py-3 whitespace-nowrap">
+                <td className="px-3 py-4 whitespace-nowrap">
                   <DensityCell
                     text={r.density}
                     value={r.densityNum}
@@ -241,7 +244,7 @@ export function LeadTable({ rows }: { rows: LeadTableRow[] }) {
                     max={densityRange.max}
                   />
                 </td>
-                <td className="px-3 py-3 overflow-hidden">
+                <td className="px-3 py-4 overflow-hidden">
                   <GradeCell
                     score={r.score}
                     verdictKey={r.verdictKey}
@@ -249,7 +252,7 @@ export function LeadTable({ rows }: { rows: LeadTableRow[] }) {
                     tone={r.verdictTone}
                   />
                 </td>
-                <td className="px-3 py-3 whitespace-nowrap">
+                <td className="px-3 py-4 whitespace-nowrap">
                   {r.deadlineTone ? (
                     <span className={cn("font-medium ltr-nums", TONE_TEXT[r.deadlineTone])}>
                       {r.deadline}
@@ -258,12 +261,12 @@ export function LeadTable({ rows }: { rows: LeadTableRow[] }) {
                     <span className="text-ink-400 ltr-nums">{r.deadline}</span>
                   )}
                 </td>
-                <td className="px-3 py-3">
+                <td className="px-3 py-4">
                   <Badge tone={r.statusTone} size="sm">
                     {r.status}
                   </Badge>
                 </td>
-                <td className="px-3 py-3 text-ink-700">
+                <td className="px-3 py-4 text-ink-700">
                   <span className="block truncate" title={r.city}>
                     {r.city}
                   </span>
@@ -273,16 +276,16 @@ export function LeadTable({ rows }: { rows: LeadTableRow[] }) {
                     the moment the breakpoint drops them. */}
                 {wide && (
                   <>
-                    <td className="px-3 py-3 text-ink-700 whitespace-nowrap">{r.dealType}</td>
-                    <td className="px-3 py-3 text-ink-700">
+                    <td className="px-3 py-4 text-ink-700 whitespace-nowrap">{r.dealType}</td>
+                    <td className="px-3 py-4 text-ink-700">
                       <span className="ltr-nums">{r.unitsExisting}</span>
                     </td>
-                    <td className="px-3 py-3 text-ink-700">
+                    <td className="px-3 py-4 text-ink-700">
                       <span className="ltr-nums">{r.unitsPlanned}</span>
                     </td>
                   </>
                 )}
-                <td className="px-2 py-3 text-ink-300 group-hover:text-brand-500">
+                <td className="px-2 py-4 text-ink-300 group-hover:text-brand-500">
                   <Link href={`/leads/${r.id}`} aria-label="פתיחת ליד">
                     <FontAwesomeIcon icon={faChevronLeft} />
                   </Link>
