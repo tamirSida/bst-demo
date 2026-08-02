@@ -8,6 +8,15 @@ import { ExportCsvButton } from "@/components/leads/ExportCsvButton";
 import { InboundStatus } from "@/components/leads/InboundStatus";
 import { AutoRefresh } from "@/components/ui/AutoRefresh";
 import { toCsvRow, toTableRow } from "@/lib/leads/rows";
+import { LEAD_STATUS_LABEL, LeadStatus } from "@/lib/domain/enums";
+
+/** Statuses that still need a human decision — matched on the display label,
+ *  which is what the serialized row carries. */
+const PENDING_STATUS = new Set([
+  LEAD_STATUS_LABEL[LeadStatus.New],
+  LEAD_STATUS_LABEL[LeadStatus.Triage],
+  LEAD_STATUS_LABEL[LeadStatus.AwaitingInfo],
+]);
 
 export const dynamic = "force-dynamic";
 
@@ -42,14 +51,24 @@ export default async function LeadsPage({
   const allActive = await listLeads({ activeOnly: true, uploadedOnly });
   const cities = [...new Set(allActive.map((l) => l.city).filter(Boolean))].sort() as string[];
 
+  // The job, not the record count: how many of the leads on screen are still
+  // waiting on a person, versus how many have already been ruled on.
+  const undecided = rows.filter((r) => PENDING_STATUS.has(r.status)).length;
+
   return (
     <div className="space-y-5">
       <PageHero
         eyebrow={todayLabel()}
         title="לידים"
         subtitle="כל הלידים במבט אחד — תחליף לאקסל"
+        progress={{
+          remaining: undecided,
+          total: rows.length,
+          remainingLabel: "ממתינים להכרעה",
+          doneLabel: "הוכרעו",
+        }}
         stats={[
-          { label: "בתצוגה", value: <span className="ltr-nums">{rows.length}</span> },
+          { label: "לידים בתצוגה", value: <span className="ltr-nums">{rows.length}</span> },
           { label: "ערים", value: <span className="ltr-nums">{cities.length}</span> },
         ]}
         action={

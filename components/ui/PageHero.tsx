@@ -15,6 +15,7 @@ export function PageHero({
   title,
   subtitle,
   stats,
+  progress,
   action,
   className,
 }: {
@@ -23,6 +24,12 @@ export function PageHero({
   subtitle?: string;
   /** The page's live figures — the numbers it exists to produce. */
   stats?: { label: string; value: ReactNode }[];
+  /**
+   * The job, not the record count. Renders the outstanding figure at display
+   * size with a burn-down beneath it — a list of records never empties, but a
+   * triage pass does, and the header should say which one this is.
+   */
+  progress?: { remaining: number; total: number; remainingLabel: string; doneLabel: string };
   action?: ReactNode;
   className?: string;
 }) {
@@ -38,6 +45,34 @@ export function PageHero({
             would be pushed off the inline-start edge instead of wrapping. */}
         {action && <div className="w-full sm:w-auto">{action}</div>}
       </div>
+
+      {progress && progress.total > 0 && (
+        <div className="mt-5 max-w-md">
+          <p className="flex items-baseline gap-2">
+            <span className="ltr-nums text-[2rem] font-semibold leading-none tracking-tight text-ink-900">
+              {progress.remaining}
+            </span>
+            <span className="text-sm text-ink-500">{progress.remainingLabel}</span>
+          </p>
+          <span
+            aria-hidden
+            className="mt-3 block h-1 w-full overflow-hidden rounded-full bg-surface-muted"
+          >
+            <span
+              className="block h-full rounded-full bg-brand-600 transition-[width] duration-500"
+              style={{
+                inlineSize: `${Math.round(((progress.total - progress.remaining) / progress.total) * 100)}%`,
+              }}
+            />
+          </span>
+          <p className="mt-2 text-xs text-ink-500">
+            <span className="ltr-nums">
+              {progress.total - progress.remaining}/{progress.total}
+            </span>{" "}
+            {progress.doneLabel}
+          </p>
+        </div>
+      )}
 
       {stats && stats.length > 0 && (
         <dl className="mt-5 flex flex-wrap items-baseline gap-x-8 gap-y-3">

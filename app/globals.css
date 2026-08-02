@@ -9,16 +9,16 @@
 
 @theme {
   /* Primary/action ramp. Overridden per brand at runtime. */
-  --color-brand-50: #EFF4FF;
-  --color-brand-100: #DBE6FE;
-  --color-brand-200: #BFD3FE;
-  --color-brand-300: #93B4FD;
-  --color-brand-400: #6494FA;
-  --color-brand-500: #3B76F6;
-  --color-brand-600: #2563EB;
-  --color-brand-700: #1D4FD7;
-  --color-brand-800: #1E40AF;
-  --color-brand-900: #172554;
+  --color-brand-50: #EEF2FE;
+  --color-brand-100: #DCE4FD;
+  --color-brand-200: #C6D3FB;
+  --color-brand-300: #9DB2F7;
+  --color-brand-400: #6D8BF0;
+  --color-brand-500: #3F63E4;
+  --color-brand-600: #1B45CE;
+  --color-brand-700: #1637A6;
+  --color-brand-800: #132D82;
+  --color-brand-900: #101F52;
 
   /* Accent — muted slate blue (links, informational highlights only) */
   --color-accent-50: #eef1f4;
@@ -27,18 +27,20 @@
   --color-accent-600: #3c4552;
 
   /* Surfaces — warm bone canvas, white cards */
-  --color-canvas: #F7F8FA;
+  --color-canvas: #F4F5F7;
   --color-surface: #ffffff;
-  --color-surface-muted: #F1F3F6;
+  --color-surface-muted: #EDEFF3;
 
   /* Ink (text) — olive / olive-gray */
-  --color-ink-900: #0F1419;
-  --color-ink-700: #3D4753;
-  --color-ink-500: #6B7684;
-  --color-ink-400: #9AA3AF;
+  --color-ink-900: #10151C;
+  --color-ink-700: #39424F;
+  --color-ink-500: #66707E;
+  --color-ink-400: #98A1AD;
+  /* Declared because `text-ink-300` is used in the table chevron. */
+  --color-ink-300: #BDC4CE;
 
   /* Hairlines — warm taupe */
-  --color-line: #E5E7EB;
+  --color-line: #E1E4EA;
 
   /* Cream logo color (for the logo on dark bars) */
   --color-logo-cream: #FFFFFF;

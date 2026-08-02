@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/Badge";
 import { cn } from "@/lib/cn";
 import type { Tone } from "@/lib/status";
 import { GradeCell } from "./GradeCell";
+import { DensityCell } from "./DensityCell";
 import {
   COLUMNS,
   SORT_ACCESSOR,
@@ -31,6 +32,23 @@ import {
 export type { LeadTableRow };
 
 const PAGE = 50;
+
+/**
+ * Verdict as an edge on the row, not just as coloured words.
+ *
+ * Colour alone is a weak channel here: three tones at 12px, repeated 38 times,
+ * blur into texture. A rule at the row's inline-start edge is read positionally
+ * — you can see the shape of the book down the column without reading any of
+ * it. Kept to a 3px border on the first cell so it costs no layout: under
+ * `table-fixed` with border-box, the border sits inside the declared width.
+ */
+const TONE_EDGE: Record<Tone, string> = {
+  go: "border-s-go-500",
+  warn: "border-s-warn-500",
+  stop: "border-s-stop-500",
+  brand: "border-s-brand-500",
+  neutral: "border-s-transparent",
+};
 
 const TONE_TEXT: Record<Tone, string> = {
   go: "text-go-700",
@@ -104,6 +122,15 @@ export function LeadTable({ rows }: { rows: LeadTableRow[] }) {
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
+
+  // One scale for the whole column: the marks are only comparable if every row
+  // is measured against the same min..max.
+  const densityRange = useMemo(() => {
+    const values = rows.map((r) => r.densityNum).filter((v): v is number => v != null);
+    return values.length
+      ? { min: Math.min(...values), max: Math.max(...values) }
+      : { min: null, max: null };
+  }, [rows]);
 
   const sorted = useMemo(() => {
     if (!sort) return rows;
@@ -182,10 +209,15 @@ export function LeadTable({ rows }: { rows: LeadTableRow[] }) {
                 onClick={() => router.push(`/leads/${r.id}`)}
                 className={cn(
                   "group border-t border-line transition-colors cursor-pointer",
-                  r.alarm ? "bg-stop-50/40 hover:bg-stop-50" : "hover:bg-surface-muted/60",
+                  "hover:bg-surface-muted/50",
                 )}
               >
-                <td className="px-3 py-3 whitespace-nowrap text-ink-500">
+                <td
+                  className={cn(
+                    "border-s-[3px] px-3 py-3 whitespace-nowrap text-ink-500",
+                    TONE_EDGE[r.verdictTone ?? "neutral"],
+                  )}
+                >
                   <span className="ltr-nums">{r.received}</span>
                 </td>
                 {/* Free text from an inbound email can be a whole paragraph;
@@ -201,9 +233,13 @@ export function LeadTable({ rows }: { rows: LeadTableRow[] }) {
                   </Link>
                 </td>
                 <td className="px-3 py-3 whitespace-nowrap">
-                  <span className={cn("ltr-nums font-medium", TONE_TEXT[r.densityTone])}>
-                    {r.density}
-                  </span>
+                  <DensityCell
+                    text={r.density}
+                    value={r.densityNum}
+                    tone={r.densityTone}
+                    min={densityRange.min}
+                    max={densityRange.max}
+                  />
                 </td>
                 <td className="px-3 py-3 overflow-hidden">
                   <GradeCell

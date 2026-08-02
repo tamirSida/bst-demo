@@ -37,6 +37,8 @@ export interface BrandPalette {
   ink700: string;
   ink500: string;
   ink400: string;
+  /** Between ink400 and line. Icons only, never text. */
+  ink300: string;
   /** Hairline/border. */
   line: string;
   /** Logo colour when it sits on a dark bar. */
@@ -91,23 +93,32 @@ const unbranded: Brand = {
   leadMarkerPrefix: "LD",
   fontFamily: '"Heebo", "Assistant", system-ui, sans-serif',
   palette: {
-    brand50: "#EFF4FF",
-    brand100: "#DBE6FE",
-    brand300: "#93B4FD",
-    brand400: "#6494FA",
-    brand500: "#3B76F6",
-    brand600: "#2563EB", // the accent
-    brand700: "#1D4FD7",
-    brand800: "#1E40AF",
-    brand900: "#172554",
-    canvas: "#F7F8FA",
+    // A chosen blue, not blue-600. The previous palette was literally Tailwind
+    // gray-50 + blue-600 — the default you get when you pick nothing, which is
+    // exactly what reads as generated. This one is deeper and slightly cooler,
+    // and it appears in only four places: primary action, active nav, focus,
+    // links. Everything else is ink on paper.
+    brand50: "#EEF2FE",
+    brand100: "#DCE4FD",
+    brand300: "#9DB2F7",
+    brand400: "#6D8BF0",
+    brand500: "#3F63E4",
+    brand600: "#1B45CE", // the accent
+    brand700: "#1637A6",
+    brand800: "#132D82",
+    brand900: "#101F52",
+    // Paper, not #F7F8FA. A hair warmer than the surface so white panels lift
+    // off it without needing a shadow to say so.
+    canvas: "#F4F5F7",
     surface: "#FFFFFF",
-    surfaceMuted: "#F1F3F6",
-    ink900: "#0F1419", // 17.4:1 on white — headings and every numeral
-    ink700: "#3D4753", //  9.1:1 — body
-    ink500: "#6B7684", //  4.8:1 — labels, captions
-    ink400: "#9AA3AF", //  2.9:1 — NOT a text tier; icons and disabled only
-    line: "#E5E7EB",
+    surfaceMuted: "#EDEFF3",
+    // Ink ramp with a slight cool cast, high contrast at the top.
+    ink900: "#10151C", // 17.9:1 on white — headings and every numeral
+    ink700: "#39424F", //  9.6:1 — body
+    ink500: "#66707E", //  5.1:1 — labels, captions
+    ink400: "#98A1AD", //  2.7:1 — NOT a text tier; icons and disabled only
+    ink300: "#BDC4CE", //  icons only
+    line: "#E1E4EA",
     logoContrast: "#FFFFFF",
   },
 };
@@ -136,6 +147,7 @@ export function brandCssVars(brand: Brand): Record<string, string> {
     "--color-brand-50": p.brand50,
     "--color-brand-100": p.brand100,
     "--color-brand-300": p.brand300,
+    "--color-ink-300": p.ink300,
     "--color-brand-400": p.brand400,
     "--color-brand-500": p.brand500,
     "--color-brand-600": p.brand600,
