@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { enqueueIngest } from "@/lib/ingest/enqueue";
 import { verifyResendWebhook } from "@/lib/email/resendInbound";
-import { endProcessing, startProcessing } from "@/lib/ingest/processingStore";
+import { endProcessing, processingIds, startProcessing } from "@/lib/ingest/processingStore";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -52,6 +52,17 @@ export async function POST(request: Request) {
         if (!emailId) return NextResponse.json({ error: "missing email id" }, { status: 400 });
 
         console.log(`[inbound] webhook email.received emailId=${emailId}`);
+
+        // Idempotency. A provider retries a delivery it thinks failed — and a
+        // slow or timed-out response looks exactly like a failure — so the same
+        // email can arrive several times and produce duplicate leads. The
+        // in-flight marker doubles as the lock: if this id is already being
+        // ingested, acknowledge and drop the retry.
+        if ((await processingIds().catch(() => new Set<string>())).has(emailId)) {
+          console.log(`[inbound] duplicate delivery ignored emailId=${emailId}`);
+          return NextResponse.json({ ok: true, duplicate: true });
+        }
+
         // Mark in-flight BEFORE dispatching, so the dashboard banner appears at
         // once instead of after the ~30s pipeline. The webhook payload usually
         // carries subject/from; when it doesn't, the banner falls back to a
@@ -75,6 +86,10 @@ export async function POST(request: Request) {
           await endProcessing(emailId).catch(() => {});
           throw err;
         }
+        // When it ran inline there is no background function to clear the
+        // marker in its `finally`, so the banner would spin until the staleness
+        // cutoff. Clear it here instead.
+        if (!background) await endProcessing(emailId).catch(() => {});
         return NextResponse.json({ ok: true, queued: background }, { status: background ? 202 : 200 });
       }
 

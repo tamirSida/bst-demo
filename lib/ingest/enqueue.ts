@@ -16,10 +16,29 @@ const BG_FUNCTION = "/.netlify/functions/ingest-background";
  * Returns `background: true` when the work was handed off (lead appears later),
  * `false` when it ran inline to completion.
  */
+/**
+ * The public origin to dispatch the background function on, or null when there
+ * isn't one (local dev) and the job must run inline.
+ *
+ * Deliberately NOT gated on `process.env.NETLIFY`. That flag is set during the
+ * build but is not reliably present in the deployed Next.js server runtime, and
+ * when it was missing this fell through to the inline path — running the ~30s
+ * AI pipeline inside the webhook request, which then blew past the caller's
+ * timeout. Any absolute non-localhost origin means a deployed environment.
+ */
+function dispatchBase(): string | null {
+  const candidates = [process.env.URL, process.env.DEPLOY_URL, process.env.APP_URL];
+  for (const raw of candidates) {
+    const value = raw?.trim().replace(/\/$/, "");
+    if (!value || !/^https?:\/\//i.test(value)) continue;
+    if (/^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:|$)/i.test(value)) continue;
+    return value;
+  }
+  return null;
+}
+
 export async function enqueueIngest(job: IngestJob): Promise<{ background: boolean }> {
-  const base = process.env.NETLIFY
-    ? process.env.URL ?? process.env.DEPLOY_URL ?? null
-    : null;
+  const base = dispatchBase();
 
   if (base) {
     const secret = process.env.INGEST_FUNCTION_SECRET;
