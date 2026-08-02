@@ -4,7 +4,8 @@ import { resolve } from "node:path";
 export default defineConfig({
   test: {
     environment: "node",
-    include: ["lib/**/*.test.ts"],
+    // components/ included so the table's layout-contract guards run too.
+    include: ["lib/**/*.test.ts", "components/**/*.test.ts"],
   },
   resolve: {
     alias: {

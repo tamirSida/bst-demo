@@ -16,41 +16,19 @@ import { faFolderOpen } from "@fortawesome/free-solid-svg-icons";
 import { Badge } from "@/components/ui/Badge";
 import { cn } from "@/lib/cn";
 import type { Tone } from "@/lib/status";
-import type { Verdict } from "@/lib/domain/enums";
 import { GradeCell } from "./GradeCell";
+import {
+  COLUMNS,
+  SORT_ACCESSOR,
+  WIDE_QUERY,
+  WIDTH_COMPACT,
+  WIDTH_FULL,
+  type LeadTableRow,
+} from "./leadColumns";
 
-/**
- * Fully-serialized row for the table (built server-side so no domain logic runs
- * on the client). Column order matches the RTL header.
- */
-export interface LeadTableRow {
-  id: string;
-  /** When the lead arrived — formatted date + time. */
-  received: string;
-  projectName: string;
-  city: string;
-  dealType: string;
-  status: string;
-  statusTone: Tone;
-  unitsExisting: string;
-  unitsPlanned: string;
-  density: string;
-  densityTone: Tone;
-  deadline: string;
-  deadlineTone: Tone | null;
-  verdict: string | null;
-  verdictTone: Tone | null;
-  verdictKey: Verdict | null;
-  score: number | null;
-  /** Raw values for sorting (display strings above lose type/order). */
-  unitsExistingNum: number | null;
-  unitsPlannedNum: number | null;
-  densityNum: number | null;
-  deadlineTs: number | null;
-  receivedTs: number | null;
-  /** True when a red/kill flag is present → subtle row tint. */
-  alarm: boolean;
-}
+// Re-exported so existing importers (lib/leads/rows.ts, the leads page) keep
+// working — the type's home is now leadColumns.ts alongside the contract.
+export type { LeadTableRow };
 
 const PAGE = 50;
 
@@ -64,74 +42,9 @@ const TONE_TEXT: Record<Tone, string> = {
 
 type SortDir = "asc" | "desc";
 
-/** Column sort keys → how to pull a comparable value out of a row. */
-const SORT_ACCESSOR: Record<string, (r: LeadTableRow) => string | number | null> = {
-  projectName: (r) => r.projectName,
-  city: (r) => r.city,
-  dealType: (r) => r.dealType,
-  status: (r) => r.status,
-  unitsExisting: (r) => r.unitsExistingNum,
-  unitsPlanned: (r) => r.unitsPlannedNum,
-  density: (r) => r.densityNum,
-  deadline: (r) => r.deadlineTs,
-  score: (r) => r.score,
-  received: (r) => r.receivedTs,
-};
 
-/*
- * Every column carries an explicit width and the table is laid out `table-fixed`.
- * With the default `auto` layout the browser sizes columns from their content,
- * so one lead with a paragraph-length project name widens that column and
- * squeezes the rest — and because the widths are recomputed per render, sorting
- * or filtering visibly shifts every column. Fixed widths make the geometry a
- * property of the table instead of of whichever rows happen to be on screen.
- */
-/*
- * Order is by decision value, not by how the data happens to be shaped. Ten
- * columns will not fit a laptop, so something has to scroll — and in RTL that
- * clips from the left, i.e. whatever is last. Density and the verdict are what
- * the go/no-go actually turns on, so they sit immediately after the name and
- * are always on screen; unit counts are reference detail and can be the ones
- * you scroll for.
- */
 
-/*
- * `optional` columns are dropped on anything narrower than a large desktop.
- * Ten columns simply do not fit a 1280–1440 laptop — the content area there is
- * ~940–1100px — and in RTL the overflow clips from the left, taking the
- * row-open chevron and the last columns off-screen. These two are the lowest
- * decision value (planned units are frequently unknown and render "—"), so
- * they are the ones to shed; everything the go/no-go turns on stays.
- */
-const COLUMNS: {
-  key: string;
-  label: string;
-  sortable: boolean;
-  nowrap?: boolean;
-  width: string;
-  optional?: boolean;
-}[] = [
-  // First in DOM order = visually rightmost under RTL, where the eye starts.
-  { key: "received", label: "תאריך קבלה", sortable: true, nowrap: true, width: "9.5rem" },
-  { key: "projectName", label: "שם הפרויקט", sortable: true, width: "12rem" },
-  { key: "density", label: 'צפיפות', sortable: true, nowrap: true, width: "5.5rem" },
-  // Fits the score chip + meter on one line with the verdict label stacked
-  // beneath (see GradeCell) — half what the single-line layout demanded.
-  { key: "score", label: "ציון והמלצה", sortable: true, width: "9.5rem" },
-  { key: "deadline", label: "מועד הגשה", sortable: true, width: "7.5rem" },
-  { key: "status", label: "סטטוס", sortable: true, width: "8rem" },
-  { key: "city", label: "עיר", sortable: true, width: "6.25rem" },
-  { key: "dealType", label: "סוג עסקה", sortable: true, width: "7.5rem" },
-  { key: "unitsExisting", label: 'יח"ד קיימות', sortable: true, nowrap: true, width: "5.5rem", optional: true },
-  { key: "unitsPlanned", label: 'יח"ד יוצאות', sortable: true, nowrap: true, width: "5.5rem", optional: true },
-];
 
-/** Above this, there is room for the full set; below it, the optional two go. */
-const WIDE_QUERY = "(min-width: 1500px)";
-
-/* Sum of the rendered column widths + the 2.5rem chevron cell. */
-const WIDTH_FULL = "79.25rem"; // all nine columns (>=1500px viewports)
-const WIDTH_COMPACT = "68.25rem"; // without the two יח"ד columns — fits a 1280 laptop
 
 /** Compare two rows by a column: numbers numerically, strings by Hebrew locale, nulls last. */
 function compareRows(a: LeadTableRow, b: LeadTableRow, key: string, dir: SortDir): number {
@@ -319,9 +232,12 @@ export function LeadTable({ rows }: { rows: LeadTableRow[] }) {
                     {r.city}
                   </span>
                 </td>
-                <td className="px-3 py-3 text-ink-700 whitespace-nowrap">{r.dealType}</td>
+                {/* Every optional column must be gated here in the SAME order
+                    as COLUMNS, or the colgroup widths and the cells drift apart
+                    the moment the breakpoint drops them. */}
                 {wide && (
                   <>
+                    <td className="px-3 py-3 text-ink-700 whitespace-nowrap">{r.dealType}</td>
                     <td className="px-3 py-3 text-ink-700">
                       <span className="ltr-nums">{r.unitsExisting}</span>
                     </td>
