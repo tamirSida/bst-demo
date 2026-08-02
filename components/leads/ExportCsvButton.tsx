@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button";
 
 /** A flat, already-serialized row for CSV export (built server-side). */
 export interface CsvRow {
+  received: string;
   projectName: string;
   city: string;
   dealType: string;
@@ -17,6 +18,7 @@ export interface CsvRow {
 }
 
 const HEADERS: Record<keyof CsvRow, string> = {
+  received: "תאריך קבלה",
   projectName: "שם הפרויקט",
   city: "עיר",
   dealType: "סוג עסקה",

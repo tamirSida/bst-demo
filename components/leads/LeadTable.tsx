@@ -25,6 +25,8 @@ import { GradeCell } from "./GradeCell";
  */
 export interface LeadTableRow {
   id: string;
+  /** When the lead arrived — formatted date + time. */
+  received: string;
   projectName: string;
   city: string;
   dealType: string;
@@ -45,6 +47,7 @@ export interface LeadTableRow {
   unitsPlannedNum: number | null;
   densityNum: number | null;
   deadlineTs: number | null;
+  receivedTs: number | null;
   /** True when a red/kill flag is present → subtle row tint. */
   alarm: boolean;
 }
@@ -72,6 +75,7 @@ const SORT_ACCESSOR: Record<string, (r: LeadTableRow) => string | number | null>
   density: (r) => r.densityNum,
   deadline: (r) => r.deadlineTs,
   score: (r) => r.score,
+  received: (r) => r.receivedTs,
 };
 
 /*
@@ -107,6 +111,8 @@ const COLUMNS: {
   width: string;
   optional?: boolean;
 }[] = [
+  // First in DOM order = visually rightmost under RTL, where the eye starts.
+  { key: "received", label: "תאריך קבלה", sortable: true, nowrap: true, width: "9.5rem" },
   { key: "projectName", label: "שם הפרויקט", sortable: true, width: "12rem" },
   { key: "density", label: 'צפיפות', sortable: true, nowrap: true, width: "5.5rem" },
   // Fits the score chip + meter on one line with the verdict label stacked
@@ -124,8 +130,8 @@ const COLUMNS: {
 const WIDE_QUERY = "(min-width: 1500px)";
 
 /* Sum of the rendered column widths + the 2.5rem chevron cell. */
-const WIDTH_FULL = "69.75rem"; // all nine columns (>=1500px viewports)
-const WIDTH_COMPACT = "58.75rem"; // without the two יח"ד columns — fits a 1280 laptop
+const WIDTH_FULL = "79.25rem"; // all nine columns (>=1500px viewports)
+const WIDTH_COMPACT = "68.25rem"; // without the two יח"ד columns — fits a 1280 laptop
 
 /** Compare two rows by a column: numbers numerically, strings by Hebrew locale, nulls last. */
 function compareRows(a: LeadTableRow, b: LeadTableRow, key: string, dir: SortDir): number {
@@ -144,7 +150,12 @@ function compareRows(a: LeadTableRow, b: LeadTableRow, key: string, dir: SortDir
 export function LeadTable({ rows }: { rows: LeadTableRow[] }) {
   const router = useRouter();
   const [shown, setShown] = useState(PAGE);
-  const [sort, setSort] = useState<{ key: string; dir: SortDir } | null>(null);
+  // Newest first by default — this is an inbox, and the header shows it as the
+  // active sort rather than leaving the order unexplained.
+  const [sort, setSort] = useState<{ key: string; dir: SortDir } | null>({
+    key: "received",
+    dir: "desc",
+  });
 
   /*
    * Drive the column set from a media query rather than CSS `hidden`, so the
@@ -261,6 +272,9 @@ export function LeadTable({ rows }: { rows: LeadTableRow[] }) {
                   r.alarm ? "bg-stop-50/40 hover:bg-stop-50" : "hover:bg-surface-muted/60",
                 )}
               >
+                <td className="px-3 py-3 whitespace-nowrap text-ink-500">
+                  <span className="ltr-nums">{r.received}</span>
+                </td>
                 {/* Free text from an inbound email can be a whole paragraph;
                     clamp it to one line and keep the full value in the title so
                     nothing is actually lost. */}

@@ -8,7 +8,7 @@ import {
 import { businessDaysUntil } from "@/lib/domain/compute";
 import { densityView } from "@/lib/leads/density";
 import { verdictTone, type Tone } from "@/lib/status";
-import { formatDate, formatNumber } from "@/lib/format/num";
+import { formatDate, formatDateTime, formatNumber } from "@/lib/format/num";
 import type { LeadTableRow } from "@/components/leads/LeadTable";
 import type { CsvRow } from "@/components/leads/ExportCsvButton";
 
@@ -42,6 +42,10 @@ export function toTableRow(lead: Lead): LeadTableRow {
   const dens = densityView(lead);
   return {
     id: lead.id,
+    // Full timestamp, not just a date: several leads routinely arrive on the
+    // same day and the time is what orders them.
+    received: formatDateTime(lead.leadReceivedAt),
+    receivedTs: lead.leadReceivedAt ? Date.parse(lead.leadReceivedAt) || null : null,
     projectName: lead.projectName,
     city: lead.city ?? dash,
     dealType: DEAL_TYPE_LABEL[lead.dealType],
@@ -68,6 +72,7 @@ export function toTableRow(lead: Lead): LeadTableRow {
 /** Serialize a lead into a plain CSV row (Hebrew values, no tones). */
 export function toCsvRow(lead: Lead): CsvRow {
   return {
+    received: formatDateTime(lead.leadReceivedAt, ""),
     projectName: lead.projectName,
     city: lead.city ?? "",
     dealType: DEAL_TYPE_LABEL[lead.dealType],
