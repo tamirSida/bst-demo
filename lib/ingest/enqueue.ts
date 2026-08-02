@@ -30,11 +30,22 @@ export async function enqueueIngest(job: IngestJob): Promise<{ background: boole
     }
     // Netlify answers a "-background" function with 202 and keeps running it.
     console.log(`[ingest] dispatch kind=${job.kind} -> background function`);
+    // redirect: "manual" so an auth redirect is visible instead of being
+    // silently followed to a 200 on /login — which would look like a
+    // successful dispatch while the job was never queued.
     const res = await fetch(`${base}${BG_FUNCTION}`, {
       method: "POST",
       headers: { "content-type": "application/json", "x-ingest-token": secret },
       body: JSON.stringify(job),
+      redirect: "manual",
     });
+    if (res.status >= 300 && res.status < 400) {
+      console.error(
+        `[ingest] dispatch FAILED kind=${job.kind} status=${res.status} — the background ` +
+          `function is being redirected (auth middleware?). It must be reachable without a session.`,
+      );
+      throw new Error(`background dispatch redirected (${res.status}) — check middleware matcher`);
+    }
     if (!res.ok && res.status !== 202) {
       console.error(`[ingest] dispatch FAILED kind=${job.kind} status=${res.status}`);
       throw new Error(`background dispatch failed: ${res.status}`);
